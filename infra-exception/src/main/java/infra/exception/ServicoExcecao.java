@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * O método {@link #instalar()} aplica um handler padrão de exceção para toda aplicação. Os métodos {@link #setUncaughtExceptionHandler()} e
  * {@link #setUncaughtExceptionHandler(Thread)} aplicam um handler para uma thread específica.
+ * É interessante chamar este método para todas as novas threads criadas pela aplicação.
  * <p>
  * O handler padrão escreve a exceção em {@link System#err} e também em um log específico de exceções não tratadas.
  *
@@ -54,18 +55,18 @@ public class ServicoExcecao {
 	};
 
 	/**
-	 * Aplica as configurações a JVM. Define o hander de exceção padrão da JVM para o hander padrão do {@link ServicoExcecao}.
+	 * Aplica um hander de exceção padronizado para toda a  JVM..
 	 */
 	public static void instalar() {
 		Thread.setDefaultUncaughtExceptionHandler(ServicoExcecao.defaultExceptionHandler);
 	}
 
-	/** Aplica um hander de exceção padronizado a uma thread. */
+	/** Aplica um hander de exceção padronizado a uma thread específica. */
 	public static void setUncaughtExceptionHandler(Thread thread) {
 		thread.setUncaughtExceptionHandler(ServicoExcecao.defaultExceptionHandler);
 	}
 
-	/** Aplica um hander de exceção padronizado à thread atual. É interessante chamar este método para todas as novas threads criadas pela aplicação. */
+	/** Aplica um hander de exceção padronizado à thread atual.  */
 	public static void setUncaughtExceptionHandler() {
 		ServicoExcecao.setUncaughtExceptionHandler(Thread.currentThread());
 	}
@@ -78,10 +79,13 @@ public class ServicoExcecao {
 	 *            Exceção para ser reportada.
 	 */
 	public static void reportarException(PrintStream output, Throwable throwable) {
-		output.println("Ocorreu uma falha durante a execução.");
+		output.println();
+		ServicoExcecao.titulo(output, "FALHA DE EXECUÇÃO", 80);
+		output.println();
 
-		output.print("Mensagem: ");
-		output.println(throwable.getMessage());
+		ServicoExcecao.linha(output, 80, '+', '-', '+');
+		ServicoExcecao.caixa(output, throwable.getMessage(), 80);
+		ServicoExcecao.linha(output, 80, '+', '-', '+');
 
 		Motivo motivo = null;
 		if (throwable instanceof MotivoException) {
@@ -91,16 +95,83 @@ public class ServicoExcecao {
 		}
 
 		if (motivo != null) {
-			output.print("Operação: ");
-			output.println(motivo.getOperacao());
-			output.print("Código: ");
-			output.println(MotivoException.codigoMotivo(motivo));
+			ServicoExcecao.caixa(output, "OPERAÇÃO: "+motivo.getOperacao(), 80);
+			ServicoExcecao.caixa(output, "CÓDIGO: "+MotivoException.codigoMotivo(motivo), 80);
+			ServicoExcecao.linha(output, 80, '+', '-', '+');
 		} else {
-			output.print("Classe: ");
-			output.println(throwable.getClass().getName());
+			ServicoExcecao.caixa(output, "TIPO: "+throwable.getClass().getName(), 80);
+			ServicoExcecao.linha(output, 80, '+', '-', '+');
 		}
+		output.println();
 		output.println("Rota até a falha: ");
 		throwable.printStackTrace(output);
+		output.println();
 		output.flush();
 	}
+
+	private static void printChars(PrintStream output, char c, int count) {
+		for (int i = 0; i < count; i++) {
+			output.print(c);
+		}
+	}
+
+	private static void linha(PrintStream output, int width, char l, char c, char r) {
+		output.print(l);
+		ServicoExcecao.printChars(output, c, width-2);
+		output.print(r);
+		output.println();
+	}
+
+	private static void titulo(PrintStream output, String mensagem, int width) {
+		ServicoExcecao.printChars(output, '*', width);
+		output.println();
+		ServicoExcecao.printChars(output, '*', 3);
+		int paddingL = (width-3-3-mensagem.length()) / 2;
+		int paddingR = width-3-3-paddingL-mensagem.length();
+		ServicoExcecao.printChars(output, ' ', paddingL);
+		output.print(mensagem);
+		ServicoExcecao.printChars(output, ' ', paddingR);
+		ServicoExcecao.printChars(output, '*', 3);
+		output.println();
+		ServicoExcecao.printChars(output, '*', width);
+		output.println();
+	}
+
+    private static void caixa(PrintStream output, String str, int width) {
+        String leftStr = "| ";
+        String rightStr = " |";
+        int len = str.length();
+        int start = 0;
+        int wrapLength = width - leftStr.length() - rightStr.length();
+
+        while (start < len) {
+        	while (start < len && Character.isWhitespace(str.charAt(start))) start++;
+        	if (start >= len) break;
+
+        	int end = start + wrapLength;
+        	if (end > len) {
+        		end = len;
+        	} else {
+        		while (end > start && ! Character.isWhitespace(str.charAt(end))) end--;
+        	}
+
+			if (end == start) {
+            	// no space found, very long line
+            	end = start + wrapLength;
+            	while (end < len && ! Character.isWhitespace(str.charAt(end))) end++;
+                String substring = str.substring(start, end);
+            	output.print(leftStr);
+            	output.println(substring);
+            } else {
+            	// normal case
+        		while (end > start && Character.isWhitespace(str.charAt(end-1))) end--;
+                String substring = str.substring(start, end);
+            	output.print(leftStr);
+            	output.print(substring);
+            	ServicoExcecao.printChars(output, ' ', wrapLength-substring.length());
+            	output.println(rightStr);
+            }
+        	start = end;
+        }
+    }
 }
