@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="infra-hibernate" basedir="." >
+	<import file="../repositorio/build-commons.xml"/>
+</project>
