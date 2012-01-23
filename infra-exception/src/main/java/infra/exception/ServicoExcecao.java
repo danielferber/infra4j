@@ -15,6 +15,8 @@
  */
 package infra.exception;
 
+import infra.exception.assertions.controlstate.IllegalControlStateException;
+import infra.exception.assertions.datastate.IllegalDataStateException;
 import infra.exception.motivo.Motivo;
 import infra.exception.motivo.MotivoException;
 import infra.exception.motivo.MotivoRuntimeException;
@@ -83,25 +85,32 @@ public class ServicoExcecao {
 		ServicoExcecao.titulo(output, "FALHA DE EXECUÇÃO", 80);
 		output.println();
 
-		ServicoExcecao.linha(output, 80, '+', '-', '+');
-		ServicoExcecao.caixa(output, throwable.getMessage(), 80);
-		ServicoExcecao.linha(output, 80, '+', '-', '+');
+		ServicoExcecao.linha(output, 80, '/', '-', '\\');
+		Throwable t = throwable;
+		while (t != null) {
+			if (t.getLocalizedMessage() != null) {
+				ServicoExcecao.caixa(output, t.getLocalizedMessage(), 80, 1);
+				ServicoExcecao.linha(output, 80, '+', ' ', '+');
+			}
+			if (MotivoException.class.isInstance(t)) {
+				Motivo motivo = ((MotivoException) t).getMotivo();
+				ServicoExcecao.caixa(output, "Operação: "+motivo.getOperacao(), 80);
+				ServicoExcecao.caixa(output, "Código: "+MotivoException.codigoMotivo(motivo), 80);
+			} else if (IllegalControlStateException.class.isInstance(t)) {
+				ServicoExcecao.caixa(output, "Violação de integridade da execução.", 80);
+			} else if (IllegalDataStateException.class.isInstance(t)) {
+				ServicoExcecao.caixa(output, "Violação de integridade de dados.", 80);
+			} else {
+				ServicoExcecao.caixa(output, "Tipo: "+t.getClass().getName(), 80, 0);
+			}
+			t = t.getCause();
+			if (t != null) {
+				ServicoExcecao.linha(output, 80, '+', '-', '+');
+			}
 
-		Motivo motivo = null;
-		if (throwable instanceof MotivoException) {
-			motivo = ((MotivoException) throwable).getMotivo();
-		} else if (throwable instanceof MotivoRuntimeException) {
-			motivo = ((MotivoRuntimeException) throwable).getMotivo();
 		}
+		ServicoExcecao.linha(output, 80, '\\', '-', '/');
 
-		if (motivo != null) {
-			ServicoExcecao.caixa(output, "OPERAÇÃO: "+motivo.getOperacao(), 80);
-			ServicoExcecao.caixa(output, "CÓDIGO: "+MotivoException.codigoMotivo(motivo), 80);
-			ServicoExcecao.linha(output, 80, '+', '-', '+');
-		} else {
-			ServicoExcecao.caixa(output, "TIPO: "+throwable.getClass().getName(), 80);
-			ServicoExcecao.linha(output, 80, '+', '-', '+');
-		}
 		output.println();
 		output.println("Rota até a falha: ");
 		throwable.printStackTrace(output);
@@ -137,7 +146,11 @@ public class ServicoExcecao {
 		output.println();
 	}
 
-    private static void caixa(PrintStream output, String str, int width) {
+	private static void caixa(PrintStream output, String str, int width) {
+		ServicoExcecao.caixa(output, str, width, 0);
+	}
+
+    private static void caixa(PrintStream output, String str, int width, int align) {
         String leftStr = "| ";
         String rightStr = " |";
         int len = str.length();
@@ -167,8 +180,16 @@ public class ServicoExcecao {
         		while (end > start && Character.isWhitespace(str.charAt(end-1))) end--;
                 String substring = str.substring(start, end);
             	output.print(leftStr);
+            	int padL = 0;
+            	if (align == 1) {
+            		padL = (wrapLength-substring.length()) / 2;
+            	} else if (align == 2) {
+            		padL = wrapLength-substring.length();
+            	}
+            	int padR = wrapLength - substring.length() - padL;
+           		ServicoExcecao.printChars(output, ' ', padL);
             	output.print(substring);
-            	ServicoExcecao.printChars(output, ' ', wrapLength-substring.length());
+           		ServicoExcecao.printChars(output, ' ', padR);
             	output.println(rightStr);
             }
         	start = end;
