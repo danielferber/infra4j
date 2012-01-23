@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import ilog.cplex.ConfiguracaoCplex;
-import ilog.opl.ConfiguracaoOPL;
-import ilog.opl.FacadeOPL;
-import ilog.opl.ProvedorModelo;
-import ilog.opl.modelo.ProvedorModeloArquivo;
-import ilog.opl.modelo.ProvedorModeloClasspath;
-import ilog.opl.modelo.ProvedorModeloString;
 import infra.exception.ServicoExcecao;
 import infra.exception.motivo.MotivoException;
+import infra.ilog.cplex.ConfiguracaoCplex;
+import infra.ilog.opl.ConfiguracaoOPL;
+import infra.ilog.opl.FacadeOPL;
+import infra.ilog.opl.ProvedorModelo;
+import infra.ilog.opl.modelo.ProvedorModeloArquivo;
+import infra.ilog.opl.modelo.ProvedorModeloClasspath;
+import infra.ilog.opl.modelo.ProvedorModeloString;
 
 import java.io.File;
 
