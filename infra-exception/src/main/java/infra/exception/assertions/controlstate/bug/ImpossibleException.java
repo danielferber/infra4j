@@ -16,6 +16,7 @@
 package infra.exception.assertions.controlstate.bug;
 
 
+
 /**
  * Marks a declared exception that is not possible be to thrown.
  * If code is correct, then this exception will never be thrown.
@@ -28,7 +29,9 @@ package infra.exception.assertions.controlstate.bug;
  *   return new FileInputStream(file)
  * } catch (FileNotFoundException e) {
  *   // file existence was already assured
- *   throw new ImpossibleException(e)
+ *   ImpossibleException.consume(e);
+ *   // or
+ *   throw new ImpossibleException(e);
  * }
  * </pre>
  */
@@ -37,9 +40,12 @@ public class ImpossibleException extends ImpossibleControlStateException {
 	public ImpossibleException(Throwable cause) { super(cause); }
 	public ImpossibleException(String message, Throwable cause) { super(message, cause); }
 
-	/** Simply consumes and unsupported exception. */
-	//	public static void consume(Throwable e) {
-	//		e.printStackTrace(System.err);
-	//	}
+	/**
+	 * Simply hides the impossible exception received within the
+	 * <code>catch</code> block. It will, however, rethrow the exception.
+	 */
+	public static void consume(Throwable e) {
+			throw new ImpossibleException(e);
+	}
 
 }
