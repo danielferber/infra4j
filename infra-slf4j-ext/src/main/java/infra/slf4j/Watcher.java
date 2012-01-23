@@ -40,15 +40,15 @@ public class Watcher extends WatcherEvent {
 			Watcher.this.counter++;
 
 			if (loggerWatcher.isDebugEnabled()) {
-	    		StringBuilder buffer = new StringBuilder();
+				StringBuilder buffer = new StringBuilder();
 				WatcherEvent.readableString(Watcher.this, buffer);
 				loggerWatcher.debug("WATCH: " + buffer.toString());
 			}
 			if (loggerWatcher.isTraceEnabled()) {
-	    		StringBuilder buffer = new StringBuilder();
-	    		WatcherEvent.writeToString(Watcher.parser, Watcher.this, buffer);
-	    		loggerWatcher.trace(Watcher.WATCHER_MARKER, "WATCH: " + buffer.toString());
-	    	}
+				StringBuilder buffer = new StringBuilder();
+				WatcherEvent.writeToString(Watcher.parser, Watcher.this, buffer);
+				loggerWatcher.trace(Watcher.WATCHER_MARKER, "WATCH: " + buffer.toString());
+			}
 		}
 	}
 

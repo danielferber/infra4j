@@ -57,7 +57,7 @@ class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 						getNcols(),
 						getNrows(),
 						getNQCs())
-		);
+				);
 	}
 
 	@Override

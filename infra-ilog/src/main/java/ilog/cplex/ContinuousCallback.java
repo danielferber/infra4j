@@ -57,7 +57,7 @@ class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 						getNcols(),
 						getNrows(),
 						getNQCs()
-				));
+						));
 	}
 
 	@Override

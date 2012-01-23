@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class MeterFactory {
 	private static final Map<String, String> context = new TreeMap<String, String>();
 	private static final UUID uuid = UUID.randomUUID();
-//	private static WatcherEvent watcherEvent = new WatcherEvent();
+	//	private static WatcherEvent watcherEvent = new WatcherEvent();
 
 	public static Meter getMeter(String name) {
 		return new Meter(LoggerFactory.getLogger(name), name);
@@ -51,25 +51,25 @@ public class MeterFactory {
 	}
 
 	public static void put(String name) {
-    	MeterFactory.context.put(name, null);
-    }
+		MeterFactory.context.put(name, null);
+	}
 
-    public static void put(String name, String value) {
-    	MeterFactory.context.put(name, value);
-    }
+	public static void put(String name, String value) {
+		MeterFactory.context.put(name, value);
+	}
 
-    public static void remove(String name) {
-    	MeterFactory.context.remove(name);
-    }
+	public static void remove(String name) {
+		MeterFactory.context.remove(name);
+	}
 
-    static Map<String, String> getContext() {
+	static Map<String, String> getContext() {
 		return MeterFactory.context;
 	}
 
-    public static String getuuid() {
+	public static String getuuid() {
 		return MeterFactory.uuid.toString().replace('-', '.');
 	}
-//    public static WatcherEvent getWatcherEvent() {
-//		return MeterFactory.watcherEvent;
-//	}
+	//    public static WatcherEvent getWatcherEvent() {
+	//		return MeterFactory.watcherEvent;
+	//	}
 }

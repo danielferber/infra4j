@@ -43,7 +43,7 @@ public class ConsumidorDadosStringBuilder extends AbstractConsumidorDadosStream 
 	}
 
 	public ConsumidorDadosStringBuilder(String nome, StringBuilder sb) {
-			this(nome, sb, null, null, null);
+		this(nome, sb, null, null, null);
 	}
 
 	@Override

@@ -58,34 +58,34 @@ public class MeterEvent implements Serializable {
 
 	/** An arbitraty ID for the job. */
 	@Column(nullable = false, length = 300)
-    protected String name;
+	protected String name;
 
-    /** How many times the job has executed. */
-    protected long counter = 0;
+	/** How many times the job has executed. */
+	protected long counter = 0;
 
 	@Column(nullable = true, length = 50)
-    protected String uuid;
+	protected String uuid;
 
-    /** When the job was created/scheduled. */
+	/** When the job was created/scheduled. */
 	protected long createTime;
 
-    /** When the job started execution. */
-    protected long startTime = 0;
+	/** When the job started execution. */
+	protected long startTime = 0;
 
-    /** When the job finished execution. */
-    protected long stopTime = 0;
+	/** When the job finished execution. */
+	protected long stopTime = 0;
 
-    /** An arbitrary short, human readable message to describe the task being measured. */
+	/** An arbitrary short, human readable message to describe the task being measured. */
 	@Column(nullable = true, length = 300)
-    protected String message;
+	protected String message;
 
-    /** An arbitrary exception to signal that the task failed. */
+	/** An arbitrary exception to signal that the task failed. */
 	@Column(nullable = true, length = 300)
 	protected String exceptionClass;
 	@Column(nullable = true, length = 300)
 	protected String exceptionMessage;
 
-    /** If the job completed successfully, as expected (true) or failed (false). */
+	/** If the job completed successfully, as expected (true) or failed (false). */
 	protected boolean success = false;
 
 	protected long threadStartId;
@@ -105,18 +105,18 @@ public class MeterEvent implements Serializable {
 	@CollectionTable(name="contexto_meter", joinColumns=@JoinColumn(name="meterevent_ref"))
 	protected Map<String, String> context;
 
-    public String getName() { return name; }
-    public String getMessage() { return message; }
-    public long getCount() { return counter; }
+	public String getName() { return name; }
+	public String getMessage() { return message; }
+	public long getCount() { return counter; }
 
-    public long getCreateTime() { return createTime; }
-    public long getStopTime() { return stopTime; }
-    public long getStartTime() { return startTime; }
+	public long getCreateTime() { return createTime; }
+	public long getStopTime() { return stopTime; }
+	public long getStartTime() { return startTime; }
 
-    public String getExceptionClass() { return exceptionClass; }
-    public String getExceptionMessage() { return exceptionMessage; }
+	public String getExceptionClass() { return exceptionClass; }
+	public String getExceptionMessage() { return exceptionMessage; }
 
-    public boolean isSuccess() { return success; }
+	public boolean isSuccess() { return success; }
 
 	public static void readableString(MeterEvent meter, StringBuilder buffer) {
 		if (meter.message != null) {
@@ -135,143 +135,143 @@ public class MeterEvent implements Serializable {
 		buffer.append(p.DATA_OPEN);
 
 		/* name */
-    	buffer.append(e.name);
+		buffer.append(e.name);
 
-    	/* message */
-    	if (e.message != null) {
-    		buffer.append(p.PROPERTY_DIV);
-    		p.writeQuotedString(buffer,e.message);
-	    	buffer.append(p.PROPERTY_SPACE);
-    	}
+		/* message */
+		if (e.message != null) {
+			buffer.append(p.PROPERTY_DIV);
+			p.writeQuotedString(buffer,e.message);
+			buffer.append(p.PROPERTY_SPACE);
+		}
 
-    	/* counter */
-    	if (e.counter > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.COUNTER);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.counter);
-    	}
+		/* counter */
+		if (e.counter > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.COUNTER);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.counter);
+		}
 
-    	/* uuid */
-    	if (e.uuid != null) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.UUID);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.uuid);
-    	}
+		/* uuid */
+		if (e.uuid != null) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.UUID);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.uuid);
+		}
 
-    	if (e.depthContext != 0 || e.depthCount != 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.DEPTH);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.depthContext);
-	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.depthCount);
-    	}
+		if (e.depthContext != 0 || e.depthCount != 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.DEPTH);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.depthContext);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.depthCount);
+		}
 
-    	if (e.threadStartId != 0) {
-    		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.THREAD);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.threadStartId);
-	   		buffer.append(p.PROPERTY_DIV);
-	   		p.writeQuotedString(buffer, e.threadStartName);
-	   		if (e.threadStopId != 0) {
-		   		buffer.append(p.PROPERTY_DIV);
-		   		buffer.append(e.threadStopId);
-		   		buffer.append(p.PROPERTY_DIV);
-		   		p.writeQuotedString(buffer, e.threadStopName);
-	   		}
-    	}
+		if (e.threadStartId != 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.THREAD);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.threadStartId);
+			buffer.append(p.PROPERTY_DIV);
+			p.writeQuotedString(buffer, e.threadStartName);
+			if (e.threadStopId != 0) {
+				buffer.append(p.PROPERTY_DIV);
+				buffer.append(e.threadStopId);
+				buffer.append(p.PROPERTY_DIV);
+				p.writeQuotedString(buffer, e.threadStopName);
+			}
+		}
 
-   		/* exception */
-   		if (e.exceptionClass != null) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.THROWABLE);
-	   		buffer.append(p.PROPERTY_EQUALS);
-   	   		buffer.append(e.exceptionClass);
-   	   		if (e.exceptionMessage != null) {
-   	   			buffer.append(p.PROPERTY_DIV);
-   	   			p.writeQuotedString(buffer,e.exceptionMessage);
-   	   		}
-   		}
+		/* exception */
+		if (e.exceptionClass != null) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.THROWABLE);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.exceptionClass);
+			if (e.exceptionMessage != null) {
+				buffer.append(p.PROPERTY_DIV);
+				p.writeQuotedString(buffer,e.exceptionMessage);
+			}
+		}
 
-   		/* createTime, startTime, stopTime */
-   		if (e.createTime > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.TIME);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.createTime);
-	   		if (e.startTime != 0) {
-	   	   		buffer.append(p.PROPERTY_DIV);
-	   	   		buffer.append(e.startTime);
-	   	   		if (e.stopTime != 0) {
-	   	   	   		buffer.append(p.PROPERTY_DIV);
-	   	   	   		buffer.append(e.stopTime);
-	   	   		}
-	   		}
-   		}
+		/* createTime, startTime, stopTime */
+		if (e.createTime > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.TIME);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.createTime);
+			if (e.startTime != 0) {
+				buffer.append(p.PROPERTY_DIV);
+				buffer.append(e.startTime);
+				if (e.stopTime != 0) {
+					buffer.append(p.PROPERTY_DIV);
+					buffer.append(e.stopTime);
+				}
+			}
+		}
 
-   		/* context */
-    	Map<String, String> globalContext = MeterFactory.getContext();
-    	if ((e.context != null && ! e.context.isEmpty()) || (globalContext != null && ! globalContext.isEmpty())) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(MeterEvent.CONTEXT);
-	   		buffer.append(p.PROPERTY_EQUALS);
-    		buffer.append(p.MAP_OPEN);
-    		boolean primeiro = true;
-    		if (e.context != null && ! e.context.isEmpty()) {
-	    		Iterator<Entry<String, String>> i = e.context.entrySet().iterator();
-	    		while (i.hasNext()) {
-	    			Entry<String, String> entry = i.next();
-	        		if (primeiro) {
-	        			primeiro = false;
-	        		} else {
-	        			buffer.append(p.MAP_SEPARATOR);
-	        			buffer.append(p.MAP_SPACE);
-	        		}
-	        		buffer.append(entry.getKey());
-	        		if (entry.getValue() != null) {
-	        			buffer.append(p.MAP_EQUAL);
-	        			p.writeQuotedString(buffer,entry.getValue());
-	        		}
-	    		}
-    		}
-    		if (globalContext != null && ! globalContext.isEmpty()) {
-    			Iterator<Entry<String, String>> i = globalContext.entrySet().iterator();
-	    		while (i.hasNext()) {
-	    			Entry<String, String> entry = i.next();
-	    			// não imprime valor pois contexto local tem preferência sobre o global.
-	        		if (primeiro) {
-	        			primeiro = false;
-	        		} else {
-	        			buffer.append(p.MAP_SEPARATOR);
-	        			buffer.append(p.MAP_SPACE);
-	        		}
-	    			if (e.context.containsKey(entry.getKey())) continue;
-	        		buffer.append(entry.getKey());
-	        		if (entry.getValue() != null) {
-	        			buffer.append(p.MAP_EQUAL);
-	        			buffer.append(p.STRING_DELIM);
-	        			buffer.append(entry.getValue().toString());
-	        			buffer.append(p.STRING_DELIM);
-	        		}
-	    		}
-    		}
-    		buffer.append(p.MAP_CLOSE);
-    	}
+		/* context */
+		Map<String, String> globalContext = MeterFactory.getContext();
+		if ((e.context != null && ! e.context.isEmpty()) || (globalContext != null && ! globalContext.isEmpty())) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(MeterEvent.CONTEXT);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(p.MAP_OPEN);
+			boolean primeiro = true;
+			if (e.context != null && ! e.context.isEmpty()) {
+				Iterator<Entry<String, String>> i = e.context.entrySet().iterator();
+				while (i.hasNext()) {
+					Entry<String, String> entry = i.next();
+					if (primeiro) {
+						primeiro = false;
+					} else {
+						buffer.append(p.MAP_SEPARATOR);
+						buffer.append(p.MAP_SPACE);
+					}
+					buffer.append(entry.getKey());
+					if (entry.getValue() != null) {
+						buffer.append(p.MAP_EQUAL);
+						p.writeQuotedString(buffer,entry.getValue());
+					}
+				}
+			}
+			if (globalContext != null && ! globalContext.isEmpty()) {
+				Iterator<Entry<String, String>> i = globalContext.entrySet().iterator();
+				while (i.hasNext()) {
+					Entry<String, String> entry = i.next();
+					// não imprime valor pois contexto local tem preferência sobre o global.
+					if (primeiro) {
+						primeiro = false;
+					} else {
+						buffer.append(p.MAP_SEPARATOR);
+						buffer.append(p.MAP_SPACE);
+					}
+					if (e.context.containsKey(entry.getKey())) continue;
+					buffer.append(entry.getKey());
+					if (entry.getValue() != null) {
+						buffer.append(p.MAP_EQUAL);
+						buffer.append(p.STRING_DELIM);
+						buffer.append(entry.getValue().toString());
+						buffer.append(p.STRING_DELIM);
+					}
+				}
+			}
+			buffer.append(p.MAP_CLOSE);
+		}
 		buffer.append(p.DATA_CLOSE);
 	}
 
 	public static void readFromString(Parser p, MeterEvent e, String encodedData) throws IOException {
-        /* Reseta todos os atributos. */
+		/* Reseta todos os atributos. */
 		e.name = null;
 		e.message = null;
 		e.counter = 0;
@@ -298,7 +298,7 @@ public class MeterEvent implements Serializable {
 			if (MeterEvent.COUNTER.equals(propertyName)) {
 				e.counter = p.readLong();
 			} else if (MeterEvent.UUID.equals(propertyName)) {
-					e.uuid = p.readUuid();
+				e.uuid = p.readUuid();
 			} else if (MeterEvent.THREAD.equals(propertyName)) {
 				e.threadStartId = p.readLong();
 				p.readOperator(p.PROPERTY_DIV);

@@ -19,14 +19,6 @@ import ilog.ComandoSolver;
 import ilog.cplex.ComandoCplex;
 import ilog.cplex.ConfiguracaoCplex;
 import ilog.cplex.IloCplex;
-import ilog.opl.IloOplElement;
-import ilog.opl.IloOplElementDefinition;
-import ilog.opl.IloOplFactory;
-import ilog.opl.IloOplModel;
-import ilog.opl.IloOplModelDefinition;
-import ilog.opl.IloOplModelSource;
-import ilog.opl.IloOplProfiler;
-import ilog.opl.IloOplSettings;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.exception.motivo.Motivo;
@@ -83,7 +75,7 @@ public class FacadeOPL {
 		DATASINK("Falha ao obter dados do datasink."),
 		REALIZAR_MODELO("Falha ao realizar modelo OPL no solucionador."),
 		POS_PROCESSAMENTO("Falha ao realizar pós-processamento do modelo OPL."),
-		OBTER_SOLUCAO("Falha ao obter solução."), 
+		OBTER_SOLUCAO("Falha ao obter solução."),
 		DEFINIR_DATASOURCE("Falha ao definir fonte de dados."),
 		DEFINIR_DATASINK("Falha ao definir consumidor de dados."),
 		;
@@ -243,8 +235,8 @@ public class FacadeOPL {
 			/*
 			 * DEFINIÇÃO DE MODELO.
 			 *
-			 * Obter a definição de modelo do provedor. 
-			 * Verifica se a formulação está sintaticamente correta. 
+			 * Obter a definição de modelo do provedor.
+			 * Verifica se a formulação está sintaticamente correta.
 			 * Para isto tenta acessar qualquer uma das definições para forçar a compilação do modelo.
 			 */
 			task = MeterFactory.getMeter(taskGeral, "definirModelo").setMessage("Obter definições do modelo.").start();
@@ -267,8 +259,8 @@ public class FacadeOPL {
 
 				/*
 				 * Acessa uma definição abritrária, neste caso, a primeira.
-				 * Foi uma forma encontrada para forçar o OPL compilar totalmente a definição antes 
-				 * de gerar o modelo a partir dos dados. 
+				 * Foi uma forma encontrada para forçar o OPL compilar totalmente a definição antes
+				 * de gerar o modelo a partir dos dados.
 				 * Se uma das definições estiver errada, então o OPL poderá lançar uma exceção ou registar no errorHandler.
 				 */
 				Iterator<IloOplElementDefinition> iterator = oplModelDefinition.getElementDefinitionIterator();
@@ -278,7 +270,7 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				/* Avisa os Data Sources sobre o modelo. */
-				
+
 				task.ok();
 			} catch (Exception e) {
 				task.fail(e);
@@ -293,24 +285,24 @@ public class FacadeOPL {
 			 * Por enquanto, está implementado somente para CPLEX.
 			 */
 			ComandoSolver comandoSolver = null;
-			 /*
+			/*
 			 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 			 */
 			if (configuracaoCplex != null) {
 				task = MeterFactory.getMeter(FacadeOPL.loggerExecucao, "criarCplex").setMessage("Criar CPLEX.").start();
 				try {
-						IloCplex cplex = this.oplFactory.createCplex();
-						comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
-						this.oplModel = this.oplFactory.createOplModel(oplModelDefinition, cplex);
+					IloCplex cplex = this.oplFactory.createCplex();
+					comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
+					this.oplModel = this.oplFactory.createOplModel(oplModelDefinition, cplex);
 
-						/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
-						customOplErrorHandler.throwExceptionOnError();
+					/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
+					customOplErrorHandler.throwExceptionOnError();
 
-						task.ok();
-					} catch (Exception e) {
-						task.fail(e);
-						throw new MotivoException(e, MotivoExecutarOpl.CRIAR_CPLEX);
-					}
+					task.ok();
+				} catch (Exception e) {
+					task.fail(e);
+					throw new MotivoException(e, MotivoExecutarOpl.CRIAR_CPLEX);
+				}
 			} else {
 				throw new UnimplementedConditionException();
 			}
@@ -318,7 +310,7 @@ public class FacadeOPL {
 			/*
 			 * Validar DataSource e DataSink.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();			
+			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
 					FacadeOPL.loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
@@ -329,7 +321,7 @@ public class FacadeOPL {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASOURCE);
 			}
-			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();			
+			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();
 			try {
 				for (ConsumidorDados consumidor : this.dataSinks) {
 					FacadeOPL.loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
@@ -340,7 +332,7 @@ public class FacadeOPL {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASINK);
 			}
-			
+
 			/*
 			 * IMPORTAR
 			 * 
@@ -404,7 +396,7 @@ public class FacadeOPL {
 			try {
 				ComandoOPL comandoOpl = new ComandoOPL(this.oplModel, configuracaoOpl, comandoSolver);
 				comandoOpl.executar();
-	
+
 				taskGeral.ok();
 			} catch (RuntimeException e) {
 				task.fail(e);
@@ -457,39 +449,39 @@ public class FacadeOPL {
 			/*
 			 * TODO Chamar profiler da forma certa.
 			 */
-//			IloOplProfiler profiler = oplSettings.getProfiler();
-//			profiler.printReport(System.out);
-//			@SuppressWarnings("unchecked")
-//			Iterator<IloOplElement> elementItr = oplModel.getElementIterator();
-//			while (elementItr.hasNext()) {
-//				IloOplElement element = elementItr.next();
-//				if (element.isData()) System.out.print("d");
-//				if (element.isPostProcessing()) System.out.print("p");
-//				if (element.isInternalData()) System.out.print("i");
-//				if (element.isExternalData()) System.out.print("e");
-//				if (element.isCalculated()) System.out.print("c");
-//				if (element.isDecisionVariable()) System.out.print("v");
-//				if (element.isDecisionExpression()) System.out.print("s");
-//				System.out.print(" : ");
-//				System.out.print(element.getName());
-//				System.out.print(" = ");
-//				System.out.print(element.toStringDisplay());
-//				System.out.println(";");
-//			}
+			//			IloOplProfiler profiler = oplSettings.getProfiler();
+			//			profiler.printReport(System.out);
+			//			@SuppressWarnings("unchecked")
+			//			Iterator<IloOplElement> elementItr = oplModel.getElementIterator();
+			//			while (elementItr.hasNext()) {
+			//				IloOplElement element = elementItr.next();
+			//				if (element.isData()) System.out.print("d");
+			//				if (element.isPostProcessing()) System.out.print("p");
+			//				if (element.isInternalData()) System.out.print("i");
+			//				if (element.isExternalData()) System.out.print("e");
+			//				if (element.isCalculated()) System.out.print("c");
+			//				if (element.isDecisionVariable()) System.out.print("v");
+			//				if (element.isDecisionExpression()) System.out.print("s");
+			//				System.out.print(" : ");
+			//				System.out.print(element.getName());
+			//				System.out.print(" = ");
+			//				System.out.print(element.toStringDisplay());
+			//				System.out.println(";");
+			//			}
 			/*
 			 * TODO Ainda está chamando o handler a moda antiga.
 			 */
-	//		try {
-	//			modelHandler.lerSolucao(this.oplModel);
-	//
-	//			/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
-	//			errorHandler.throwExceptionOnError();
-	//
-	//			op.success();
-	//		} catch (Exception e) {
-	//			op.failure(e);
-	//			throw new MotivoException(e, MotivoExecutarOpl.OBTER_SOLUCAO);
-	//		}
+			//		try {
+			//			modelHandler.lerSolucao(this.oplModel);
+			//
+			//			/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
+			//			errorHandler.throwExceptionOnError();
+			//
+			//			op.success();
+			//		} catch (Exception e) {
+			//			op.failure(e);
+			//			throw new MotivoException(e, MotivoExecutarOpl.OBTER_SOLUCAO);
+			//		}
 
 			taskGeral.ok();
 		} catch (RuntimeException e) {

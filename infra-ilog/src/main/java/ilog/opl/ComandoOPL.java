@@ -16,8 +16,6 @@
 package ilog.opl;
 
 import ilog.ComandoSolver;
-import ilog.opl.IloOplModel;
-import ilog.opl.IloOplModelDefinition;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;

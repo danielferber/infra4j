@@ -15,8 +15,6 @@
  */
 package ilog.opl;
 
-import ilog.opl.IloOplModel;
-
 import java.io.IOException;
 
 public interface FonteDados {

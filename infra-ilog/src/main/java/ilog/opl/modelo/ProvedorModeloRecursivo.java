@@ -108,15 +108,15 @@ public class ProvedorModeloRecursivo extends AbstractProvedorModelo {
 	}
 
 	protected List<String> readLines(InputStream is) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-        List<String> list = new ArrayList<String>();
-        String line = reader.readLine();
-        while (line != null) {
-            list.add(line);
-            line = reader.readLine();
-        }
-        return list;
-    }
+		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		List<String> list = new ArrayList<String>();
+		String line = reader.readLine();
+		while (line != null) {
+			list.add(line);
+			line = reader.readLine();
+		}
+		return list;
+	}
 
 	protected boolean alternaComentario(boolean comentario, String linha) {
 		int p = 0;

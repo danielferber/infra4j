@@ -15,10 +15,6 @@
  */
 package ilog.opl;
 
-import ilog.opl.IloCustomOplErrorHandler;
-import ilog.opl.IloOplFactory;
-import ilog.opl.IloOplLocation;
-import ilog.opl.IloOplMessage;
 import infra.exception.assertions.controlstate.bug.ImpossibleConditionException;
 
 import java.util.ArrayList;

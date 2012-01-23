@@ -101,16 +101,16 @@ public abstract class LoggerOutputStream extends OutputStream {
 	 *            Logger que receberá o conteúdo.
 	 * @return OutputStream que encapsula o logger.
 	 */
-//	public static OutputStream getErrorOutputStream(Logger logger) {
-//		if (!logger.isErrorEnabled())
-//			return new NullOutputStream();
-//		return new LoggerOutputStream(logger) {
-//			@Override
-//			protected void writeToLogger() {
-//				logger.error(extractString());
-//			}
-//		};
-//	}
+	//	public static OutputStream getErrorOutputStream(Logger logger) {
+	//		if (!logger.isErrorEnabled())
+	//			return new NullOutputStream();
+	//		return new LoggerOutputStream(logger) {
+	//			@Override
+	//			protected void writeToLogger() {
+	//				logger.error(extractString());
+	//			}
+	//		};
+	//	}
 
 	/**
 	 * Obtém uma instância do {@link OutputStream} que escreve o conteúdo no logger com prioridade <code>INFO</code>.
@@ -119,16 +119,16 @@ public abstract class LoggerOutputStream extends OutputStream {
 	 *            Logger que receberá o conteúdo.
 	 * @return OutputStream que encapsula o logger.
 	 */
-//	public static OutputStream getInfoOutputStream(Logger logger) {
-//		if (!logger.isInfoEnabled())
-//			return new NullOutputStream();
-//		return new LoggerOutputStream(logger) {
-//			@Override
-//			protected void writeToLogger() {
-//				logger.info(extractString());
-//			}
-//		};
-//	}
+	//	public static OutputStream getInfoOutputStream(Logger logger) {
+	//		if (!logger.isInfoEnabled())
+	//			return new NullOutputStream();
+	//		return new LoggerOutputStream(logger) {
+	//			@Override
+	//			protected void writeToLogger() {
+	//				logger.info(extractString());
+	//			}
+	//		};
+	//	}
 
 	/**
 	 * Obtém uma instância do {@link OutputStream} que escreve o conteúdo no logger com prioridade <code>DEBUG</code>.
@@ -137,16 +137,16 @@ public abstract class LoggerOutputStream extends OutputStream {
 	 *            Logger que receberá o conteúdo.
 	 * @return OutputStream que encapsula o logger.
 	 */
-//	public static OutputStream getDebugOutputStream(Logger logger) {
-//		if (!logger.isDebugEnabled())
-//			return new NullOutputStream();
-//		return new LoggerOutputStream(logger) {
-//			@Override
-//			protected void writeToLogger() {
-//				logger.debug(extractString());
-//			}
-//		};
-//	}
+	//	public static OutputStream getDebugOutputStream(Logger logger) {
+	//		if (!logger.isDebugEnabled())
+	//			return new NullOutputStream();
+	//		return new LoggerOutputStream(logger) {
+	//			@Override
+	//			protected void writeToLogger() {
+	//				logger.debug(extractString());
+	//			}
+	//		};
+	//	}
 
 	/**
 	 * Obtém uma instância do {@link OutputStream} que escreve o conteúdo no logger com prioridade <code>TRACE</code>.
@@ -155,16 +155,16 @@ public abstract class LoggerOutputStream extends OutputStream {
 	 *            Logger que receberá o conteúdo.
 	 * @return OutputStream que encapsula o logger.
 	 */
-//	public static OutputStream getTraceOutputStream(Logger logger) {
-//		if (!logger.isTraceEnabled())
-//			return new NullOutputStream();
-//		return new LoggerOutputStream(logger) {
-//			@Override
-//			protected void writeToLogger() {
-//				logger.trace(extractString());
-//			}
-//		};
-//	}
+	//	public static OutputStream getTraceOutputStream(Logger logger) {
+	//		if (!logger.isTraceEnabled())
+	//			return new NullOutputStream();
+	//		return new LoggerOutputStream(logger) {
+	//			@Override
+	//			protected void writeToLogger() {
+	//				logger.trace(extractString());
+	//			}
+	//		};
+	//	}
 
 	/**
 	 * Obtém uma instância do {@link OutputStream} que escreve o conteúdo no logger com prioridade <code>WARN</code>.
@@ -173,16 +173,16 @@ public abstract class LoggerOutputStream extends OutputStream {
 	 *            Logger que receberá o conteúdo.
 	 * @return OutputStream que encapsula o logger.
 	 */
-//	public static OutputStream getWarnOutputStream(Logger logger) {
-//		if (!logger.isWarnEnabled())
-//			return new NullOutputStream();
-//		return new LoggerOutputStream(logger) {
-//			@Override
-//			protected void writeToLogger() {
-//				logger.warn(extractString());
-//			}
-//		};
-//	}
+	//	public static OutputStream getWarnOutputStream(Logger logger) {
+	//		if (!logger.isWarnEnabled())
+	//			return new NullOutputStream();
+	//		return new LoggerOutputStream(logger) {
+	//			@Override
+	//			protected void writeToLogger() {
+	//				logger.warn(extractString());
+	//			}
+	//		};
+	//	}
 
 	/**
 	 * Obtém uma instância do {@link OutputStream} que escreve o conteúdo no logger com prioridade determinada.

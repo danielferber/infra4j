@@ -39,7 +39,7 @@ public class ConsumidorDadosOutputStream extends AbstractConsumidorDadosStream {
 	}
 
 	public ConsumidorDadosOutputStream(String nome, OutputStream os) {
-			this(nome, os, null, null, null);
+		this(nome, os, null, null, null);
 	}
 
 	@Override

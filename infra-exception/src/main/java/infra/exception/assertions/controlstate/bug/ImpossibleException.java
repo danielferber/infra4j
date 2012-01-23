@@ -38,8 +38,8 @@ public class ImpossibleException extends ImpossibleControlStateException {
 	public ImpossibleException(String message, Throwable cause) { super(message, cause); }
 
 	/** Simply consumes and unsupported exception. */
-//	public static void consume(Throwable e) {
-//		e.printStackTrace(System.err);
-//	}
+	//	public static void consume(Throwable e) {
+	//		e.printStackTrace(System.err);
+	//	}
 
 }

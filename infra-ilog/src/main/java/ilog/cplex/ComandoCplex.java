@@ -17,7 +17,6 @@ package ilog.cplex;
 
 import ilog.ComandoSolver;
 import ilog.concert.IloException;
-import ilog.cplex.IloCplex;
 import ilog.cplex.IloCplex.Algorithm;
 import ilog.cplex.IloCplex.Status;
 import infra.exception.assertions.controlstate.bug.ImpossibleConditionException;
@@ -454,7 +453,7 @@ public class ComandoCplex implements ComandoSolver {
 			if (! file.getParentFile().exists()) {
 				file.getParentFile().mkdirs();
 			}
-		this.cplex.exportModel(file.getAbsolutePath());
+			this.cplex.exportModel(file.getAbsolutePath());
 		} catch (IloException e) {
 			ComandoCplex.loggerExecucao.warn("Falha ao salvar modelo.", e);
 		}

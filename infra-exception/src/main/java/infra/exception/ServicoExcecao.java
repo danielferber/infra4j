@@ -150,49 +150,49 @@ public class ServicoExcecao {
 		ServicoExcecao.caixa(output, str, width, 0);
 	}
 
-    private static void caixa(PrintStream output, String str, int width, int align) {
-        String leftStr = "| ";
-        String rightStr = " |";
-        int len = str.length();
-        int start = 0;
-        int wrapLength = width - leftStr.length() - rightStr.length();
+	private static void caixa(PrintStream output, String str, int width, int align) {
+		String leftStr = "| ";
+		String rightStr = " |";
+		int len = str.length();
+		int start = 0;
+		int wrapLength = width - leftStr.length() - rightStr.length();
 
-        while (start < len) {
-        	while (start < len && Character.isWhitespace(str.charAt(start))) start++;
-        	if (start >= len) break;
+		while (start < len) {
+			while (start < len && Character.isWhitespace(str.charAt(start))) start++;
+			if (start >= len) break;
 
-        	int end = start + wrapLength;
-        	if (end > len) {
-        		end = len;
-        	} else {
-        		while (end > start && ! Character.isWhitespace(str.charAt(end))) end--;
-        	}
+			int end = start + wrapLength;
+			if (end > len) {
+				end = len;
+			} else {
+				while (end > start && ! Character.isWhitespace(str.charAt(end))) end--;
+			}
 
 			if (end == start) {
-            	// no space found, very long line
-            	end = start + wrapLength;
-            	while (end < len && ! Character.isWhitespace(str.charAt(end))) end++;
-                String substring = str.substring(start, end);
-            	output.print(leftStr);
-            	output.println(substring);
-            } else {
-            	// normal case
-        		while (end > start && Character.isWhitespace(str.charAt(end-1))) end--;
-                String substring = str.substring(start, end);
-            	output.print(leftStr);
-            	int padL = 0;
-            	if (align == 1) {
-            		padL = (wrapLength-substring.length()) / 2;
-            	} else if (align == 2) {
-            		padL = wrapLength-substring.length();
-            	}
-            	int padR = wrapLength - substring.length() - padL;
-           		ServicoExcecao.printChars(output, ' ', padL);
-            	output.print(substring);
-           		ServicoExcecao.printChars(output, ' ', padR);
-            	output.println(rightStr);
-            }
-        	start = end;
-        }
-    }
+				// no space found, very long line
+				end = start + wrapLength;
+				while (end < len && ! Character.isWhitespace(str.charAt(end))) end++;
+				String substring = str.substring(start, end);
+				output.print(leftStr);
+				output.println(substring);
+			} else {
+				// normal case
+				while (end > start && Character.isWhitespace(str.charAt(end-1))) end--;
+				String substring = str.substring(start, end);
+				output.print(leftStr);
+				int padL = 0;
+				if (align == 1) {
+					padL = (wrapLength-substring.length()) / 2;
+				} else if (align == 2) {
+					padL = wrapLength-substring.length();
+				}
+				int padR = wrapLength - substring.length() - padL;
+				ServicoExcecao.printChars(output, ' ', padL);
+				output.print(substring);
+				ServicoExcecao.printChars(output, ' ', padR);
+				output.println(rightStr);
+			}
+			start = end;
+		}
+	}
 }
