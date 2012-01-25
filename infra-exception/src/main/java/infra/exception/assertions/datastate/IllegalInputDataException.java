@@ -15,30 +15,40 @@
  */
 package infra.exception.assertions.datastate;
 
-
 /**
  * Data that is being consumed is not valid.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
 public class IllegalInputDataException extends IllegalDataStateException {
 	private static final long serialVersionUID = 1L;
 
 	public IllegalInputDataException() { super(); }
 	public IllegalInputDataException(String message) { super(message); }
+	public IllegalInputDataException(SystemRule sr) { super(sr); }
 
 	/** Raises exception if condition is false. */
 	public static boolean apply(boolean condition) {
-		if (!condition) throw new IllegalInputDataException();
+		if (! condition) throw new IllegalInputDataException();
 		return true;
 	}
-	public static boolean notNull(Object value) {
-		if (value == null) throw new IllegalInputDataException();
+
+	/** Raises exception if condition is false. */
+	public static boolean apply(SystemRule sr, boolean condition) {
+		if (! condition) throw new IllegalInputDataException(sr);
 		return true;
 	}
+
 	/** Raises exception if one condition is false. */
 	public static boolean apply(boolean ... conditions) {
 		for (boolean b : conditions) {
 			if (!b) throw new IllegalInputDataException();
+		}
+		return true;
+	}
+	
+	/** Raises exception if one condition is false. */
+	public static boolean apply(SystemRule sr, boolean ... conditions) {
+		for (boolean b : conditions) {
+			if (!b) throw new IllegalInputDataException(sr);
 		}
 		return true;
 	}
