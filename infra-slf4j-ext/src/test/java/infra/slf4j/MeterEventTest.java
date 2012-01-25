@@ -15,9 +15,6 @@
  */
 package infra.slf4j;
 
-import infra.slf4j.MeterEvent;
-import infra.slf4j.Parser;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.HashMap;

@@ -50,21 +50,21 @@ public class DataSourceTest {
 		configuracaoOpl = new ConfiguracaoOPL(homeDir);
 		configuracaoCplex = new ConfiguracaoCplex(homeDir);
 		String modeloString =
-		"using CPLEX;" +
-		"" +
-		"float a = ...;" +
-		"float b = ...;" +
-		"" +
-		"dvar float x;" +
-		"dvar float y;" +
-		"" +
-		"maximize a*x + b*y;" +
-		"" +
-		"subject to {" +
-		"	x <= 5;" +
-		"	y <= 5;" +
-		"	y <= 7 - x;" +
-		"}";
+				"using CPLEX;" +
+						"" +
+						"float a = ...;" +
+						"float b = ...;" +
+						"" +
+						"dvar float x;" +
+						"dvar float y;" +
+						"" +
+						"maximize a*x + b*y;" +
+						"" +
+						"subject to {" +
+						"	x <= 5;" +
+						"	y <= 5;" +
+						"	y <= 7 - x;" +
+						"}";
 		provedorModelo = new ProvedorModeloString("modelo", modeloString);
 	}
 

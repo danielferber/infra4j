@@ -136,16 +136,16 @@ public class ServicoLogback {
 			ServicoLogback.usandoConfiguracaoClasspath = false;
 			ServicoLogback.usandoConfiguracaoProperty = false;
 			ServicoLogback.usandoConfiguracaoEspecifica = true;
-		 } finally {
-			 ServicoLogback.lockInstalacao.unlock();
-	     }
+		} finally {
+			ServicoLogback.lockInstalacao.unlock();
+		}
 	}
 
 	private static boolean instalado = false;
 	public static void instalar() {
-	     if (! ServicoLogback.lockInstalacao.tryLock()) throw new UnsupportedReentrantException();
-	     try {
-	    	 if (ServicoLogback.instalado) throw new UnsupportedCallOrderException();
+		if (! ServicoLogback.lockInstalacao.tryLock()) throw new UnsupportedReentrantException();
+		try {
+			if (ServicoLogback.instalado) throw new UnsupportedCallOrderException();
 
 			/*
 			 * Instalar ponte entre JUL (logger padrão do java) e SLF4J. Antes, reinicia toda a configuração do LogManager do JUL.
@@ -170,8 +170,8 @@ public class ServicoLogback {
 				ServicoLogback.usandoConfiguracaoClasspath = true;
 			}
 
-		 } finally {
-	         ServicoLogback.lockInstalacao.unlock();
-	     }
+		} finally {
+			ServicoLogback.lockInstalacao.unlock();
+		}
 	}
 }

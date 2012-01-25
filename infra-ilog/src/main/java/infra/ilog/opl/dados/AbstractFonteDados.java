@@ -44,7 +44,11 @@ public abstract class AbstractFonteDados implements FonteDados{
 	public void finalizar(IloOplModel oplModel) throws IOException {
 		// empty
 	}
+<<<<<<< HEAD
 	
+=======
+
+>>>>>>> refs/remotes/origin/master
 	@Override
 	public void definir(IloOplModel oplModel) {
 		// empty

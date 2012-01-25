@@ -39,7 +39,11 @@ public class ConsumidorDadosOutputStream extends AbstractConsumidorDadosStream {
 	}
 
 	public ConsumidorDadosOutputStream(String nome, OutputStream os) {
+<<<<<<< HEAD
 			this(nome, os, null, null, null);
+=======
+		this(nome, os, null, null, null);
+>>>>>>> refs/remotes/origin/master
 	}
 
 	@Override

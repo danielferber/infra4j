@@ -63,18 +63,18 @@ public class WatcherEvent {
 
 	/** An arbitraty ID for the watcher. */
 	@Column(nullable = false, length = 300)
-    protected String name;
+	protected String name;
 
-    /** How many times the watch has executed. */
-    protected long counter = 0;
+	/** How many times the watch has executed. */
+	protected long counter = 0;
 
 	@Column(nullable = true, length = 50)
-    protected String uuid;
+	protected String uuid;
 
-    /** When the watcher last executed. */
-    protected long time = 0;
+	/** When the watcher last executed. */
+	protected long time = 0;
 
-    /* MemoryMXBean */
+	/* MemoryMXBean */
 	protected long heap_commited = 0;
 	protected long heap_init = 0;
 	protected long heap_max = 0;
@@ -260,129 +260,129 @@ public class WatcherEvent {
 		buffer.append(p.DATA_OPEN);
 
 		/* name */
-    	buffer.append(e.name);
+		buffer.append(e.name);
 
-    	/* counter */
-    	if (e.counter > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.COUNTER);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.counter);
-    	}
+		/* counter */
+		if (e.counter > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.COUNTER);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.counter);
+		}
 
-    	/* time */
-    	if (e.counter > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.TIME);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.time);
-    	}
+		/* time */
+		if (e.counter > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.TIME);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.time);
+		}
 
-    	/* uuid */
-    	if (e.uuid != null) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.UUID);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.uuid);
-    	}
+		/* uuid */
+		if (e.uuid != null) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.UUID);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.uuid);
+		}
 
 
-    	/* memory usage */
-   		if (e.runtime_freeMemory > 0 || e.runtime_totalMemory > 0  || e.runtime_maxMemory > 0 ) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.MEMORY);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.runtime_freeMemory);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.runtime_totalMemory);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.runtime_maxMemory);
-   		}
+		/* memory usage */
+		if (e.runtime_freeMemory > 0 || e.runtime_totalMemory > 0  || e.runtime_maxMemory > 0 ) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.MEMORY);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.runtime_freeMemory);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.runtime_totalMemory);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.runtime_maxMemory);
+		}
 
-   		/* heap usage */
-   		if (e.heap_commited > 0 || e.heap_init > 0  || e.heap_max > 0  || e.heap_used > 0 ) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.HEAP);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.heap_commited);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.heap_init);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.heap_max);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.heap_used);
-   		}
+		/* heap usage */
+		if (e.heap_commited > 0 || e.heap_init > 0  || e.heap_max > 0  || e.heap_used > 0 ) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.HEAP);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.heap_commited);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.heap_init);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.heap_max);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.heap_used);
+		}
 
 		/* non usage */
-   		if (e.nonHeap_commited > 0 || e.nonHeap_init > 0  || e.nonHeap_max > 0  || e.nonHeap_used > 0 ) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.NON_HEAP);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.nonHeap_commited);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.nonHeap_init);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.nonHeap_max);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.nonHeap_used);
-   		}
+		if (e.nonHeap_commited > 0 || e.nonHeap_init > 0  || e.nonHeap_max > 0  || e.nonHeap_used > 0 ) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.NON_HEAP);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.nonHeap_commited);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.nonHeap_init);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.nonHeap_max);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.nonHeap_used);
+		}
 
-   		/* objectPendingFinalizationCount */
-   		if (e.objectPendingFinalizationCount > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-   			buffer.append(WatcherEvent.FINALIZATION_COUNT);
-   			buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.objectPendingFinalizationCount);
-   		}
+		/* objectPendingFinalizationCount */
+		if (e.objectPendingFinalizationCount > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.FINALIZATION_COUNT);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.objectPendingFinalizationCount);
+		}
 
-   		/* class loading */
-   		if (e.classLoading_loaded > 0 || e.classLoading_total > 0 || e.classLoading_unloaded > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.CLASS_LOADING);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.classLoading_total);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.classLoading_loaded);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.classLoading_unloaded);
-   		}
+		/* class loading */
+		if (e.classLoading_loaded > 0 || e.classLoading_total > 0 || e.classLoading_unloaded > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.CLASS_LOADING);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.classLoading_total);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.classLoading_loaded);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.classLoading_unloaded);
+		}
 
-   		/* compiler */
-   		if (e.compilationTime > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.COMPILATION_TIME);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.compilationTime);
-   		}
+		/* compiler */
+		if (e.compilationTime > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.COMPILATION_TIME);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.compilationTime);
+		}
 
-   		/* garbage collector. */
-   		if (e.garbageCollector_count > 0 || e.garbageCollector_time > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.GARBAGE_COLLECTOR);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.garbageCollector_count);
-   	   		buffer.append(p.PROPERTY_DIV);
-	   		buffer.append(e.garbageCollector_time);
-   		}
+		/* garbage collector. */
+		if (e.garbageCollector_count > 0 || e.garbageCollector_time > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.GARBAGE_COLLECTOR);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.garbageCollector_count);
+			buffer.append(p.PROPERTY_DIV);
+			buffer.append(e.garbageCollector_time);
+		}
 
-   		/* system load */
-   		if (e.systemLoad > 0) {
-	   		buffer.append(p.PROPERTY_SEPARATOR);
-	   		buffer.append(p.PROPERTY_SPACE);
-	   		buffer.append(WatcherEvent.SYSTEM_LOAD);
-	   		buffer.append(p.PROPERTY_EQUALS);
-	   		buffer.append(e.systemLoad);
-   		}
+		/* system load */
+		if (e.systemLoad > 0) {
+			buffer.append(p.PROPERTY_SEPARATOR);
+			buffer.append(p.PROPERTY_SPACE);
+			buffer.append(WatcherEvent.SYSTEM_LOAD);
+			buffer.append(p.PROPERTY_EQUALS);
+			buffer.append(e.systemLoad);
+		}
 
 		buffer.append(p.DATA_CLOSE);
 	}
@@ -578,7 +578,7 @@ public class WatcherEvent {
 		}
 		return true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return this.uuid+":"+this.name+":"+this.counter;

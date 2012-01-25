@@ -43,7 +43,11 @@ public class ConsumidorDadosStringBuilder extends AbstractConsumidorDadosStream 
 	}
 
 	public ConsumidorDadosStringBuilder(String nome, StringBuilder sb) {
+<<<<<<< HEAD
 			this(nome, sb, null, null, null);
+=======
+		this(nome, sb, null, null, null);
+>>>>>>> refs/remotes/origin/master
 	}
 
 	@Override
