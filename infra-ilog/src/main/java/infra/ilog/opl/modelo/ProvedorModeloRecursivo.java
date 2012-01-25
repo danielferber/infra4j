@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package infra.ilog.opl.modelo;
+package infra.ilog.opl.modelo; 
 
 import infra.ilog.opl.ProvedorModelo;
+import infra.ilog.opl.modelo.AbstractProvedorModelo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -108,7 +109,6 @@ public class ProvedorModeloRecursivo extends AbstractProvedorModelo {
 	}
 
 	protected List<String> readLines(InputStream is) throws IOException {
-<<<<<<< HEAD
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         List<String> list = new ArrayList<String>();
         String line = reader.readLine();
@@ -118,17 +118,6 @@ public class ProvedorModeloRecursivo extends AbstractProvedorModelo {
         }
         return list;
     }
-=======
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-		List<String> list = new ArrayList<String>();
-		String line = reader.readLine();
-		while (line != null) {
-			list.add(line);
-			line = reader.readLine();
-		}
-		return list;
-	}
->>>>>>> refs/remotes/origin/master
 
 	protected boolean alternaComentario(boolean comentario, String linha) {
 		int p = 0;
