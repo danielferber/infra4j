@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -79,6 +79,7 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 		IloOplSettings settings = oplModel.getSettings();
 		oplDataSerializer = oplFactory.createOplDataSerializer(settings, os);
 
+		@SuppressWarnings("unchecked")
 		Iterator<IloOplElement> itr = oplModel.getElementIterator();
 		main: while (itr.hasNext()) {
 			IloOplElement oplElement = itr.next();
@@ -93,11 +94,11 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 			if (oplElement.isPostProcessing() && ! filtro.contains(Filtro.PostProcessing)) continue;
 
 			/* Verifica se o nome do elemento é permitido. */
-			String nome = oplElement.getName();
+			String nomeElemento = oplElement.getName();
 			{
 				boolean ok = false;
 				for (Pattern pattern : includePattern) {
-					if (pattern.matcher(nome).matches()) {
+					if (pattern.matcher(nomeElemento).matches()) {
 						ok = true;
 						break;
 					}
@@ -106,7 +107,7 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 			}
 			/* Verifica se o nome do elemento é proibido. */
 			for (Pattern pattern : excludePattern) {
-				if (pattern.matcher(nome).matches()) {
+				if (pattern.matcher(nomeElemento).matches()) {
 					continue main;
 				}
 			}

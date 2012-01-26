@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,13 +16,11 @@
 package infra.ilog.opl;
 
 import ilog.cplex.IloCplex;
-import ilog.opl.IloOplElement;
 import ilog.opl.IloOplElementDefinition;
 import ilog.opl.IloOplFactory;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import ilog.opl.IloOplModelSource;
-import ilog.opl.IloOplProfiler;
 import ilog.opl.IloOplSettings;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.NullArgumentException;
@@ -83,7 +81,7 @@ public class FacadeOPL {
 		DATASINK("Falha ao obter dados do datasink."),
 		REALIZAR_MODELO("Falha ao realizar modelo OPL no solucionador."),
 		POS_PROCESSAMENTO("Falha ao realizar pós-processamento do modelo OPL."),
-		OBTER_SOLUCAO("Falha ao obter solução."), 
+		OBTER_SOLUCAO("Falha ao obter solução."),
 		DEFINIR_DATASOURCE("Falha ao definir fonte de dados."),
 		DEFINIR_DATASINK("Falha ao definir consumidor de dados."),
 		;
@@ -117,7 +115,7 @@ public class FacadeOPL {
 		}
 	}
 
-	public void executar(ConfiguracaoCplex configuracaoCplex) throws MotivoException {
+	public void executar() throws MotivoException {
 		Meter taskGeral = MeterFactory.getMeter(FacadeOPL.logger, "facadeOpl").setMessage("Executar FacadeOPL.").start();
 		Meter task = null;
 		IloOplModelDefinition oplModelDefinition = null;
@@ -243,8 +241,8 @@ public class FacadeOPL {
 			/*
 			 * DEFINIÇÃO DE MODELO.
 			 *
-			 * Obter a definição de modelo do provedor. 
-			 * Verifica se a formulação está sintaticamente correta. 
+			 * Obter a definição de modelo do provedor.
+			 * Verifica se a formulação está sintaticamente correta.
 			 * Para isto tenta acessar qualquer uma das definições para forçar a compilação do modelo.
 			 */
 			task = MeterFactory.getMeter(taskGeral, "definirModelo").setMessage("Obter definições do modelo.").start();
@@ -267,10 +265,11 @@ public class FacadeOPL {
 
 				/*
 				 * Acessa uma definição abritrária, neste caso, a primeira.
-				 * Foi uma forma encontrada para forçar o OPL compilar totalmente a definição antes 
-				 * de gerar o modelo a partir dos dados. 
+				 * Foi uma forma encontrada para forçar o OPL compilar totalmente a definição antes
+				 * de gerar o modelo a partir dos dados.
 				 * Se uma das definições estiver errada, então o OPL poderá lançar uma exceção ou registar no errorHandler.
 				 */
+				@SuppressWarnings("unchecked")
 				Iterator<IloOplElementDefinition> iterator = oplModelDefinition.getElementDefinitionIterator();
 				iterator.next().getName();
 
@@ -278,7 +277,7 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				/* Avisa os Data Sources sobre o modelo. */
-				
+
 				task.ok();
 			} catch (Exception e) {
 				task.fail(e);
@@ -287,7 +286,7 @@ public class FacadeOPL {
 
 			/*
 			 * MODELO.
-			 * 
+			 *
 			 * Criar o modelo associado com o solucionador (CP ou CPLEX).
 			 * Por enquanto, está implementado somente para CPLEX.
 			 */
@@ -317,7 +316,7 @@ public class FacadeOPL {
 			/*
 			 * Validar DataSource e DataSink.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();			
+			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
 					FacadeOPL.loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
@@ -328,7 +327,7 @@ public class FacadeOPL {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASOURCE);
 			}
-			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();			
+			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();
 			try {
 				for (ConsumidorDados consumidor : this.dataSinks) {
 					FacadeOPL.loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
@@ -339,10 +338,10 @@ public class FacadeOPL {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASINK);
 			}
-			
+
 			/*
 			 * IMPORTAR
-			 * 
+			 *
 			 * Aplicar fontes de dados.
 			 * A leitura ocorre no futuro na próxima etapa, ou seja, ao gerar o modelo.
 			 */
@@ -403,7 +402,7 @@ public class FacadeOPL {
 			try {
 				ComandoOPL comandoOpl = new ComandoOPL(this.oplModel, configuracaoOpl, comandoSolver);
 				comandoOpl.executar();
-	
+
 				task.ok();
 			} catch (RuntimeException e) {
 				task.fail(e);
