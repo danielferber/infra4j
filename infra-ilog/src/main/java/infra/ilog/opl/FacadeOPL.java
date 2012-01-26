@@ -229,7 +229,7 @@ public class FacadeOPL {
 				// oplSettings.setUndefinedDataError
 
 				// TODO: Incorporar o profiler de uma forma melhor pensada.
-				oplSettings.setProfiler(oplFactory.createOplProfiler());
+//				oplSettings.setProfiler(oplFactory.createOplProfiler());
 
 				/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
 				customOplErrorHandler.throwExceptionOnError();
@@ -284,7 +284,6 @@ public class FacadeOPL {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.OBTER_MODELO);
 			}
-			taskGeral.ok();
 
 			/*
 			 * MODELO.
@@ -405,7 +404,7 @@ public class FacadeOPL {
 				ComandoOPL comandoOpl = new ComandoOPL(this.oplModel, configuracaoOpl, comandoSolver);
 				comandoOpl.executar();
 	
-				taskGeral.ok();
+				task.ok();
 			} catch (RuntimeException e) {
 				task.fail(e);
 				throw e;
