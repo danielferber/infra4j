@@ -511,7 +511,8 @@ public class FacadeOPL {
 		if (this.oplFactory != null) {
 			FacadeOPL.loggerExecucao.error("Uma instância oplFactory não foi finalizada corretamente!");
 			this.oplFactory.end();
-			this.oplFactory = null;
+//			não é considerado uma boa prática....
+//			this.oplFactory = null;
 		}
 		super.finalize();
 	}
