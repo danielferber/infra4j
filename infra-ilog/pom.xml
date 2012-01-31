@@ -32,13 +32,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>[1.6.1,1.7)</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>infra</groupId>
 			<artifactId>infra-slf4j-ext</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
