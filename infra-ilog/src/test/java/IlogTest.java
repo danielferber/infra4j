@@ -15,7 +15,7 @@ public class IlogTest {
 		IloOplFactory oplF = new IloOplFactory();
 		IloOplErrorHandler errHandler = oplF.createOplErrorHandler();
 		IloOplSettings settings = oplF.createOplSettings(errHandler);
-	    IloOplModelSource modelSource = oplF.createOplModelSource("/home/daniel/git/infra4j/infra-ilog/src/test/resources/modelos/pontos.mod");
+	    IloOplModelSource modelSource = oplF.createOplModelSource("src/test/resources/modelos/pontos.mod");
 	    IloOplModelDefinition def = oplF.createOplModelDefinition(modelSource, settings);
 	    IloCplex cplex = oplF.createCplex();
 	    IloOplModel opl = oplF.createOplModel(def, cplex);

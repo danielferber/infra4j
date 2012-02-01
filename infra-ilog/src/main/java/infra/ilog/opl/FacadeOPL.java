@@ -33,7 +33,6 @@ import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintStream;
@@ -355,10 +354,6 @@ public class FacadeOPL {
 					FacadeOPL.loggerExecucao.debug("Importar fonte '{}'.", fonte.getNome());
 					fonte.importar(this.oplModel);
 				}
-				for (FonteDados fonte : this.dataSources) {
-					FacadeOPL.loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getNome());
-					fonte.finalizar(this.oplModel);
-				}
 
 				/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
 				customOplErrorHandler.throwExceptionOnError();
@@ -382,8 +377,9 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				/* Fecha os datasources abertos no passo anterior. */
-				for (FonteDados dataSource : this.dataSources) {
-					if (dataSource instanceof Closeable) ((Closeable)dataSource).close();
+				for (FonteDados fonte : this.dataSources) {
+					FacadeOPL.loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getNome());
+					fonte.finalizar(this.oplModel);
 				}
 
 				/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
