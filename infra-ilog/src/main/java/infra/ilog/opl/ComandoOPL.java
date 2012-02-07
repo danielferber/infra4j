@@ -53,6 +53,7 @@ import org.slf4j.Logger;
  */
 public class ComandoOPL {
 	protected static final Logger logger = LoggerFactory.getLogger("ilog.opl");
+	protected static final Logger loggerMeter = LoggerFactory.getLogger(ComandoOPL.logger, "meter");
 	protected static final Logger loggerExecucao = LoggerFactory.getLogger(ComandoOPL.logger, "execucao");
 	protected static final Logger loggerDados = LoggerFactory.getLogger(ComandoOPL.logger, "dados");
 	protected static final Logger loggerModelo = LoggerFactory.getLogger(ComandoOPL.loggerDados, "modelo");

@@ -51,6 +51,7 @@ import org.slf4j.Logger;
  */
 public class FacadeOPL {
 	protected static final Logger logger = LoggerFactory.getLogger("ilog.opl");
+	protected static final Logger loggerMeter = LoggerFactory.getLogger(FacadeOPL.logger, "meter");
 	protected static final Logger loggerExecucao = LoggerFactory.getLogger(FacadeOPL.logger, "execucao");
 	protected static final Logger loggerModelo = LoggerFactory.getLogger(FacadeOPL.logger, "dados.modelo");
 
@@ -294,7 +295,7 @@ public class FacadeOPL {
 			 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 			 */
 			if (configuracaoCplex != null) {
-				task = MeterFactory.getMeter(FacadeOPL.loggerExecucao, "criarCplex").setMessage("Criar CPLEX.").start();
+				task = MeterFactory.getMeter(FacadeOPL.loggerMeter, "criarCplex").setMessage("Criar CPLEX.").start();
 				try {
 						IloCplex cplex = this.oplFactory.createCplex();
 						comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
@@ -394,7 +395,7 @@ public class FacadeOPL {
 			/*
 			 * EXECUTAR.
 			 */
-			task = MeterFactory.getMeter(FacadeOPL.loggerExecucao, "executar").setMessage("Executar solucionador").start();
+			task = MeterFactory.getMeter(FacadeOPL.loggerMeter, "executar").setMessage("Executar solucionador").start();
 			try {
 				ComandoOPL comandoOpl = new ComandoOPL(this.oplModel, configuracaoOpl, comandoSolver);
 				comandoOpl.executar();

@@ -65,6 +65,7 @@ import org.slf4j.Logger;
 public class ComandoCplex implements ComandoSolver {
 	protected static final Logger logger = LoggerFactory.getLogger("ilog.cplex");
 	protected static final Logger loggerExecucao = LoggerFactory.getLogger(ComandoCplex.logger, "execucao");
+	protected static final Logger loggerMeter = LoggerFactory.getLogger(ComandoCplex.logger, "execucao");
 
 	/**
 	 * O {@link ComandoSolver} delega para esta classe algumas decisões sobre como
@@ -130,7 +131,7 @@ public class ComandoCplex implements ComandoSolver {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert IllegalAttributeException.apply(this.configuracao != null);
 
-		Meter meterExecutar = MeterFactory.getMeter(ComandoCplex.loggerExecucao, "executar").setMessage("Executar CPLEX");
+		Meter meterExecutar = MeterFactory.getMeter(ComandoCplex.loggerMeter, "executar").setMessage("Executar CPLEX");
 
 		try {
 			IllegalAttributeException.apply(this.cplex.getStatus() == Status.Unknown); /* não pode ter rodado o cplex ainda. */
@@ -158,7 +159,7 @@ public class ComandoCplex implements ComandoSolver {
 			int numeroIteracao = 0;
 			while (true) {
 				numeroIteracao++;
-				Meter meterInteracao = MeterFactory.getMeter(ComandoCplex.loggerExecucao, "executar").setMessage("Interação %d", numeroIteracao);
+				Meter meterInteracao = MeterFactory.getMeter(ComandoCplex.loggerMeter, "executar").setMessage("Interação %d", numeroIteracao);
 				meterInteracao.start();
 				try {
 
