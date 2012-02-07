@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -28,13 +28,17 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
 import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.ConsoleAppender;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.status.Status;
 import ch.qos.logback.core.util.StatusPrinter;
@@ -153,8 +157,22 @@ public class ServicoLogback {
 			 * quando for acionado um logger do JUL.
 			 */
 			java.util.logging.LogManager.getLogManager().reset();
-			java.util.logging.LogManager.getLogManager().getLogger("").setLevel(Level.ALL);
+			java.util.logging.LogManager.getLogManager().getLogger("").setLevel(java.util.logging.Level.ALL);
 			SLF4JBridgeHandler.install();
+
+			ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+			root.setLevel(Level.ALL);
+
+			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+
+			PatternLayout pl = new PatternLayout();
+	      pl.setContext(lc);
+
+			ConsoleAppender<ILoggingEvent> appender = new ConsoleAppender<ILoggingEvent>();
+			appender.setContext(lc);
+			appender.setOutputStream(System.err);
+			appender.setLayout(pl);
+			appender.start();
 
 			ServicoLogback.instalado = true;
 
