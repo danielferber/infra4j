@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -87,6 +88,10 @@ public class ServicoLogback {
 	private final static Lock lockInstalacao = new ReentrantLock();
 
 	public static void reconfigurar(File arqConfig) throws MotivoException {
+		ServicoLogback.reconfigurar(arqConfig, null);
+	}
+
+	public static void reconfigurar(File arqConfig, Properties properties) throws MotivoException {
 		if (! ServicoLogback.lockInstalacao.tryLock()) throw new UnsupportedReentrantException();
 		try {
 			if (! ServicoLogback.instalado) ServicoLogback.instalar();
@@ -109,6 +114,11 @@ public class ServicoLogback {
 
 			JoranConfigurator configurator = new JoranConfigurator();
 			configurator.setContext(lc);
+			if (properties != null) {
+				for (String key : properties.stringPropertyNames()) {
+					lc.putProperty(key, properties.getProperty(key));
+				}
+			}
 			try {
 				configurator.doConfigure(is);
 			} catch (JoranException je) {
