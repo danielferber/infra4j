@@ -12,6 +12,9 @@ import org.junit.Test;
 public class IlogTest {
 	@Test
 	public void runIlogTest() throws Exception {
+		System.out.println(System.getProperty("java.library.path"));
+		System.out.println(System.getProperty("library.path"));
+
 		IloOplFactory oplF = new IloOplFactory();
 		IloOplErrorHandler errHandler = oplF.createOplErrorHandler();
 		IloOplSettings settings = oplF.createOplSettings(errHandler);

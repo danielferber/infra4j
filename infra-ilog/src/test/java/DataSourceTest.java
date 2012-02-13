@@ -47,8 +47,8 @@ public class DataSourceTest {
 	@Before
 	public void loadModel() {
 		File homeDir = new File(System.getProperty("user.dir"));
-		configuracaoOpl = new ConfiguracaoOPL(homeDir);
-		configuracaoCplex = new ConfiguracaoCplex(homeDir);
+		configuracaoOpl = new ConfiguracaoOPL("teste", homeDir);
+		configuracaoCplex = new ConfiguracaoCplex("teste", homeDir);
 		String modeloString =
 				"using CPLEX;" +
 						"" +
@@ -71,6 +71,9 @@ public class DataSourceTest {
 	@Test
 	public void provedorStringTest() {
 		String dadosString = "a = 3; b = 2;";
+
+		System.out.println(System.getProperty("java.library.path"));
+		System.out.println(System.getProperty("library.path"));
 
 		FonteDados provedorDados = new FonteDadosString("nome", dadosString);
 		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();

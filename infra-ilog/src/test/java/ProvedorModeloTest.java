@@ -38,8 +38,8 @@ public class ProvedorModeloTest {
 	@Before
 	public void loadModel() {
 		File homeDir = new File(System.getProperty("user.dir"));
-		configuracaoOpl = new ConfiguracaoOPL(homeDir);
-		configuracaoCplex = new ConfiguracaoCplex(homeDir);
+		configuracaoOpl = new ConfiguracaoOPL("teste", homeDir);
+		configuracaoCplex = new ConfiguracaoCplex("teste", homeDir);
 	}
 
 	@Test

@@ -18,12 +18,15 @@ package infra.ilog.opl;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
 import infra.slf4j.LoggerFactory;
+import infra.slf4j.Meter;
+import infra.slf4j.MeterFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -52,14 +55,14 @@ import org.slf4j.Logger;
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
 public class ComandoOPL {
-	protected static final Logger logger = LoggerFactory.getLogger("ilog.opl");
-	protected static final Logger loggerMeter = LoggerFactory.getLogger(ComandoOPL.logger, "meter");
-	protected static final Logger loggerExecucao = LoggerFactory.getLogger(ComandoOPL.logger, "execucao");
-	protected static final Logger loggerDados = LoggerFactory.getLogger(ComandoOPL.logger, "dados");
-	protected static final Logger loggerModelo = LoggerFactory.getLogger(ComandoOPL.loggerDados, "modelo");
-	protected static final Logger loggerSolucao = LoggerFactory.getLogger(ComandoOPL.loggerDados, "solucao");
-	protected static final Logger loggerExternalData = LoggerFactory.getLogger(ComandoOPL.loggerDados, "externos");
-	protected static final Logger loggerInternalData = LoggerFactory.getLogger(ComandoOPL.loggerDados, "internos");
+	public final Logger logger;
+	public final Logger loggerMeter;
+	public final Logger loggerExecucao;
+	public final Logger loggerDados;
+//	public final Logger loggerModelo;
+	public final Logger loggerSolucao;
+	public final Logger loggerExternalData;
+	public final Logger loggerInternalData;
 
 	/** Configurações de execução para esta instância. */
 	private final ConfiguracaoOPL configuracao;
@@ -80,6 +83,15 @@ public class ComandoOPL {
 		this.oplModel = oplModel;
 		this.configuracao = new ConfiguracaoOPL(configuracao);
 		this.comandoResolvedor = comandoResolvedor;
+
+		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracao.getNome());
+		this.loggerMeter = LoggerFactory.getLogger(this.logger, "meter");
+		this.loggerExecucao = LoggerFactory.getLogger(this.logger, "execucao");
+		this.loggerDados = LoggerFactory.getLogger(this.logger, "dados");
+//		this.loggerModelo = LoggerFactory.getLogger(this.loggerDados, "modelo");
+		this.loggerSolucao = LoggerFactory.getLogger(this.loggerDados, "solucao");
+		this.loggerExternalData = LoggerFactory.getLogger(this.loggerDados, "externo");
+		this.loggerInternalData = LoggerFactory.getLogger(this.loggerDados, "internos");
 	}
 
 	/** Executa o resolvedor OPL. */
@@ -87,39 +99,59 @@ public class ComandoOPL {
 		assert IllegalAttributeException.apply(this.configuracao != null);
 		assert IllegalAttributeException.apply(this.comandoResolvedor != null);
 		assert IllegalAttributeException.apply(this.oplModel != null);
+
 		IllegalAttributeException.apply(oplModel.hasCplex());
 		IllegalAttributeException.apply(oplModel.isGenerated());
 
-		/*
-		 * TODO Só faz sentido executar se não existe um main no modelo opl?
-		 * O comando OPL poderia ignorar o main e executar o modelo.
-		 * Ou chamar diretamente o main.
-		 */
+		Meter op = MeterFactory.getMeter(loggerMeter, "executar").setMessage("Executar OPL").start();
+		try {
 
-		/*
-		 * Reportar dados gerados ao realizar o modelo.
-		 */
-		logExternalData();
-		logInternalData();
-		if (this.configuracao.temCaminhoDadosExternos()) {
-			salvarDadosExternos(this.configuracao.getCaminhoDadosExternos());
+			/*
+			 * TODO Só faz sentido executar se não existe um main no modelo opl?
+			 * O comando OPL poderia ignorar o main e executar o modelo.
+			 * Ou chamar diretamente o main.
+			 */
+
+			/*
+			 * Reportar dados gerados ao realizar o modelo.
+			 */
+			logExternalData();
+			logInternalData();
+			if (this.configuracao.temCaminhoDadosExternos()) {
+				salvarDadosExternos(this.configuracao.getCaminhoDadosExternos());
+			}
+			if (this.configuracao.temCaminhoDadosInternos()) {
+				salvarDadosInternos(this.configuracao.getCaminhoDadosInternos());
+			}
+			logPropriedades();
+
+			/*
+			 * Executar CPLEX.
+			 */
+			comandoResolvedor.executar();
+
+			/*
+			 * Reportar estado final do OPL.
+			 */
+			logSolutionData();
+			if (this.configuracao.temCaminhoSolucao()) {
+				salvarSolucao(this.configuracao.getCaminhoAbsolutoDadosSolucao());
+			}
+			op.ok();
+		} catch (MotivoException e) {
+			op.fail(e);
+			throw e;
+		} catch (Exception e) {
+			op.fail(e);
+			throw new UnhandledException(e);
 		}
-		if (this.configuracao.temCaminhoDadosInternos()) {
-			salvarDadosInternos(this.configuracao.getCaminhoDadosInternos());
-		}
-		logPropriedades();
+	}
 
-		/*
-		 * Executar CPLEX.
-		 */
-		comandoResolvedor.executar();
-
-		/*
-		 * Reportar estado final do OPL.
-		 */
-		logSolutionData();
-		if (this.configuracao.temCaminhoSolucao()) {
-			salvarSolucao(this.configuracao.getCaminhoAbsolutoDadosSolucao());
+	protected static void assureDiretoryForFile(File file) throws IOException {
+		if (! file.getParentFile().exists()) {
+			if (! file.getParentFile().mkdirs()) {
+				throw new IOException(String.format("Failed to create directory '%s'.", file.getParentFile().getAbsolutePath()));
+			}
 		}
 	}
 
@@ -129,17 +161,18 @@ public class ComandoOPL {
 	 */
 	protected void salvarDadosExternos(File caminho) {
 		assert NullArgumentException.apply(caminho);
+		assert IllegalArgumentException.apply(caminho.isAbsolute());
 		assert IllegalAttributeException.apply(this.oplModel != null);
+
 		try {
-			assert IllegalArgumentException.apply(caminho.isAbsolute());
-			if (! caminho.getParentFile().exists()) {
-				caminho.getParentFile().mkdirs();
-			}
+			ComandoOPL.assureDiretoryForFile(caminho);
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printExternalData(os);
 			os.close();
-		} catch (IOException e) {
-			ComandoOPL.loggerExecucao.warn("Falha ao salvar dados externos.", e);
+
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar configurações.", e);
 		}
 	}
 
@@ -149,17 +182,17 @@ public class ComandoOPL {
 	 */
 	protected void salvarSolucao(File caminho) {
 		assert NullArgumentException.apply(caminho);
+		assert IllegalArgumentException.apply(caminho.isAbsolute());
 		assert IllegalAttributeException.apply(this.oplModel != null);
+
 		try {
-			assert IllegalArgumentException.apply(caminho.isAbsolute());
-			if (! caminho.getParentFile().exists()) {
-				caminho.getParentFile().mkdirs();
-			}
+			ComandoOPL.assureDiretoryForFile(caminho);
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printSolution(os);
 			os.close();
-		} catch (IOException e) {
-			ComandoOPL.loggerExecucao.warn("Falha ao salvar dados da solução.", e);
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar configurações.", e);
 		}
 	}
 
@@ -169,44 +202,44 @@ public class ComandoOPL {
 	 */
 	protected void salvarDadosInternos(File caminho) {
 		assert NullArgumentException.apply(caminho);
+		assert IllegalArgumentException.apply(caminho.isAbsolute());
 		assert IllegalAttributeException.apply(this.oplModel != null);
+
 		try {
-			assert IllegalArgumentException.apply(caminho.isAbsolute());
-			if (! caminho.getParentFile().exists()) {
-				caminho.getParentFile().mkdirs();
-			}
+			ComandoOPL.assureDiretoryForFile(caminho);
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printInternalData(os);
 			os.close();
-		} catch (IOException e) {
-			ComandoOPL.loggerExecucao.warn("Falha ao salvar dados internos.", e);
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar configurações.", e);
 		}
 	}
 
-	protected static final String propertyPrintPattern = "  - %s = %s%n";
+	protected static final String strPropertyPrintPattern = "  - %s = %s%n";
 
 	/** Registra no log propriedades do modelo OPL. */
 	protected void logPropriedades() {
 		assert IllegalAttributeException.apply(this.oplModel != null);
 		IloOplModelDefinition definition = oplModel.getModelDefinition();
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoOPL.loggerExecucao);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		out.println("Propriedades do modelo OPL:");
-		out.format(ComandoOPL.propertyPrintPattern, "id", oplModel.getModelID());
-		out.format(ComandoOPL.propertyPrintPattern, "name", oplModel.getName());
-		out.format(ComandoOPL.propertyPrintPattern, "hasMain", definition.hasMain());
-		out.format(ComandoOPL.propertyPrintPattern, "hasObjective", definition.hasObjective());
-		out.format(ComandoOPL.propertyPrintPattern, "isNonLinear", definition.isNonLinear());
-		out.format(ComandoOPL.propertyPrintPattern, "isNull", definition.isNull());
-		out.format(ComandoOPL.propertyPrintPattern, "isSimpleObjective", definition.isSimpleObjective());
-		out.format(ComandoOPL.propertyPrintPattern, "isUsingCP", definition.isUsingCP());
-		out.format(ComandoOPL.propertyPrintPattern, "isUsingCplex", definition.isUsingCplex());
+		out.format(ComandoOPL.strPropertyPrintPattern, "id", Integer.toString(oplModel.getModelID()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "name", oplModel.getName());
+		out.format(ComandoOPL.strPropertyPrintPattern, "hasMain", Boolean.toString(definition.hasMain()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "hasObjective", Boolean.toString(definition.hasObjective()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "isNonLinear", Boolean.toString(definition.isNonLinear()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "isNull", Boolean.toString(definition.isNull()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "isSimpleObjective", Boolean.toString(definition.isSimpleObjective()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "isUsingCP", Boolean.toString(definition.isUsingCP()));
+		out.format(ComandoOPL.strPropertyPrintPattern, "isUsingCplex", Boolean.toString(definition.isUsingCplex()));
 		out.close();
 	}
 
 	/** Registra no log uma cópia dos dados da solução. */
 	protected void logSolutionData() {
-		if(! ComandoOPL.loggerSolucao.isInfoEnabled()) return;
-		PrintStream ps = LoggerFactory.getInfoPrintStream(ComandoOPL.loggerSolucao);
+		if(! loggerSolucao.isInfoEnabled()) return;
+		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerSolucao);
 		ps.println();
 		this.oplModel.printSolution(ps);
 		ps.close();
@@ -214,16 +247,16 @@ public class ComandoOPL {
 
 	/** Registra no log uma cópia dos dados 'internos', que são dados calculados pelo modelo OPL usado dados 'externos' ou dados da solução. */
 	protected void logInternalData() {
-		if(! ComandoOPL.loggerExternalData.isInfoEnabled()) return;
-		PrintStream ps = LoggerFactory.getInfoPrintStream(ComandoOPL.loggerInternalData);
+		if(! loggerExternalData.isInfoEnabled()) return;
+		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerInternalData);
 		this.oplModel.printInternalData(ps);
 		ps.close();
 	}
 
 	/** Registra no log uma cópia dos dados 'externos', que são os dados passados como entrada para o modelo OPL, tipicamente por um arquivo .DAT ou pelos datasources Java. */
 	protected void logExternalData() {
-		if(! ComandoOPL.loggerInternalData.isInfoEnabled()) return;
-		PrintStream ps = LoggerFactory.getInfoPrintStream(ComandoOPL.loggerExternalData);
+		if(! loggerInternalData.isInfoEnabled()) return;
+		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerExternalData);
 		this.oplModel.printExternalData(ps);
 		ps.close();
 	}
