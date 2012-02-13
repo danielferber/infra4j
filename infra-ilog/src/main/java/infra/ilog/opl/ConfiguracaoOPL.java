@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -67,9 +67,10 @@ public class ConfiguracaoOPL {
 	 * Cria uma configuração relativa a um caminho base.
 	 * @param caminho O caminho base da configuração. Todos os demais caminhos da configuração são relativos a ele. Deve ser absoluto.
 	 */
-	public ConfiguracaoOPL(File caminho) {
-		assert NullArgumentException.apply(caminho);
+	public ConfiguracaoOPL(String nome, File caminho) {
+		assert NullArgumentException.apply(nome, caminho);
 		assert IllegalArgumentException.apply(caminho.isAbsolute());
+		this.nome = nome;
 		this.caminhoBase = caminho;
 	}
 
@@ -78,8 +79,11 @@ public class ConfiguracaoOPL {
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
 	public ConfiguracaoOPL(ConfiguracaoOPL configuracao) {
-		assert NullArgumentException.apply(configuracao.caminhoBase);
+		assert IllegalArgumentException.apply(configuracao.nome != null);
+		assert IllegalArgumentException.apply(configuracao.caminhoBase != null);
 		assert IllegalArgumentException.apply(configuracao.caminhoBase.isAbsolute());
+
+		this.nome = configuracao.nome;
 		this.modoDebug = configuracao.modoDebug;
 		this.usarNomes = configuracao.usarNomes;
 		this.usarValidacao = configuracao.usarValidacao;
@@ -90,6 +94,10 @@ public class ConfiguracaoOPL {
 		this.caminhoDadosInternosOpl = configuracao.caminhoDadosInternosOpl;
 		this.caminhoDadosSolucaoOpl = configuracao.caminhoDadosSolucaoOpl;
 	}
+
+	private String nome;
+	public String getNome() { return nome; }
+	public void setNome(String nome) { this.nome = nome; }
 
 	/** O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	private File caminhoBase = new File(System.getProperty("user.dir"));

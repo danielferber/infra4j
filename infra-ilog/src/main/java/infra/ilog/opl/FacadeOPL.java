@@ -50,15 +50,20 @@ import org.slf4j.Logger;
  * @author Daniel Felix Ferber - X7WS
  */
 public class FacadeOPL {
-	protected static final Logger logger = LoggerFactory.getLogger("ilog.opl");
-	protected static final Logger loggerMeter = LoggerFactory.getLogger(FacadeOPL.logger, "meter");
-	protected static final Logger loggerExecucao = LoggerFactory.getLogger(FacadeOPL.logger, "execucao");
-	protected static final Logger loggerModelo = LoggerFactory.getLogger(FacadeOPL.logger, "dados.modelo");
+	public final Logger logger;
+	public final Logger loggerMeter;
+	public final Logger loggerExecucao;
+	public final Logger loggerDados;
+	public final Logger loggerModelo;
 
 	/** Container com as configurações para esta instância. */
 	private final ConfiguracaoOPL configuracaoOpl;
 	protected ConfiguracaoOPL getConfiguracaoOpl() { return configuracaoOpl; }
 
+	/*
+	 * TODO Estudar se é realmente necessário ter sempre uma referência da configuração Cplex/CP, ou se ela
+	 * pode ser passada diretamente no método executar.
+	 */
 	/** Container com as configurações para esta instância. */
 	private final ConfiguracaoCplex configuracaoCplex;
 	protected ConfiguracaoCplex getConfiguracaoCplex() { 	return configuracaoCplex; }
@@ -72,6 +77,10 @@ public class FacadeOPL {
 	private final Collection<FonteDados> dataSources;
 	private final Collection<ConsumidorDados> dataSinks;
 
+	/*
+	 * TODO Deveria ser Motivos para RuntimeException, uma vez que nem todos não são erros esperados para acontecer.
+	 * É necessário estudar melhor cada uma das possibilidades.
+	 */
 	public static enum MotivoExecutarOpl implements Motivo {
 		ACESSAR_BIBLIOTECA("Falha ao acessar biblioteca do solucionador OPL."),
 		CRIAR_SETTINGS("Falha ao criar configuração do solucionador OPL."),
@@ -113,15 +122,21 @@ public class FacadeOPL {
 		} else {
 			this.dataSinks = Collections.emptySet();
 		}
+
+		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracaoOpl.getNome());
+		this.loggerMeter = LoggerFactory.getLogger(this.logger, "meter");
+		this.loggerExecucao = LoggerFactory.getLogger(this.logger, "execucao");
+		this.loggerDados = LoggerFactory.getLogger(this.logger, "dados");
+		this.loggerModelo = LoggerFactory.getLogger(this.loggerDados, "modelo");
 	}
 
 	public void executar() throws MotivoException {
-		Meter taskGeral = MeterFactory.getMeter(FacadeOPL.logger, "facadeOpl").setMessage("Executar FacadeOPL.").start();
 		Meter task = null;
 		IloOplModelDefinition oplModelDefinition = null;
 		CustomErrorHandler customOplErrorHandler = null;
 		IloOplSettings oplSettings = null;
 
+		Meter taskGeral = MeterFactory.getMeter(loggerMeter, "facadeOpl").setMessage("Executar FacadeOPL.").start();
 		try {
 			/*
 			 * INICIALIZAÇÃO.
@@ -158,7 +173,7 @@ public class FacadeOPL {
 			task = MeterFactory.getMeter(taskGeral, "configurar").setMessage("Configurar OPL.").start();
 			try {
 				/* Error handler. */
-				customOplErrorHandler = new CustomErrorHandler(oplFactory, FacadeOPL.loggerExecucao);
+				customOplErrorHandler = new CustomErrorHandler(oplFactory, loggerExecucao);
 				oplSettings = oplFactory.createOplSettings(customOplErrorHandler);
 
 				/*
@@ -179,7 +194,7 @@ public class FacadeOPL {
 				 * apresente um comportamento diferente do esperado.
 				 */
 				if (configuracaoOpl.getModoDebug()) {
-					FacadeOPL.loggerExecucao.warn("OPL configurado em modo DEBUG.");
+					loggerExecucao.warn("OPL configurado em modo DEBUG.");
 				}
 				oplSettings.setKeepTmpFiles(configuracaoOpl.getModoDebug());
 				oplSettings.setWithWarnings(configuracaoOpl.getModoDebug());
@@ -192,14 +207,14 @@ public class FacadeOPL {
 					File caminho = configuracaoOpl.getCaminhoAbsolutoTmp();
 					if (! caminho.exists()) {
 						if (! caminho.mkdirs()) {
-							FacadeOPL.loggerExecucao.warn("Impossível criar diretório{}.", caminho.getAbsolutePath());
+							loggerExecucao.warn("Impossível criar diretório{}.", caminho.getAbsolutePath());
 						}
 					}
 					if (! caminho.exists()) {
 						throw new FileNotFoundException(caminho.getAbsolutePath());
 					}
 					oplSettings.setTmpDir(caminho.getAbsolutePath());
-					FacadeOPL.loggerExecucao.warn("Usar diretório temporário de execução: {}.", caminho.getAbsolutePath());
+					loggerExecucao.warn("Usar diretório temporário de execução: {}.", caminho.getAbsolutePath());
 				}
 
 				/*
@@ -212,15 +227,15 @@ public class FacadeOPL {
 				oplSettings.setWithLocations(usarNomes);
 				oplSettings.setForceElementUsage(usarNomes);
 				if (usarNomes) {
-					FacadeOPL.loggerExecucao.debug("Preservar nomes entre modelos.");
+					loggerExecucao.debug("Preservar nomes entre modelos.");
 				}
 
 				boolean usarValidacao = configuracaoOpl.getUsarValidacao();
 				oplSettings.setSkipAssert(! usarValidacao);
 				if (usarValidacao) {
-					FacadeOPL.loggerExecucao.debug("Validar modelo com asserts.");
+					loggerExecucao.debug("Validar modelo com asserts.");
 				} else {
-					FacadeOPL.loggerExecucao.debug("Não validar modelo com asserts.");
+					loggerExecucao.debug("Não validar modelo com asserts.");
 				}
 
 				// TODO: Entender para que serve este parâmetro, que ainda não foi aproveitado.
@@ -249,7 +264,7 @@ public class FacadeOPL {
 			try {
 				/* Aciona o ModeloProvider para recuperar o código fonte do modelo. */
 				String textoModelo = modeloProvider.getConteudo();
-				PrintStream ps = LoggerFactory.getInfoPrintStream(FacadeOPL.loggerModelo);
+				PrintStream ps = LoggerFactory.getInfoPrintStream(loggerModelo);
 				ps.println(textoModelo);
 				ps.close();
 
@@ -295,7 +310,7 @@ public class FacadeOPL {
 			 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 			 */
 			if (configuracaoCplex != null) {
-				task = MeterFactory.getMeter(FacadeOPL.loggerMeter, "criarCplex").setMessage("Criar CPLEX.").start();
+				task = MeterFactory.getMeter(taskGeral, "criarCplex").setMessage("Criar CPLEX.").start();
 				try {
 						IloCplex cplex = this.oplFactory.createCplex();
 						comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
@@ -319,7 +334,7 @@ public class FacadeOPL {
 			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
-					FacadeOPL.loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
+					loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
 					fonte.definir(this.oplModel);
 				}
 				task.ok();
@@ -330,7 +345,7 @@ public class FacadeOPL {
 			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();
 			try {
 				for (ConsumidorDados consumidor : this.dataSinks) {
-					FacadeOPL.loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
+					loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
 					consumidor.definir(this.oplModel);
 				}
 				task.ok();
@@ -348,11 +363,11 @@ public class FacadeOPL {
 			task = MeterFactory.getMeter(taskGeral, "importarDados").setMessage("Importar dados das fontes.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
-					FacadeOPL.loggerExecucao.debug("Preparar fonte '{}'.", fonte.getNome());
+					loggerExecucao.debug("Preparar fonte '{}'.", fonte.getNome());
 					fonte.preparar(this.oplModel);
 				}
 				for (FonteDados fonte : this.dataSources) {
-					FacadeOPL.loggerExecucao.debug("Importar fonte '{}'.", fonte.getNome());
+					loggerExecucao.debug("Importar fonte '{}'.", fonte.getNome());
 					fonte.importar(this.oplModel);
 				}
 
@@ -379,7 +394,7 @@ public class FacadeOPL {
 
 				/* Fecha os datasources abertos no passo anterior. */
 				for (FonteDados fonte : this.dataSources) {
-					FacadeOPL.loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getNome());
+					loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getNome());
 					fonte.finalizar(this.oplModel);
 				}
 
@@ -395,19 +410,19 @@ public class FacadeOPL {
 			/*
 			 * EXECUTAR.
 			 */
-			task = MeterFactory.getMeter(FacadeOPL.loggerMeter, "executar").setMessage("Executar solucionador").start();
-			try {
+//			task = MeterFactory.getMeter(FacadeOPL.loggerMeter, "executar").setMessage("Executar solucionador").start();
+//			try {
 				ComandoOPL comandoOpl = new ComandoOPL(this.oplModel, configuracaoOpl, comandoSolver);
 				comandoOpl.executar();
-
-				task.ok();
-			} catch (RuntimeException e) {
-				task.fail(e);
-				throw e;
-			} catch (MotivoException e) {
-				task.fail(e);
-				throw e;
-			}
+//
+//				task.ok();
+//			} catch (RuntimeException e) {
+//				task.fail(e);
+//				throw e;
+//			} catch (MotivoException e) {
+//				task.fail(e);
+//				throw e;
+//			}
 
 			/*
 			 * PÓS PROCESSAR.
@@ -471,21 +486,6 @@ public class FacadeOPL {
 //				System.out.print(element.toStringDisplay());
 //				System.out.println(";");
 //			}
-			/*
-			 * TODO Ainda está chamando o handler a moda antiga.
-			 */
-	//		try {
-	//			modelHandler.lerSolucao(this.oplModel);
-	//
-	//			/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
-	//			errorHandler.throwExceptionOnError();
-	//
-	//			op.success();
-	//		} catch (Exception e) {
-	//			op.failure(e);
-	//			throw new MotivoException(e, MotivoExecutarOpl.OBTER_SOLUCAO);
-	//		}
-
 			taskGeral.ok();
 		} catch (RuntimeException e) {
 			taskGeral.fail(e);
@@ -506,7 +506,7 @@ public class FacadeOPL {
 	@Override
 	protected void finalize() throws Throwable {
 		if (this.oplFactory != null) {
-			FacadeOPL.loggerExecucao.error("Uma instância oplFactory não foi finalizada corretamente!");
+			loggerExecucao.error("Uma instância oplFactory não foi finalizada corretamente!");
 			this.oplFactory.end();
 //			não é considerado uma boa prática....
 //			this.oplFactory = null;

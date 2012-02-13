@@ -23,6 +23,7 @@ import infra.exception.assertions.controlstate.bug.ImpossibleConditionException;
 import infra.exception.assertions.controlstate.bug.ImpossibleException;
 import infra.exception.assertions.controlstate.design.UnsupportedException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
@@ -35,6 +36,7 @@ import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 
 import org.slf4j.Logger;
@@ -63,9 +65,10 @@ import org.slf4j.Logger;
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
 public class ComandoCplex implements ComandoSolver {
-	protected static final Logger logger = LoggerFactory.getLogger("ilog.cplex");
-	protected static final Logger loggerExecucao = LoggerFactory.getLogger(ComandoCplex.logger, "execucao");
-	protected static final Logger loggerMeter = LoggerFactory.getLogger(ComandoCplex.logger, "execucao");
+	public final Logger logger;
+	public final Logger loggerExecucao;
+	public final Logger loggerMeter;
+	public final Logger loggerDados;
 
 	/**
 	 * O {@link ComandoSolver} delega para esta classe algumas decisões sobre como
@@ -112,6 +115,11 @@ public class ComandoCplex implements ComandoSolver {
 		this.configuracao = new ConfiguracaoCplex(configuracao); /* guarda uma cópia da configuração. */
 		this.cplex = cplex;
 		this.delegate = configuracao.getDelegate();
+
+		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.cplex"), configuracao.getNome());
+		this.loggerExecucao = LoggerFactory.getLogger(logger, "execucao");
+		this.loggerMeter = LoggerFactory.getLogger(logger, "meter");
+		this.loggerDados = LoggerFactory.getLogger(logger, "dados");
 	}
 
 	/** Descreve a possibilidade do CPLEX falhar quando a biblioteca ILOG lança uma exceção. */
@@ -130,37 +138,38 @@ public class ComandoCplex implements ComandoSolver {
 	public void executar() throws MotivoException {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert IllegalAttributeException.apply(this.configuracao != null);
-
-		Meter meterExecutar = MeterFactory.getMeter(ComandoCplex.loggerMeter, "executar").setMessage("Executar CPLEX");
-
 		try {
 			IllegalAttributeException.apply(this.cplex.getStatus() == Status.Unknown); /* não pode ter rodado o cplex ainda. */
 		} catch (IloException e) {
-			throw new ImpossibleException(e);
+			/* IloCplex.getStatus() is not known to actually throw IloException. */
+			throw new UnsupportedException(e);
 		}
 
-		/*
-		 * Reportar propriedades do solucionador.
-		 */
-		logPropriedadesSolucionadorCplex();
-
-		/*
-		 * Reportar modelo e parâmetros em arquivo para depuração com CPLEX Studio, se assim configurado.
-		 */
-		if (this.configuracao.temCaminhoModeloExportado()) {
-			salvarModelo(this.configuracao.getCaminhoAbsolutoModeloExportado());
-		}
-		if (this.configuracao.temCaminhoParametrosExportados()) {
-			salvarSettings(this.configuracao.getCaminhoAbsolutoParametrosExportados());
-		}
-
-		meterExecutar.start();
+		Meter op = MeterFactory.getMeter(loggerMeter, "executar").setMessage("Executar CPLEX").start();
 		try {
+			/*
+			 * Reportar propriedades do solucionador.
+			 */
+			logPropriedadesSolucionadorCplex();
+
+			/*
+			 * Reportar modelo e parâmetros em arquivo para depuração com CPLEX Studio, se assim configurado.
+			 */
+			if (this.configuracao.temCaminhoModeloExportado()) {
+				salvarModelo(this.configuracao.getCaminhoAbsolutoModeloExportado());
+			}
+			if (this.configuracao.temCaminhoParametrosExportados()) {
+				salvarSettings(this.configuracao.getCaminhoAbsolutoParametrosExportados());
+			}
+
 			int numeroIteracao = 0;
 			while (true) {
 				numeroIteracao++;
-				Meter meterInteracao = MeterFactory.getMeter(ComandoCplex.loggerMeter, "executar").setMessage("Interação %d", numeroIteracao);
-				meterInteracao.start();
+				Meter opI = MeterFactory.getMeter(loggerMeter, "interacao")
+						.put("n", Integer.toString(numeroIteracao))
+						.setMessage("Interação %d", numeroIteracao)
+						.start();
+
 				try {
 
 					/*
@@ -194,27 +203,31 @@ public class ComandoCplex implements ComandoSolver {
 						break;
 					}
 
-					meterInteracao.ok();
+					opI.ok();
 				} catch (Exception e) {
-					meterInteracao.fail(e);
+					opI.fail(e);
+					throw e;
 				}
 			}
 
 			validarEstadoFinalCplex();
 
-			meterExecutar.ok();
+			op.ok();
 		} catch (MotivoException e) {
-			meterExecutar.fail(e);
+			op.fail(e);
 			throw e;
 		} catch (Exception e) {
-			meterExecutar.fail(e);
-			throw new MotivoException(MotivoExecutarCplex.CPLEX, e);
+			op.fail(e);
+			throw new UnhandledException(e);
 		}
 	}
 
-	protected void executarIteracao() throws MotivoException {
+	protected void executarIteracao() {
+		assert IllegalAttributeException.apply(this.cplex != null);
+		assert IllegalAttributeException.apply(this.configuracao != null);
+
 		/*
-		 * TODO aplicar configurações ao CPLEX de acordo com a subclasse da configuração.
+		 * TODO Aplicar configurações ao CPLEX de acordo com a subclasse da configuração.
 		 */
 		try {
 			if (configuracao.getSimplexLimiteDeIteracoes() != null) {
@@ -224,25 +237,52 @@ public class ComandoCplex implements ComandoSolver {
 				cplex.setParam(IloCplex.DoubleParam.TiLim, configuracao.getSimplexLimiteDeTempo());
 			}
 		} catch (IloException e) {
+			/* IloCplex.setParam() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		}
 
 		/*
-		 * Resolver!
+		 * Reportar propriedades do modelo.
 		 */
 		logPropriedadesModelo();
+
+		/*
+		 * Ativar callbacks que direcionam o progresso do CPLEX no log.
+		 */
+		try {
+			/*
+			 * TODO O uso do callback precisa ser melhor estudado para não impedir multi-threading.
+			 */
+			cplex.use(new PresolveCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
+			cplex.use(new ContinuousCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
+		} catch (IloException e) {
+			/* IloCplex.use() is not known to actually throw IloException. */
+			throw new UnsupportedException(e);
+		}
+
+
 		boolean solucaoEncontrada = false;
 		try {
-			/* TODO o uso do callback precisa ser melhor estudado para não impedir multi-threading. */
-			//cplex.use(new PresolveCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
-			//cplex.use(new ContinuousCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
-			// TODO Implementar outputstream para capturar saida do cplex.
-			// Filtrar mensagens de erro vindas do cplex e jogar no log.
-			//			cplex.setOut(s);
+			/*
+			 * TODO Implementar outputstream para capturar saida do cplex.
+			 * Filtrar mensagens de erro vindas do cplex e jogar no log.
+			 * cplex.setOut(s);
+			 */
+
+			/*
+			 * Resolver!
+			 */
 			solucaoEncontrada = this.cplex.solve();
 		} catch (IloException e) {
-			throw new MotivoException(e, MotivoExecutarCplex.CPLEX);
+			/*
+			 * TODO Estudar melhor quais exceções fazem sentido. Se não houver alguma, mudar para UnsupportedException.
+			 */
+			throw new UnhandledException(e);
 		}
+
+		/*
+		 * Reportar o tipo de resultado obtido.
+		 */
 		logPropriedadesResultado(solucaoEncontrada);
 
 		/*
@@ -261,10 +301,11 @@ public class ComandoCplex implements ComandoSolver {
 	/**
 	 * Lança {@link MotivoException} se o CPLEX está num estado que proibe nova execução.
 	 */
-	private void validarEstadoCplex() throws MotivoException {
+	protected void validarEstadoCplex() throws MotivoException {
+		assert IllegalAttributeException.apply(this.cplex != null);
 		try {
 			if (IloCplex.Status.Error.equals(this.cplex.getStatus())) {
-				// TODO criar tratamento específico caso o CPLEX apresente um erro interno.
+				/* TODO criar tratamento específico caso o CPLEX apresente um erro interno. */
 				throw new UnimplementedConditionException();
 			} else if (IloCplex.Status.Infeasible.equals(this.cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
@@ -294,10 +335,11 @@ public class ComandoCplex implements ComandoSolver {
 	/**
 	 * Lança MotivoException se o CPLEX está num estado considerado insucesso.
 	 */
-	private void validarEstadoFinalCplex() throws MotivoException {
+	protected void validarEstadoFinalCplex() throws MotivoException {
+		assert IllegalAttributeException.apply(this.cplex != null);
 		try {
 			if (IloCplex.Status.Error.equals(this.cplex.getStatus())) {
-				// TODO criar tratamento específico caso o CPLEX apresente um erro interno.
+				/* TODO criar tratamento específico caso o CPLEX apresente um erro interno. */
 				throw new UnimplementedConditionException();
 			} else if (IloCplex.Status.Infeasible.equals(this.cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais). */
@@ -326,16 +368,17 @@ public class ComandoCplex implements ComandoSolver {
 		}
 	}
 
-	protected static final String propertyPrintPattern = "  - %s = %s%n";
+	protected static final String strPropertyPrintPattern = "  - %s = %s%n";
 
 	protected void logPropriedadesSolucionadorCplex() {
 		assert IllegalAttributeException.apply(this.cplex != null);
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoCplex.loggerExecucao);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características do CPLEX:");
-			out.format(ComandoCplex.propertyPrintPattern, "version", cplex.getVersion());
+			out.format(ComandoCplex.strPropertyPrintPattern, "version", cplex.getVersion());
 			out.println();
 		} catch (IloException e) {
+			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		} finally {
 			out.close();
@@ -344,42 +387,67 @@ public class ComandoCplex implements ComandoSolver {
 
 	protected void logPropriedadesExecucao() {
 		assert IllegalAttributeException.apply(this.cplex != null);
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoCplex.loggerExecucao);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características da execução:");
-			out.format(ComandoCplex.propertyPrintPattern, "getAlgorithm", algorithmName(cplex.getAlgorithm()));
-			out.format(ComandoCplex.propertyPrintPattern, "getSubAlgorithm", algorithmName(cplex.getSubAlgorithm()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "algorithm", ComandoCplex.algorithmName(cplex.getAlgorithm()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "subAlgorithm", ComandoCplex.algorithmName(cplex.getSubAlgorithm()));
 			out.println();
 		} catch (IloException e) {
+			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		} finally {
 			out.close();
 		}
 	}
 
+	protected void logPropriedadesModelo() {
+		assert IllegalAttributeException.apply(this.cplex != null);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
+		out.println("Características da matriz:");
+		out.format(ComandoCplex.strPropertyPrintPattern, "colunas", Integer.toString(cplex.getNcols()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "linhas", Integer.toString(cplex.getNrows()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis binárias", Integer.toString(cplex.getNbinVars()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis inteiras", Integer.toString(cplex.getNintVars()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiContVars()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiIntVars()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "elementos não zeros", Integer.toString(cplex.getNNZs()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "restrições quadráticas", Integer.toString(cplex.getNQCs()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "special ordered sets", Integer.toString(cplex.getNSOSs()));
+		out.println();
+		out.println("Características do problema:");
+		out.format(ComandoCplex.strPropertyPrintPattern, "mixed integer program", Boolean.toString(cplex.isMIP()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic program", Boolean.toString(cplex.isQP()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic constrains", Boolean.toString(cplex.isQC()));
+		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic objective", Boolean.toString(cplex.isQO()));
+		out.println();
+		out.close();
+	}
+
 	protected void logPropriedadesResultado(boolean solucaoEncontrada) {
 		assert IllegalAttributeException.apply(this.cplex != null);
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoCplex.loggerExecucao);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características da solução:");
-			out.format(ComandoCplex.propertyPrintPattern, "status cplex", cplex.getCplexStatus().toString());
-			out.format(ComandoCplex.propertyPrintPattern, "sub status cplex", cplex.getCplexSubStatus().toString());
+			out.format(ComandoCplex.strPropertyPrintPattern, "status cplex", cplex.getCplexStatus().toString());
+			out.format(ComandoCplex.strPropertyPrintPattern, "sub status cplex", cplex.getCplexSubStatus().toString());
 			out.println();
-			out.format(ComandoCplex.propertyPrintPattern, "existe solução", solucaoEncontrada);
-			out.format(ComandoCplex.propertyPrintPattern, "existe solução primal", cplex.isPrimalFeasible());
-			out.format(ComandoCplex.propertyPrintPattern, "existe solução dual", cplex.isDualFeasible());
-			out.format(ComandoCplex.propertyPrintPattern, "status da solução", cplex.getStatus().toString());
+			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução", Boolean.toString(solucaoEncontrada));
+			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução primal", Boolean.toString(cplex.isPrimalFeasible()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução dual", Boolean.toString(cplex.isDualFeasible()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "status da solução", cplex.getStatus().toString());
 			out.println();
-			out.format(ComandoCplex.propertyPrintPattern, "nós analisados", cplex.getNnodes());
-			out.format(ComandoCplex.propertyPrintPattern, "nós restantes", cplex.getNnodesLeft());
+			out.format(ComandoCplex.strPropertyPrintPattern, "nós analisados", Integer.toString(cplex.getNnodes()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "nós restantes", Integer.toString(cplex.getNnodesLeft()));
 			out.println();
-			out.format(ComandoCplex.propertyPrintPattern, "interações", cplex.getNiterations());
-			out.format(ComandoCplex.propertyPrintPattern, "interações simplex fase 1", cplex.getNphaseOneIterations());
-			out.format(ComandoCplex.propertyPrintPattern, "interações sifting fase 1", cplex.getNsiftingPhaseOneIterations());
-			out.format(ComandoCplex.propertyPrintPattern, "interações sifting", cplex.getNsiftingIterations());
-			out.format(ComandoCplex.propertyPrintPattern, "interações barreira", cplex.getNbarrierIterations());
+			out.format(ComandoCplex.strPropertyPrintPattern, "interações", Integer.toString(cplex.getNiterations()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "interações simplex fase 1", Integer.toString(cplex.getNphaseOneIterations()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting fase 1", Integer.toString(cplex.getNsiftingPhaseOneIterations()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting", Integer.toString(cplex.getNsiftingIterations()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "interações barreira", Integer.toString(cplex.getNbarrierIterations()));
 			out.println();
 		} catch (IloException e) {
+			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		} finally {
 			out.close();
@@ -388,21 +456,22 @@ public class ComandoCplex implements ComandoSolver {
 
 	protected void logPropriedadesSolucao() {
 		assert IllegalAttributeException.apply(this.cplex != null);
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoCplex.loggerExecucao);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
-			out.format(ComandoCplex.propertyPrintPattern, "número de soluções", cplex.getSolnPoolNsolns());
-			out.format(ComandoCplex.propertyPrintPattern, "função objetivo da última solução", cplex.getObjValue());
-			out.format(ComandoCplex.propertyPrintPattern, "função objetivo da melhor solução", cplex.getBestObjValue());
+			out.format(ComandoCplex.strPropertyPrintPattern, "número de soluções", Integer.toString(cplex.getSolnPoolNsolns()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da última solução", Double.toString(cplex.getObjValue()));
+			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da melhor solução", Double.toString(cplex.getBestObjValue()));
 			out.println();
 			out.close();
 		} catch (IloException e) {
+			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		} finally {
 			out.close();
 		}
 	}
 
-	protected String algorithmName(int algorithm) {
+	protected static String algorithmName(int algorithm) {
 		if (algorithm == Algorithm.Auto) {
 			return "Auto";
 		} else if (algorithm == Algorithm.Barrier) {
@@ -424,68 +493,54 @@ public class ComandoCplex implements ComandoSolver {
 		}
 	}
 
-	protected void logPropriedadesModelo() {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		PrintStream out = LoggerFactory.getInfoPrintStream(ComandoCplex.loggerExecucao);
-		out.println("Características da matriz:");
-		out.format(ComandoCplex.propertyPrintPattern, "colunas", cplex.getNcols());
-		out.format(ComandoCplex.propertyPrintPattern, "linhas", cplex.getNrows());
-		out.format(ComandoCplex.propertyPrintPattern, "variáveis binárias", cplex.getNbinVars());
-		out.format(ComandoCplex.propertyPrintPattern, "variáveis inteiras", cplex.getNintVars());
-		out.format(ComandoCplex.propertyPrintPattern, "variáveis semi contínuas", cplex.getNsemiContVars());
-		out.format(ComandoCplex.propertyPrintPattern, "variáveis semi contínuas", cplex.getNsemiIntVars());
-		out.format(ComandoCplex.propertyPrintPattern, "elementos não zeros", cplex.getNNZs());
-		out.format(ComandoCplex.propertyPrintPattern, "restrições quadráticas", cplex.getNQCs());
-		out.format(ComandoCplex.propertyPrintPattern, "special ordered sets", cplex.getNSOSs());
-		out.println();
-		out.println("Características do problema:");
-		out.format(ComandoCplex.propertyPrintPattern, "mixed integer program", cplex.isMIP());
-		out.format(ComandoCplex.propertyPrintPattern, "quadratic program", cplex.isQP());
-		out.format(ComandoCplex.propertyPrintPattern, "quadratic constrains", cplex.isQC());
-		out.format(ComandoCplex.propertyPrintPattern, "quadratic objective", cplex.isQO());
-		out.println();
-		out.close();
+	protected static void assureDiretoryForFile(File file) throws IOException {
+		if (! file.getParentFile().exists()) {
+			if (! file.getParentFile().mkdirs()) {
+				throw new IOException(String.format("Failed to create directory '%s'.", file.getParentFile().getAbsolutePath()));
+			}
+		}
 	}
 
 	protected void salvarModelo(File file) {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert NullArgumentException.apply(file);
+		assert IllegalArgumentException.apply(file.isAbsolute());
+
 		try {
-			assert IllegalArgumentException.apply(file.isAbsolute());
-			if (! file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
-		this.cplex.exportModel(file.getAbsolutePath());
-		} catch (IloException e) {
-			ComandoCplex.loggerExecucao.warn("Falha ao salvar modelo.", e);
+			ComandoCplex.assureDiretoryForFile(file);
+			this.cplex.exportModel(file.getAbsolutePath());
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar modelo.", e);
 		}
 	}
+
 
 	protected void salvarSettings(File file) {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert NullArgumentException.apply(file);
+		assert IllegalArgumentException.apply(file.isAbsolute());
+
 		try {
-			assert IllegalArgumentException.apply(file.isAbsolute());
-			if (!file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
+			ComandoCplex.assureDiretoryForFile(file);
 			this.cplex.writeParam(file.getAbsolutePath());
-		} catch (IloException e) {
-			ComandoCplex.loggerExecucao.warn("Falha ao salvar configurações.", e);
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar configurações.", e);
 		}
 	}
 
 	protected void salvarSolucao(File file) {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert NullArgumentException.apply(file);
+		assert IllegalArgumentException.apply(file.isAbsolute());
+
 		try {
-			assert IllegalArgumentException.apply(file.isAbsolute());
-			if (!file.getParentFile().exists()) {
-				file.getParentFile().mkdirs();
-			}
+			ComandoCplex.assureDiretoryForFile(file);
 			this.cplex.writeSolution(file.getAbsolutePath());
-		} catch (IloException e) {
-			ComandoCplex.loggerExecucao.warn("Falha ao salvar solução.", e);
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Falha ao salvar solução.", e);
 		}
 	}
 
@@ -493,5 +548,4 @@ public class ComandoCplex implements ComandoSolver {
 	public int hashCode() { throw new UnsupportedMethodException(); }
 	@Override
 	public boolean equals(Object obj) { throw new UnsupportedMethodException(); }
-
 }

@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -25,7 +25,9 @@ import java.io.File;
 
 /**
  * Parâmetros que controlam a execução da uma instância de {@link ComandoCplex}.
+ *
  * TODO: Criar subclasses especícias para cada um dos algoritmos de programação linear.
+ *
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
 public class ConfiguracaoCplex {
@@ -33,8 +35,8 @@ public class ConfiguracaoCplex {
 	 * Cria uma configuração relativa a um caminho base.
 	 * @param caminho O caminho base da configuração. Todos os demais caminhos da configuração são relativos a ele. Deve ser absoluto.
 	 */
-	public ConfiguracaoCplex(File caminho) {
-		NullArgumentException.apply(caminho);
+	public ConfiguracaoCplex(String nome, File caminho) {
+		NullArgumentException.apply(caminho, nome);
 		IllegalArgumentException.apply(caminho.isAbsolute());
 
 		this.caminhoBase = caminho;
@@ -45,6 +47,11 @@ public class ConfiguracaoCplex {
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
 	public ConfiguracaoCplex(ConfiguracaoCplex configuracao) {
+		assert IllegalArgumentException.apply(configuracao.nome != null);
+		assert IllegalArgumentException.apply(configuracao.caminhoBase != null);
+		assert IllegalArgumentException.apply(configuracao.caminhoBase.isAbsolute());
+
+		this.nome = configuracao.nome;
 		this.caminhoBase = configuracao.caminhoBase;
 		this.caminhoModeloExportado = configuracao.caminhoModeloExportado;
 		this.caminhoParametrosExportado = configuracao.caminhoParametrosExportado;
@@ -54,6 +61,10 @@ public class ConfiguracaoCplex {
 		this.simplexLimiteDeIteracoes = configuracao.simplexLimiteDeIteracoes;
 		this.simplexLimiteDeTempo = configuracao.simplexLimiteDeTempo;
 	}
+
+	private String nome;
+	public String getNome() { return nome; }
+	public void setNome(String nome) { this.nome = nome; }
 
 	/** O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	private File caminhoBase = new File(System.getProperty("user.dir"));
