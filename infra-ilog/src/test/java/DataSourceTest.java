@@ -36,8 +36,10 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-
-
+/**
+ * Verifica se os possíveis datasources estão funcionando corretamente.
+ * @author X7WS
+ */
 @SuppressWarnings("deprecation")
 public class DataSourceTest {
 	private ConfiguracaoOPL configuracaoOpl;

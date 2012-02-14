@@ -103,13 +103,19 @@ public class ComandoOPL {
 		IllegalAttributeException.apply(oplModel.hasCplex());
 		IllegalAttributeException.apply(oplModel.isGenerated());
 
-		Meter op = MeterFactory.getMeter(loggerMeter, "executar").setMessage("Executar OPL").start();
+		Meter op = MeterFactory.getMeter(loggerMeter, "executarOpl").setMessage("Executar OPL").start();
 		try {
 
 			/*
 			 * TODO Só faz sentido executar se não existe um main no modelo opl?
 			 * O comando OPL poderia ignorar o main e executar o modelo.
 			 * Ou chamar diretamente o main.
+			 */
+
+			/*
+			 * TODO Aparentemente, não é possível obter o modelo a partir do IloModel ou IloModelDefinition.
+			 * Se for possível, então é interessante jogar no log também, para manter simetria com os
+			 * loggers de solução, dados internos e dados externos.
 			 */
 
 			/*
@@ -169,10 +175,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printExternalData(os);
 			os.close();
-
+			loggerExecucao.info("Cópia dos dados externos salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar configurações.", e);
+			loggerExecucao.warn("Falha ao salvar cópia dos dados externos em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 
@@ -190,9 +196,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printSolution(os);
 			os.close();
+			loggerExecucao.info("Cópia da solução salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar configurações.", e);
+			loggerExecucao.warn("Falha ao salvar cópia da solução em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 
@@ -210,9 +217,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printInternalData(os);
 			os.close();
+			loggerExecucao.info("Cópia dos dados internos salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar configurações.", e);
+			loggerExecucao.warn("Falha ao salvar cópia dos dados internos em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 

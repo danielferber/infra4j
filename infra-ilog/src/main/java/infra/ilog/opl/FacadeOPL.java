@@ -15,6 +15,7 @@
  */
 package infra.ilog.opl;
 
+import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
 import ilog.opl.IloOplElementDefinition;
 import ilog.opl.IloOplFactory;
@@ -22,6 +23,7 @@ import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import ilog.opl.IloOplModelSource;
 import ilog.opl.IloOplSettings;
+import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.exception.motivo.Motivo;
@@ -29,12 +31,13 @@ import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.cplex.ComandoCplex;
 import infra.ilog.cplex.ConfiguracaoCplex;
+import infra.ilog.opl.CustomErrorHandler.ErroModeloException;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
 
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Collections;
@@ -80,6 +83,9 @@ public class FacadeOPL {
 	/*
 	 * TODO Deveria ser Motivos para RuntimeException, uma vez que nem todos não são erros esperados para acontecer.
 	 * É necessário estudar melhor cada uma das possibilidades.
+	 *
+	 * TODO Para a configuração e a obtenção do modelo, criar motivos específicos, pois eles
+	 * podem carregar informação detalhada das falhas reportadas através do error listener.
 	 */
 	public static enum MotivoExecutarOpl implements Motivo {
 		ACESSAR_BIBLIOTECA("Falha ao acessar biblioteca do solucionador OPL."),
@@ -91,8 +97,8 @@ public class FacadeOPL {
 		REALIZAR_MODELO("Falha ao realizar modelo OPL no solucionador."),
 		POS_PROCESSAMENTO("Falha ao realizar pós-processamento do modelo OPL."),
 		OBTER_SOLUCAO("Falha ao obter solução."),
-		DEFINIR_DATASOURCE("Falha ao definir fonte de dados."),
-		DEFINIR_DATASINK("Falha ao definir consumidor de dados."),
+//		DEFINIR_DATASOURCE("Falha ao definir fonte de dados."),
+//		DEFINIR_DATASINK("Falha ao definir consumidor de dados."),
 		;
 
 		public final String message;
@@ -130,14 +136,22 @@ public class FacadeOPL {
 		this.loggerModelo = LoggerFactory.getLogger(this.loggerDados, "modelo");
 	}
 
-	public void executar() throws MotivoException {
+	protected static void assureDiretory(File file) throws IOException {
+		if (! file.exists()) {
+			if (! file.mkdirs()) {
+				throw new IOException(String.format("Failed to create directory '%s'.", file.getAbsolutePath()));
+			}
+		}
+	}
+
+	public void executar() /*throws MotivoException*/ {
 		Meter task = null;
 		IloOplModelDefinition oplModelDefinition = null;
 		CustomErrorHandler customOplErrorHandler = null;
 		IloOplSettings oplSettings = null;
 
-		Meter taskGeral = MeterFactory.getMeter(loggerMeter, "facadeOpl").setMessage("Executar FacadeOPL.").start();
-		try {
+//		Meter taskGeral = MeterFactory.getMeter(loggerMeter, "facadeOpl").setMessage("Executar FacadeOPL.").start();
+//		try {
 			/*
 			 * INICIALIZAÇÃO.
 			 *
@@ -155,7 +169,7 @@ public class FacadeOPL {
 			 *
 			 * TODO Ser algo der errado, ver cabeçalho da dll/os para ver se ela é 32 ou 64 bits. Avisar se for diferente da arquitetura da JVM.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "acessarBiblioteca").setMessage("Acessar bibliotecas dinâmicas.").start();
+			task = MeterFactory.getMeter(loggerMeter, "acessarBiblioteca").setMessage("Acessar bibliotecas dinâmicas.").start();
 			try {
 				IloOplFactory.getVersion();
 				IloOplFactory.setDebugMode(configuracaoOpl.getModoDebug());
@@ -177,7 +191,7 @@ public class FacadeOPL {
 			 * A API do IloOplSettings requer que o error handler seja criado junto com a configuração.
 			 * Muitas inconsistências são reportadas através de mensagens pelo error handler ao invés de exceções.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "configurar").setMessage("Configurar OPL.").start();
+			task = MeterFactory.getMeter(loggerMeter, "configurar").setMessage("Configurar OPL.").start();
 			try {
 				/* Error handler. */
 				customOplErrorHandler = new CustomErrorHandler(oplFactory, loggerExecucao);
@@ -212,14 +226,7 @@ public class FacadeOPL {
 				 */
 				if (configuracaoOpl.temCaminhoTmp()) {
 					File caminho = configuracaoOpl.getCaminhoAbsolutoTmp();
-					if (! caminho.exists()) {
-						if (! caminho.mkdirs()) {
-							loggerExecucao.warn("Impossível criar diretório{}.", caminho.getAbsolutePath());
-						}
-					}
-					if (! caminho.exists()) {
-						throw new FileNotFoundException(caminho.getAbsolutePath());
-					}
+					FacadeOPL.assureDiretory(caminho);
 					oplSettings.setTmpDir(caminho.getAbsolutePath());
 					loggerExecucao.warn("Usar diretório temporário de execução: {}.", caminho.getAbsolutePath());
 				}
@@ -255,9 +262,16 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				task.ok();
-			} catch (Exception e) {
+			} catch (IOException e) {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.CRIAR_SETTINGS);
+			} catch (ErroModeloException e) {
+				task.fail(e);
+				throw new MotivoException(e, MotivoExecutarOpl.CRIAR_SETTINGS);
+			} catch (Exception e) {
+				task.fail(e);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
 
 			/*
@@ -267,13 +281,16 @@ public class FacadeOPL {
 			 * Verifica se a formulação está sintaticamente correta.
 			 * Para isto tenta acessar qualquer uma das definições para forçar a compilação do modelo.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "definirModelo").setMessage("Obter definições do modelo.").start();
+			task = MeterFactory.getMeter(loggerMeter, "definirModelo").setMessage("Obter definições do modelo.").start();
 			try {
 				/* Aciona o ModeloProvider para recuperar o código fonte do modelo. */
-				String textoModelo = modeloProvider.getConteudo();
-				PrintStream ps = LoggerFactory.getInfoPrintStream(loggerModelo);
-				ps.println(textoModelo);
-				ps.close();
+				String textoModelo = null;
+				try {
+					textoModelo = modeloProvider.getConteudo();
+				} catch (IOException e) {
+					throw new MotivoException(e, MotivoExecutarOpl.OBTER_MODELO);
+				}
+				logModelo(textoModelo);
 
 				IloOplModelSource oplModelSource = this.oplFactory.createOplModelSourceFromString(textoModelo, modeloProvider.getNome());
 
@@ -286,14 +303,32 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				/*
+				 * TODO Investiver o tipo de exceção que é lançada quando o elemento não existe!
+				 */
+				/*
 				 * Acessa uma definição abritrária, neste caso, a primeira.
 				 * Foi uma forma encontrada para forçar o OPL compilar totalmente a definição antes
 				 * de gerar o modelo a partir dos dados.
 				 * Se uma das definições estiver errada, então o OPL poderá lançar uma exceção ou registar no errorHandler.
 				 */
-				@SuppressWarnings("unchecked")
-				Iterator<IloOplElementDefinition> iterator = oplModelDefinition.getElementDefinitionIterator();
-				iterator.next().getName();
+				try {
+					@SuppressWarnings("unchecked")
+					Iterator<IloOplElementDefinition> iterator = oplModelDefinition.getElementDefinitionIterator();
+					iterator.next().getName();
+				} catch (Exception e) {
+					/*
+					 * Apesar de nenhum método declarar a exceção IloException, ela pode ocorrer de fato.
+					 * É uma idiossincrasia da implementação JNI do OPL, onde o comportamento implementado em C
+					 * difere do comportamento declarado na API Java.
+					 * Normalmente, o erro também foi reportado par ao custom error handler.
+					 * Por vida das dúvidas, é tratada também a possibilidade de haver um outro tipo de erro.
+					 */
+					if (e instanceof IloException) {
+						IloException iloE = (IloException) e;
+						customOplErrorHandler.throwExceptionOnError();
+					}
+					throw e;
+				}
 
 				/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
 				customOplErrorHandler.throwExceptionOnError();
@@ -301,9 +336,16 @@ public class FacadeOPL {
 				/* Avisa os Data Sources sobre o modelo. */
 
 				task.ok();
-			} catch (Exception e) {
+			} catch (ErroModeloException e) {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.OBTER_MODELO);
+			} catch (MotivoException e) {
+				task.fail(e);
+				throw e;
+			} catch (Exception e) {
+				task.fail(e);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
 
 			/*
@@ -317,7 +359,7 @@ public class FacadeOPL {
 			 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 			 */
 			if (configuracaoCplex != null) {
-				task = MeterFactory.getMeter(taskGeral, "criarCplex").setMessage("Criar CPLEX.").start();
+				task = MeterFactory.getMeter(loggerMeter, "criarCplex").setMessage("Criar CPLEX.").start();
 				try {
 						IloCplex cplex = this.oplFactory.createCplex();
 						comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
@@ -338,7 +380,7 @@ public class FacadeOPL {
 			/*
 			 * Validar DataSource e DataSink.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "definirFontes").setMessage("Definir fontes de dados.").start();
+			task = MeterFactory.getMeter(loggerMeter, "definirFontes").setMessage("Definir fontes de dados.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
 					loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
@@ -347,9 +389,10 @@ public class FacadeOPL {
 				task.ok();
 			} catch (Exception e) {
 				task.fail(e);
-				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASOURCE);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
-			task = MeterFactory.getMeter(taskGeral, "definirConsumidors").setMessage("Definir consumidores de dados.").start();
+			task = MeterFactory.getMeter(loggerMeter, "definirConsumidors").setMessage("Definir consumidores de dados.").start();
 			try {
 				for (ConsumidorDados consumidor : this.dataSinks) {
 					loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
@@ -358,7 +401,8 @@ public class FacadeOPL {
 				task.ok();
 			} catch (Exception e) {
 				task.fail(e);
-				throw new MotivoException(e, MotivoExecutarOpl.DEFINIR_DATASINK);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
 
 			/*
@@ -367,7 +411,7 @@ public class FacadeOPL {
 			 * Aplicar fontes de dados.
 			 * A leitura ocorre no futuro na próxima etapa, ou seja, ao gerar o modelo.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "importarDados").setMessage("Importar dados das fontes.").start();
+			task = MeterFactory.getMeter(loggerMeter, "importarDados").setMessage("Importar dados das fontes.").start();
 			try {
 				for (FonteDados fonte : this.dataSources) {
 					loggerExecucao.debug("Preparar fonte '{}'.", fonte.getNome());
@@ -382,9 +426,16 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				task.ok();
-			} catch (Exception e) {
+			} catch (ErroModeloException e) {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.DATASOURCE);
+//			} catch (MotivoException e) {
+//				task.fail(e);
+//				throw e;
+			} catch (Exception e) {
+				task.fail(e);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
 
 			/*
@@ -392,10 +443,24 @@ public class FacadeOPL {
 			 *
 			 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 			 */
-			task = MeterFactory.getMeter(taskGeral, "realizar").setMessage("Realizar modelo OPL no solucionador").start();
+			task = MeterFactory.getMeter(loggerMeter, "realizar").setMessage("Realizar modelo OPL no solucionador").start();
 			try {
-				this.oplModel.generate();
-
+				try {
+					this.oplModel.generate();
+				} catch (Exception e) {
+					/*
+					 * Apesar de nenhum método declarar a exceção IloException, ela pode ocorrer de fato.
+					 * É uma idiossincrasia da implementação JNI do OPL, onde o comportamento implementado em C
+					 * difere do comportamento declarado na API Java.
+					 * Normalmente, o erro também foi reportado par ao custom error handler.
+					 * Por vida das dúvidas, é tratada também a possibilidade de haver um outro tipo de erro.
+					 */
+					if (e instanceof IloException) {
+						IloException iloE = (IloException) e;
+						customOplErrorHandler.throwExceptionOnError();
+					}
+					throw e;
+				}
 				/* Consulta o errorHandler por erros, que devem ser reportados por Exceptions. */
 				customOplErrorHandler.throwExceptionOnError();
 
@@ -409,9 +474,16 @@ public class FacadeOPL {
 				customOplErrorHandler.throwExceptionOnError();
 
 				task.ok();
-			} catch (Exception e) {
+			} catch (ErroModeloException e) {
 				task.fail(e);
 				throw new MotivoException(e, MotivoExecutarOpl.REALIZAR_MODELO);
+//			} catch (MotivoException e) {
+//				task.fail(e);
+//				throw e;
+			} catch (Exception e) {
+				task.fail(e);
+				if (e instanceof IloException)  loggerExecucao.warn("JNI has thrown undeclared exception.", e);
+				throw new UnhandledException(e);
 			}
 
 			/*
@@ -434,7 +506,7 @@ public class FacadeOPL {
 			/*
 			 * PÓS PROCESSAR.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "posprocessar").setMessage("Realizar pós-processamento do modelo OPL.").start();
+			task = MeterFactory.getMeter(loggerMeter, "posprocessar").setMessage("Realizar pós-processamento do modelo OPL.").start();
 			try {
 				this.oplModel.postProcess();
 
@@ -450,7 +522,7 @@ public class FacadeOPL {
 			/*
 			 * DATASINK.
 			 */
-			task = MeterFactory.getMeter(taskGeral, "exportarDados").setMessage("Exportar dados para consumidores.").start();
+			task = MeterFactory.getMeter(loggerMeter, "exportarDados").setMessage("Exportar dados para consumidores.").start();
 			try {
 				for (ConsumidorDados consumidor : this.dataSinks) {
 					consumidor.preparar(this.oplModel);
@@ -493,14 +565,22 @@ public class FacadeOPL {
 //				System.out.print(element.toStringDisplay());
 //				System.out.println(";");
 //			}
-			taskGeral.ok();
-		} catch (RuntimeException e) {
-			taskGeral.fail(e);
-			throw e;
-		} catch (MotivoException e) {
-			taskGeral.fail(e);
-			throw e;
-		}
+//			taskGeral.ok();
+//		} catch (RuntimeException e) {
+//			taskGeral.fail(e);
+//			throw e;
+//		} catch (MotivoException e) {
+//			taskGeral.fail(e);
+//			throw e;
+//		}
+	}
+
+	/** Registra no log uma cópia do modelo. */
+	protected void logModelo(String textoModelo) {
+		if(! loggerModelo.isInfoEnabled()) return;
+		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerModelo);
+		ps.println(textoModelo);
+		ps.close();
 	}
 
 	public  void dispose() {

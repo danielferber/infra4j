@@ -145,7 +145,7 @@ public class ComandoCplex implements ComandoSolver {
 			throw new UnsupportedException(e);
 		}
 
-		Meter op = MeterFactory.getMeter(loggerMeter, "executar").setMessage("Executar CPLEX").start();
+		Meter op = MeterFactory.getMeter(loggerMeter, "executarCplex").setMessage("Executar CPLEX").start();
 		try {
 			/*
 			 * Reportar propriedades do solucionador.
@@ -169,7 +169,7 @@ public class ComandoCplex implements ComandoSolver {
 			int numeroIteracao = 0;
 			while (true) {
 				numeroIteracao++;
-				Meter opI = MeterFactory.getMeter(loggerMeter, "interacao")
+				Meter opI = MeterFactory.getMeter(loggerMeter, "interacaoCplex")
 						.put("n", Integer.toString(numeroIteracao))
 						.setMessage("Interação %d", numeroIteracao)
 						.start();
@@ -426,7 +426,6 @@ public class ComandoCplex implements ComandoSolver {
 		try {
 			out.println("Características do CPLEX:");
 			out.format(ComandoCplex.strPropertyPrintPattern, "version", cplex.getVersion());
-			out.println();
 		} catch (IloException e) {
 			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
@@ -442,7 +441,6 @@ public class ComandoCplex implements ComandoSolver {
 			out.println("Características da execução:");
 			out.format(ComandoCplex.strPropertyPrintPattern, "algorithm", ComandoCplex.algorithmName(cplex.getAlgorithm()));
 			out.format(ComandoCplex.strPropertyPrintPattern, "subAlgorithm", ComandoCplex.algorithmName(cplex.getSubAlgorithm()));
-			out.println();
 		} catch (IloException e) {
 			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
@@ -464,13 +462,11 @@ public class ComandoCplex implements ComandoSolver {
 		out.format(ComandoCplex.strPropertyPrintPattern, "elementos não zeros", Integer.toString(cplex.getNNZs()));
 		out.format(ComandoCplex.strPropertyPrintPattern, "restrições quadráticas", Integer.toString(cplex.getNQCs()));
 		out.format(ComandoCplex.strPropertyPrintPattern, "special ordered sets", Integer.toString(cplex.getNSOSs()));
-		out.println();
 		out.println("Características do problema:");
 		out.format(ComandoCplex.strPropertyPrintPattern, "mixed integer program", Boolean.toString(cplex.isMIP()));
 		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic program", Boolean.toString(cplex.isQP()));
 		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic constrains", Boolean.toString(cplex.isQC()));
 		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic objective", Boolean.toString(cplex.isQO()));
-		out.println();
 		out.close();
 	}
 
@@ -495,7 +491,6 @@ public class ComandoCplex implements ComandoSolver {
 			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting fase 1", Integer.toString(cplex.getNsiftingPhaseOneIterations()));
 			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting", Integer.toString(cplex.getNsiftingIterations()));
 			out.format(ComandoCplex.strPropertyPrintPattern, "interações barreira", Integer.toString(cplex.getNbarrierIterations()));
-			out.println();
 		} catch (IloException e) {
 			/* IloCplex.get<*>() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
@@ -511,7 +506,6 @@ public class ComandoCplex implements ComandoSolver {
 			out.format(ComandoCplex.strPropertyPrintPattern, "número de soluções", Integer.toString(cplex.getSolnPoolNsolns()));
 			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da última solução", Double.toString(cplex.getObjValue()));
 			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da melhor solução", Double.toString(cplex.getBestObjValue()));
-			out.println();
 			out.close();
 		} catch (IloException e) {
 			/* IloCplex.get<*>() is not known to actually throw IloException. */
