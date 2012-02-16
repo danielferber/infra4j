@@ -26,7 +26,6 @@ import ilog.opl.IloOplSettings;
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.NullArgumentException;
-import infra.exception.motivo.Motivo;
 import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.cplex.ComandoCplex;
@@ -35,6 +34,8 @@ import infra.ilog.opl.CustomErrorHandler.ErroModeloException;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
+import infra.slf4j.Operation;
+import infra.slf4j.OperationFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -81,33 +82,19 @@ public class FacadeOPL {
 	private final Collection<ConsumidorDados> dataSinks;
 
 	/*
-	 * TODO Deveria ser Motivos para RuntimeException, uma vez que nem todos não são erros esperados para acontecer.
-	 * É necessário estudar melhor cada uma das possibilidades.
-	 *
 	 * TODO Para a configuração e a obtenção do modelo, criar motivos específicos, pois eles
 	 * podem carregar informação detalhada das falhas reportadas através do error listener.
 	 */
-	public static enum MotivoExecutarOpl implements Motivo {
-		ACESSAR_BIBLIOTECA("Falha ao acessar biblioteca do solucionador OPL."),
-		CRIAR_SETTINGS("Falha ao criar configuração do solucionador OPL."),
-		OBTER_MODELO("Falha ao obter modelo do solucionador OPL."),
-		CRIAR_CPLEX("Falha ao criar solucionador CPLEX."),
-		DATASOURCE("Falha ao obter dados do datasource."),
-		DATASINK("Falha ao obter dados do datasink."),
-		REALIZAR_MODELO("Falha ao realizar modelo OPL no solucionador."),
-		POS_PROCESSAMENTO("Falha ao realizar pós-processamento do modelo OPL."),
-		OBTER_SOLUCAO("Falha ao obter solução."),
-//		DEFINIR_DATASOURCE("Falha ao definir fonte de dados."),
-//		DEFINIR_DATASINK("Falha ao definir consumidor de dados."),
-		;
-
-		public final String message;
-		private MotivoExecutarOpl(String message) { this.message = message;	}
-		@Override
-		public String getMensagem() { return this.message; }
-		@Override
-		public String getOperacao() { return "Erro ao iniciar solucionador CPLEX."; }
-	}
+	private final Operation ExecuteFacade = OperationFactory.getOperation("loadLibrary", "Execute facade.");
+	private final Operation AcessarBiblioteca = OperationFactory.getOperation("loadLibrary", "Load OPL dynamic library.");
+	private final Operation CreateSettings = OperationFactory.getOperation("createSettings", "Create OPL settings.");
+	private final Operation LoadModel = OperationFactory.getOperation("loadModel", "Load OPL model.");
+	private final Operation CreateCplex = OperationFactory.getOperation("createCplex", "Create CPLEX solver.");
+	private final Operation LoadDataSource = OperationFactory.getOperation("loadDataSource", "Load data sources.");
+	private final Operation LoadDataSink = OperationFactory.getOperation("loadDataSink", "Load data sinks.");
+	private final Operation RealizeModel = OperationFactory.getOperation("realizeModel", "Realize model.");
+	private final Operation ExecuteSolver = OperationFactory.getOperation("executeSolver", "Execute solver.");
+	private final Operation ExecutePosProcessing = OperationFactory.getOperation("executePosProcessing", "Execute pós-processing.");
 
 	public FacadeOPL(ConfiguracaoOPL configuracaoOpl, ConfiguracaoCplex configuracaoCplex, ProvedorModelo modeloProvider, Collection<FonteDados> dataSources, Collection<ConsumidorDados> dataSinks) {
 		super();
@@ -150,8 +137,8 @@ public class FacadeOPL {
 		CustomErrorHandler customOplErrorHandler = null;
 		IloOplSettings oplSettings = null;
 
-//		Meter taskGeral = MeterFactory.getMeter(loggerMeter, "facadeOpl").setMessage("Executar FacadeOPL.").start();
-//		try {
+		Meter taskGeral = MeterFactory.getMeter(loggerMeter, ExecuteFacade).start();
+		try {
 			/*
 			 * INICIALIZAÇÃO.
 			 *

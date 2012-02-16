@@ -32,13 +32,6 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>infra</groupId>
-			<artifactId>infra-slf4j-ext</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>
@@ -54,6 +47,11 @@
 			<artifactId>logback-classic</artifactId>
 			<version>0.9.30</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>infra</groupId>
+			<artifactId>infra-slf4j-ext</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

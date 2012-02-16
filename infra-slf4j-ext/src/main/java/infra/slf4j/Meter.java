@@ -110,10 +110,16 @@ public class Meter extends MeterEvent {
 		return startImpl(null, null);
 	}
 
+	/*
+	 * TODO este método é necessário? poderia ser put(name).start();
+	 */
 	public MeterEvent start(String name) {
 		return startImpl(name, null);
 	}
 
+	/*
+	 * TODO este método é necessário? poderia ser put(name, value).start();
+	 */
 	public MeterEvent start(String name, String value) {
 		return startImpl(name, value);
 	}

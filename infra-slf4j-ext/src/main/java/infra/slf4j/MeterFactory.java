@@ -45,6 +45,24 @@ public class MeterFactory {
 		return new Meter(logger, instanceName);
 	}
 
+	public static Meter getMeter(Class<?> clazz, Operation operation) {
+		String instanceName = clazz.getName()+"."+operation.getName();
+		Meter meter = new Meter(LoggerFactory.getLogger(clazz), instanceName);
+		if (OperationWithMessage.class.isAssignableFrom(operation.getClass())) {
+			meter.setMessage(((OperationWithMessage) operation).getMessage());
+		}
+		return meter;
+	}
+
+	public static Meter getMeter(Logger logger, Operation operation) {
+		String instanceName = logger.getName()+"."+operation.getName();
+		Meter meter = new Meter(logger, instanceName);
+		if (OperationWithMessage.class.isAssignableFrom(operation.getClass())) {
+			meter.setMessage(((OperationWithMessage) operation).getMessage());
+		}
+		return meter;
+	}
+
 	public static void put(String name) {
 		MeterFactory.context.put(name, null);
 	}

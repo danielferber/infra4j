@@ -145,7 +145,7 @@ public class ConfiguracaoCplex {
 	public void setSimplexLimiteDeTempo(Double simplexLimiteDeTempo) { this.simplexLimiteDeTempo = simplexLimiteDeTempo; }
 	public Double getSimplexLimiteDeTempo() { return simplexLimiteDeTempo; }
 
-	private ComandoCplex.Delegate delegate;
-	public void setDelegate(ComandoCplex.Delegate delegate) { this.delegate = delegate; }
-	public ComandoCplex.Delegate getDelegate() { return delegate; }
+	private Delegate delegate;
+	public void setDelegate(Delegate delegate) { this.delegate = delegate; }
+	public Delegate getDelegate() { return delegate; }
 }

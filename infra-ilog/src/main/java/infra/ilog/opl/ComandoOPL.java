@@ -22,11 +22,13 @@ import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
 import infra.exception.assertions.datastate.NullArgumentException;
-import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
+import infra.ilog.NoSolutionException;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
+import infra.slf4j.Operation;
+import infra.slf4j.OperationFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -94,8 +96,11 @@ public class ComandoOPL {
 		this.loggerInternalData = LoggerFactory.getLogger(this.loggerDados, "internos");
 	}
 
-	/** Executa o resolvedor OPL. */
-	public void executar() throws MotivoException {
+	private final Operation ExecutarOpl = OperationFactory.getOperation("executarOpl", "Executar OPL");
+
+	/** Executa o resolvedor OPL.
+	 * @throws NoSolutionException */
+	public void executar() throws NoSolutionException {
 		assert IllegalAttributeException.apply(this.configuracao != null);
 		assert IllegalAttributeException.apply(this.comandoResolvedor != null);
 		assert IllegalAttributeException.apply(this.oplModel != null);
@@ -103,7 +108,7 @@ public class ComandoOPL {
 		IllegalAttributeException.apply(oplModel.hasCplex());
 		IllegalAttributeException.apply(oplModel.isGenerated());
 
-		Meter op = MeterFactory.getMeter(loggerMeter, "executarOpl").setMessage("Executar OPL").start();
+		Meter op = MeterFactory.getMeter(loggerMeter, ExecutarOpl).start();
 		try {
 
 			/*
@@ -144,10 +149,10 @@ public class ComandoOPL {
 				salvarSolucao(this.configuracao.getCaminhoAbsolutoDadosSolucao());
 			}
 			op.ok();
-		} catch (MotivoException e) {
+		} catch (NoSolutionException e) {
 			op.fail(e);
 			throw e;
-		} catch (Exception e) {
+		} catch (RuntimeException e) {
 			op.fail(e);
 			throw new UnhandledException(e);
 		}

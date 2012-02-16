@@ -28,12 +28,14 @@ import infra.exception.assertions.controlstate.unimplemented.UnimplementedCondit
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
 import infra.exception.assertions.datastate.NullArgumentException;
-import infra.exception.motivo.Motivo;
 import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
+import infra.ilog.NoSolutionException;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
+import infra.slf4j.Operation;
+import infra.slf4j.OperationFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,31 +72,6 @@ public class ComandoCplex implements ComandoSolver {
 	public final Logger loggerMeter;
 	public final Logger loggerDados;
 
-	/**
-	 * O {@link ComandoSolver} delega para esta classe algumas decisões sobre como
-	 * executar o CPLEX. Veja 'delegate' design pattern.
-	 */
-	public static interface Delegate {
-		/**
-		 * Permite decidir se deve realizar mais uma interação do solucionador.
-		 * @param cplex instância do CPLEX
-		 * @param numeroIteracao número da iteração da execução do CPLEX
-		 * @param configuracao
-		 * @return true se deve realizar mais uma execução, false se deve interromper
-		 * @throws MotivoException
-		 */
-		boolean antesExecucao(IloCplex cplex, int numeroIteracao, ConfiguracaoCplex configuracao) throws MotivoException;
-		/**
-		 * Permite decidir se deve realizar mais uma interação do solucionador.
-		 * @param cplex instância do CPLEX
-		 * @param numeroIteracao número da iteração da execução do CPLEX
-		 * @param configuracao
-		 * @return true se deve realizar mais uma execução, false se deve interromper
-		 * @throws MotivoException
-		 */
-		boolean depoisExecucao(IloCplex cplex, int numeroIteracao, ConfiguracaoCplex configuracao) throws MotivoException;
-	}
-
 	/** Configurações de execução da instância. */
 	private final ConfiguracaoCplex configuracao;
 	protected ConfiguracaoCplex getConfiguracao() { return configuracao; }
@@ -122,20 +99,12 @@ public class ComandoCplex implements ComandoSolver {
 		this.loggerDados = LoggerFactory.getLogger(logger, "dados");
 	}
 
-	/** Descreve a possibilidade do CPLEX falhar quando a biblioteca ILOG lança uma exceção. */
-	public static enum MotivoExecutarCplex implements Motivo {
-		CPLEX("Falha ao executar resolvedor CPLEX."), ;
-
-		public final String message;
-
-		private MotivoExecutarCplex(String message) { this.message = message; }
-		@Override public String getMensagem() { return this.message; }
-		@Override public String getOperacao() { return "Executar CPLEX."; }
-	}
+	private final Operation ExecutarCplex = OperationFactory.getOperation("executarCplex", "Executar CPLEX");
+	private final Operation InteracaoCplex = OperationFactory.getOperation("interacaoCplex", "Interação CPLEX");
 
 	/** Executa o resolvedor CPLEX. */
 	@Override
-	public void executar() throws MotivoException {
+	public void executar() throws NoSolutionException {
 		assert IllegalAttributeException.apply(this.cplex != null);
 		assert IllegalAttributeException.apply(this.configuracao != null);
 		try {
@@ -145,7 +114,7 @@ public class ComandoCplex implements ComandoSolver {
 			throw new UnsupportedException(e);
 		}
 
-		Meter op = MeterFactory.getMeter(loggerMeter, "executarCplex").setMessage("Executar CPLEX").start();
+		Meter op = MeterFactory.getMeter(loggerMeter, ExecutarCplex).start();
 		try {
 			/*
 			 * Reportar propriedades do solucionador.
@@ -169,10 +138,7 @@ public class ComandoCplex implements ComandoSolver {
 			int numeroIteracao = 0;
 			while (true) {
 				numeroIteracao++;
-				Meter opI = MeterFactory.getMeter(loggerMeter, "interacaoCplex")
-						.put("n", Integer.toString(numeroIteracao))
-						.setMessage("Interação %d", numeroIteracao)
-						.start();
+				Meter opI = MeterFactory.getMeter(loggerMeter, InteracaoCplex).put("n", Integer.toString(numeroIteracao))	.start();
 
 				try {
 
@@ -182,20 +148,21 @@ public class ComandoCplex implements ComandoSolver {
 					if (delegate != null) {
 						loggerExecucao.debug("Call Delegate.before(iteration={})...", numeroIteracao);
 						boolean continuar = delegate.antesExecucao(cplex, numeroIteracao, configuracao);
-						loggerExecucao.debug("Delegate.before(iteration={}): run={}.", numeroIteracao, continuar);
+						loggerExecucao.debug("Returned Delegate.before(iteration={}): run={}.", numeroIteracao, continuar);
 						if (! continuar) break;
 					} else {
 						/* Por padrão, se não existe delegate, realiza a execução. */
 					}
 
-					ComandoCplex.validarEstadoCplex(cplex, loggerExecucao);
+					ComandoCplex.validarEstadoInicialCplex(cplex, loggerExecucao);
 
 					/*
 					 * Se a thread recebeu sinal de terminar, então também cancela a execução.
 					 */
 					if (Thread.interrupted()) {
-						loggerExecucao.debug("Thread interrompida. Cancela execução.");
-						throw new MotivoException(MotivoExecutarSolver.INTERROMPIDO);
+						loggerExecucao.debug("Solver thread interrpted. Cancel execution.");
+						ComandoCplex.validarEstadoFinalCplex(cplex, loggerExecucao);
+						break;
 					}
 
 					executarIteracao(numeroIteracao);
@@ -206,7 +173,7 @@ public class ComandoCplex implements ComandoSolver {
 					if (delegate != null) {
 						loggerExecucao.debug("Call Delegate.after(iteration={})...", numeroIteracao);
 						boolean continuar = delegate.depoisExecucao(cplex, numeroIteracao, configuracao);
-						loggerExecucao.debug("Delegate.after(iteration={}): repeat={}.", numeroIteracao, continuar);
+						loggerExecucao.debug("Returned Delegate.after(iteration={}): repeat={}.", numeroIteracao, continuar);
 						if (! continuar) break;
 					} else {
 						/* Por padrão, se não existe delegate, interrompe a execução. */
@@ -214,7 +181,11 @@ public class ComandoCplex implements ComandoSolver {
 					}
 
 					opI.ok();
-				} catch (Exception e) {
+				} catch (NoSolutionException e) {
+					/* Não haver solução não é considerado uma falha durante a iteração. */
+					opI.put("reason", e.reason.toString()).ok();
+					throw e;
+				} catch (RuntimeException e) {
 					opI.fail(e);
 					throw e;
 				}
@@ -223,12 +194,12 @@ public class ComandoCplex implements ComandoSolver {
 			ComandoCplex.validarEstadoFinalCplex(this.cplex, loggerExecucao);
 
 			op.ok();
-		} catch (MotivoException e) {
+		} catch (NoSolutionException e) {
+			op.put("reason", e.reason.toString()).fail(e);
+			throw e;
+		} catch (RuntimeException e) {
 			op.fail(e);
 			throw e;
-		} catch (Exception e) {
-			op.fail(e);
-			throw new UnhandledException(e);
 		}
 	}
 
@@ -317,12 +288,12 @@ public class ComandoCplex implements ComandoSolver {
 	 * Lança {@link MotivoException} se o CPLEX está num estado que proibe nova execução.
 	 * @param logger
 	 */
-	protected static void validarEstadoCplex(IloCplex cplex, Logger logger) throws MotivoException {
+	protected static void validarEstadoInicialCplex(IloCplex cplex, Logger logger) throws NoSolutionException {
 		assert NullArgumentException.apply(cplex);
 		assert NullArgumentException.apply(logger);
 
 		String statusString = null;
-		MotivoException exception = null;
+		NoSolutionException exception = null;
 
 		try {
 			statusString = cplex.getStatus().toString();
@@ -332,15 +303,15 @@ public class ComandoCplex implements ComandoSolver {
 
 			} else if (IloCplex.Status.Infeasible.equals(cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.INVIAVEL);
 
 			} else if (IloCplex.Status.Unbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.ILIMITADO);
+				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO);
 
 			} else if (IloCplex.Status.InfeasibleOrUnbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado/inviável (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.ILIMITADO_INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO_INVIAVEL);
 
 			} else if (IloCplex.Status.Unknown.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, nem sabe se o modelo é viável ou não, precisa continuar tentando. */
@@ -361,7 +332,7 @@ public class ComandoCplex implements ComandoSolver {
 			throw new ImpossibleException(e);
 		}
 		if (exception != null) {
-			logger.debug("validarEstadoCplex(status={}): invalid, reason={}", exception.getMotivo());
+			logger.debug("validarEstadoCplex(status={}): invalid, reason={}", exception.reason);
 			throw exception;
 		}
 		logger.debug("validarEstadoCplex(status={}): ok", statusString);
@@ -371,11 +342,11 @@ public class ComandoCplex implements ComandoSolver {
 	 * Lança MotivoException se a busca do CPLEX termina em um estado considerado insucesso.
 	 * Ou seja, um estado que não permite ler a solução, se ela parcial ou ótima.
 	 */
-	protected static void validarEstadoFinalCplex(IloCplex cplex, Logger logger) throws MotivoException {
+	protected static void validarEstadoFinalCplex(IloCplex cplex, Logger logger) throws NoSolutionException {
 		assert NullArgumentException.apply(cplex);
 		assert NullArgumentException.apply(logger);
 		String statusString = null;
-		MotivoException exception = null;
+		NoSolutionException exception = null;
 
 		try {
 			statusString = cplex.getStatus().toString();
@@ -385,22 +356,22 @@ public class ComandoCplex implements ComandoSolver {
 
 			} else if (IloCplex.Status.Infeasible.equals(cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais). */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.INVIAVEL);
 
 			} else if (IloCplex.Status.Unbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado (mesmo após eventuais intervenções manuais). */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.ILIMITADO);
+				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO);
 
 			} else if (IloCplex.Status.InfeasibleOrUnbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado/inviável (mesmo após eventuais intervenções manuais). */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.ILIMITADO_INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO_INVIAVEL);
 
 			} else if (IloCplex.Status.Unknown.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, nem sabe se o modelo é viável ou não. */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.INCOMPLETO);
+				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETO);
 			} else if (IloCplex.Status.Bounded.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, aparentemente o modelo é viável. */
-				exception = new MotivoException(ComandoSolver.MotivoExecutarSolver.INCOMPLETO);
+				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETO);
 			} else if (IloCplex.Status.Optimal.equals(cplex.getStatus())) {
 				/* Encontrou uma solução ótima. */
 			} else if (IloCplex.Status.Feasible.equals(cplex.getStatus())) {
@@ -412,7 +383,7 @@ public class ComandoCplex implements ComandoSolver {
 			throw new ImpossibleException(e);
 		}
 		if (exception != null) {
-			logger.debug("validarEstadoFinalCplex(status={}): invalid, reason={}", exception.getMotivo());
+			logger.debug("validarEstadoFinalCplex(status={}): invalid, reason={}", exception.reason);
 			throw exception;
 		}
 		logger.debug("validarEstadoFinalCplex(status={}): ok", statusString);
