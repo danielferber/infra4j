@@ -15,9 +15,6 @@
  */
 package infra.slf4j;
 
-import infra.exception.assertions.controlstate.bug.ImpossibleConditionException;
-import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -239,7 +236,7 @@ public abstract class LoggerOutputStream extends OutputStream {
 				}
 			};
 		default:
-			throw new ImpossibleConditionException();
+			throw new IllegalArgumentException();
 		}
 
 	}
@@ -256,11 +253,11 @@ public abstract class LoggerOutputStream extends OutputStream {
 
 	@Override
 	public int hashCode() {
-		throw new UnsupportedMethodException();
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		throw new UnsupportedMethodException();
+		throw new UnsupportedOperationException();
 	}
 }
