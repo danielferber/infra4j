@@ -1,0 +1,5 @@
+<configuration>
+	<root level="${globalLevel}"/>
+	<logger name="logger1" level="INFO" />
+	<logger name="logger2" level="DEBUG" />
+</configuration>

@@ -15,12 +15,6 @@
  */
 package infra.logback;
 
-import infra.exception.assertions.controlstate.design.UnsupportedCallOrderException;
-import infra.exception.assertions.controlstate.design.UnsupportedException;
-import infra.exception.assertions.controlstate.design.UnsupportedReentrantException;
-import infra.exception.motivo.Motivo;
-import infra.exception.motivo.MotivoException;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -37,7 +31,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.status.Status;
-import ch.qos.logback.core.util.StatusPrinter;
 
 /**
  * Inicializa o mecanismo de logger do framework SLF4J sobre Logback. Ajusta os
@@ -54,16 +47,6 @@ import ch.qos.logback.core.util.StatusPrinter;
  *
  */
 public class ServicoLogback {
-	public static enum MotivoConfiguracaoLogback implements Motivo {
-		ARQUIVO_CONFIG("Falha ao abrir arquivo de configuração."),
-		CONFIGURACAO("Falha ao interpretar configuração."), ;
-		private String mensagem;
-
-		private MotivoConfiguracaoLogback(String mensagem) { this.mensagem = mensagem; }
-		@Override public String getMensagem() { return mensagem; }
-		@Override public String getOperacao() { return "Ler configuração de logger."; }
-	}
-
 	/** Se a instalação utiliza uma configuração do classpath. */
 	private static boolean usandoConfiguracaoClasspath = false;
 	/** @return Se a instalação utiliza uma configuração do classpath. */
@@ -87,12 +70,12 @@ public class ServicoLogback {
 	/** Lock que previne tentativas de configurações simultâneas por threads diferentes. */
 	private final static Lock lockInstalacao = new ReentrantLock();
 
-	public static void reconfigurar(File arqConfig) throws MotivoException {
+	public static void reconfigurar(File arqConfig) throws LogbackReconfigureException {
 		ServicoLogback.reconfigurar(arqConfig, null);
 	}
 
-	public static void reconfigurar(File arqConfig, Properties properties) throws MotivoException {
-		if (! ServicoLogback.lockInstalacao.tryLock()) throw new UnsupportedReentrantException();
+	public static void reconfigurar(File arqConfig, Properties properties) throws LogbackReconfigureException {
+		if (! ServicoLogback.lockInstalacao.tryLock()) throw new LogbackReconfigureException(LogbackReconfigureException.Reason.REENTRANT_RECONFIGURE);
 		try {
 			if (! ServicoLogback.instalado) ServicoLogback.instalar();
 
@@ -101,6 +84,7 @@ public class ServicoLogback {
 			 */
 			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 			lc.reset();
+			List<Status> originalList = lc.getStatusManager().getCopyOfStatusList();
 
 			/*
 			 * Ler e aplicar configuração do arquivo XML.
@@ -109,7 +93,7 @@ public class ServicoLogback {
 			try {
 				is = new FileInputStream(arqConfig);
 			} catch (Exception e) {
-				throw new MotivoException(e, MotivoConfiguracaoLogback.ARQUIVO_CONFIG);
+				throw new LogbackReconfigureException(LogbackReconfigureException.Reason.ARQUIVO_CONFIG, e);
 			}
 
 			JoranConfigurator configurator = new JoranConfigurator();
@@ -121,25 +105,23 @@ public class ServicoLogback {
 			}
 			try {
 				configurator.doConfigure(is);
-			} catch (JoranException je) {
-				StatusPrinter.printIfErrorsOccured(lc);
-				throw new MotivoException(je, MotivoConfiguracaoLogback.CONFIGURACAO);
+			} catch (JoranException e) {
+				throw new LogbackReconfigureException(LogbackReconfigureException.Reason.CONFIGURACAO, e, lc);
 			} finally {
 				try {
 					is.close();
 				} catch (IOException e) {
-					UnsupportedException.consume(e);
+					e.printStackTrace();
 				}
 			}
 
 			List<Status> list = configurator.getStatusManager().getCopyOfStatusList();
-			StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
-			for (Status status : list) {
+			for (Status status : list.subList(originalList.size(), list.size())) {
 				if (status.getLevel() == Status.ERROR) {
 					if (status.getThrowable() != null) {
-						throw new MotivoException(status.getThrowable(), MotivoConfiguracaoLogback.CONFIGURACAO);
+						throw new LogbackReconfigureException(LogbackReconfigureException.Reason.CONFIGURACAO, status.getThrowable());
 					}
-					throw new MotivoException(new Exception(status.getMessage()), MotivoConfiguracaoLogback.CONFIGURACAO);
+					throw new LogbackReconfigureException(LogbackReconfigureException.Reason.CONFIGURACAO);
 				}
 			}
 
@@ -151,31 +133,30 @@ public class ServicoLogback {
 		}
 	}
 
+
+
 	public static void instalar() {
-		if (! ServicoLogback.lockInstalacao.tryLock()) throw new UnsupportedReentrantException();
+		if (! ServicoLogback.lockInstalacao.tryLock()) throw new LogbackInstallException(LogbackInstallException.Reason.REENTRANT_INSTALL);
 		try {
-			if (ServicoLogback.instalado) throw new UnsupportedCallOrderException();
+			if (ServicoLogback.instalado) throw new LogbackInstallException(LogbackInstallException.Reason.DUPLICATED_INSTALL);
 
 			/*
 			 * Instalar ponte entre JUL (logger padrão do java) e SLF4J. Antes, reinicia toda a configuração do LogManager do JUL.
 			 * Caso contrário, sempre haverá um ConsoleHandler padrão que gerará mensagens repetidas indesejadas no stdout
 			 * quando for acionado um logger do JUL.
 			 */
-			java.util.logging.LogManager.getLogManager().reset();
-			java.util.logging.LogManager.getLogManager().getLogger("").setLevel(java.util.logging.Level.ALL);
+			try {
+				java.util.logging.LogManager.getLogManager().reset();
+				java.util.logging.LogManager.getLogManager().getLogger("").setLevel(java.util.logging.Level.ALL);
+			} catch (SecurityException e) {
+				throw new LogbackInstallException(LogbackInstallException.Reason.MISSING_PERMISSIONS, e);
+			}
 			SLF4JBridgeHandler.install();
 
 			/*
 			 * Não é preciso fazer mais nada, uma vez que o Logback já cria por padrão um appender no root logger direcionado para Stdout.
 			 * Isto é diferente do log4j, que por padrão não escrevia as mensagens.
 			 */
-//			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-//			OutputStreamAppender<ILoggingEvent> appender = new OutputStreamAppender<ILoggingEvent>();
-//			appender.setContext(lc);
-//			if (os != null) appender.setOutputStream(os);
-//			Logger rootLogger = (Logger) LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
-//			rootLogger.addAppender(appender);
-//			appender.start();
 
 			/*
 			 * Verifica se existem arquivos de configuração no classpath de acordo com a convenção do logback.

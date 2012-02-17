@@ -43,11 +43,6 @@
 			<version>0.9.30</version>
 		</dependency>
 		<dependency>
-			<groupId>infra</groupId>
-			<artifactId>infra-exception</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.10</version>

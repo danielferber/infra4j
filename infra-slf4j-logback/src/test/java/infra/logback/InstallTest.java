@@ -15,8 +15,6 @@
  */
 package infra.logback;
 
-import infra.exception.assertions.controlstate.design.UnsupportedCallOrderException;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,10 +26,12 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
-
-
-public class ServicoLoggerTest {
-
+/*
+ * Tests the Logback install utility method:
+ * - Might be called only one.
+ * - Sucessfully redirects log from supported logger APIs.
+ */
+public class InstallTest {
 	/**
 	 *  A dummy appender that just remembers the last event. It allows to test if the log statement really redirects the message to a logback logger.
 	 */
@@ -59,24 +59,28 @@ public class ServicoLoggerTest {
 
 	@BeforeClass
 	public static void inicio() {
-		Assert.assertFalse(ServicoLogback.isInstalado());
-		ServicoLogback.instalar();
+		if (! ServicoLogback.isInstalado()) {
+			ServicoLogback.instalar();
+		}
 		Assert.assertTrue(ServicoLogback.isInstalado());
-		((Logger) LoggerFactory.getLogger("c")).addAppender(ServicoLoggerTest.appC);
-		((Logger) LoggerFactory.getLogger("d")).addAppender(ServicoLoggerTest.appD);
-		((Logger) LoggerFactory.getLogger("e")).addAppender(ServicoLoggerTest.appE);
-		((Logger) LoggerFactory.getLogger("f")).addAppender(ServicoLoggerTest.appF);
+		((Logger) LoggerFactory.getLogger("c")).addAppender(InstallTest.appC);
+		((Logger) LoggerFactory.getLogger("d")).addAppender(InstallTest.appD);
+		((Logger) LoggerFactory.getLogger("e")).addAppender(InstallTest.appE);
+		((Logger) LoggerFactory.getLogger("f")).addAppender(InstallTest.appF);
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-		ServicoLoggerTest.appC.setContext(lc);
-		ServicoLoggerTest.appD.setContext(lc);
-		ServicoLoggerTest.appE.setContext(lc);
-		ServicoLoggerTest.appF.setContext(lc);
-		ServicoLoggerTest.appC.start();
-		ServicoLoggerTest.appD.start();
-		ServicoLoggerTest.appE.start();
-		ServicoLoggerTest.appF.start();
+		InstallTest.appC.setContext(lc);
+		InstallTest.appD.setContext(lc);
+		InstallTest.appE.setContext(lc);
+		InstallTest.appF.setContext(lc);
+		InstallTest.appC.start();
+		InstallTest.appD.start();
+		InstallTest.appE.start();
+		InstallTest.appF.start();
 	}
 
+	/**
+	 * Default install (without any configuration file on classpath) does not report any special install configuration flag.
+	 */
 	@Test
 	public void a() {
 		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoClasspath());
@@ -84,9 +88,17 @@ public class ServicoLoggerTest {
 		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoEspecifica());
 	}
 
-	@Test(expected=UnsupportedCallOrderException.class)
+	/**
+	 * Does not allow to install twice.
+	 */
+	@Test()
 	public void b() {
-		ServicoLogback.instalar();
+		try {
+			ServicoLogback.instalar();
+			Assert.fail();
+		} catch (LogbackInstallException e) {
+			Assert.assertEquals(LogbackInstallException.Reason.DUPLICATED_INSTALL, e.reason);
+		}
 	}
 
 	@Test
@@ -94,7 +106,7 @@ public class ServicoLoggerTest {
 		java.util.logging.Logger logger = java.util.logging.Logger.getLogger("c");
 		String msg = "Teste C";
 		logger.info(msg);
-		Assert.assertEquals(msg, ServicoLoggerTest.appC.lastMessage);
+		Assert.assertEquals(msg, InstallTest.appC.lastMessage);
 	}
 
 	@Test
@@ -102,7 +114,7 @@ public class ServicoLoggerTest {
 		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("d");
 		String msg = "Teste D";
 		logger.info(msg);
-		Assert.assertEquals(msg, ServicoLoggerTest.appD.lastMessage);
+		Assert.assertEquals(msg, InstallTest.appD.lastMessage);
 	}
 
 	@Test
@@ -110,7 +122,7 @@ public class ServicoLoggerTest {
 		org.apache.log4j.Logger logger = org.apache.log4j.LogManager.getLogger("e");
 		String msg = "Teste E";
 		logger.info(msg);
-		Assert.assertEquals(msg, ServicoLoggerTest.appE.lastMessage);
+		Assert.assertEquals(msg, InstallTest.appE.lastMessage);
 	}
 
 	@Test
@@ -118,6 +130,6 @@ public class ServicoLoggerTest {
 		org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog("f");
 		String msg = "Teste F";
 		log.info(msg);
-		Assert.assertEquals(msg, ServicoLoggerTest.appF.lastMessage);
+		Assert.assertEquals(msg, InstallTest.appF.lastMessage);
 	}
 }
