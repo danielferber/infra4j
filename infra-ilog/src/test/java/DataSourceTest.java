@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import infra.exception.ServicoExcecao;
-import infra.exception.motivo.MotivoException;
 import infra.ilog.cplex.ConfiguracaoCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
@@ -74,20 +73,15 @@ public class DataSourceTest {
 	public void provedorStringTest() {
 		String dadosString = "a = 3; b = 2;";
 
-		System.out.println(System.getProperty("java.library.path"));
-		System.out.println(System.getProperty("library.path"));
-
 		FonteDados provedorDados = new FonteDadosString("nome", dadosString);
 		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();
 		provedoresDados.add(provedorDados);
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
@@ -101,11 +95,9 @@ public class DataSourceTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
@@ -117,11 +109,9 @@ public class DataSourceTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
@@ -133,11 +123,9 @@ public class DataSourceTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 }

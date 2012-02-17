@@ -78,7 +78,7 @@ public class ComandoCplex implements ComandoSolver {
 
 	/** Instância CPLEX gerenciada. */
 	private final IloCplex cplex;
-	protected IloCplex getCplex() { return cplex; }
+	public IloCplex getCplex() { return cplex; }
 
 	/** Delegate que auxilia nas decisões. */
 	private final Delegate delegate;

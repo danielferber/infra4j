@@ -1,9 +1,9 @@
 import infra.exception.ServicoExcecao;
-import infra.exception.motivo.MotivoException;
+import infra.ilog.NoSolutionException;
 import infra.ilog.cplex.ConfiguracaoCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
-import infra.ilog.opl.FacadeOPL.MotivoExecutarOpl;
+import infra.ilog.opl.OplModelException;
 import infra.ilog.opl.ProvedorModelo;
 import infra.ilog.opl.modelo.ProvedorModeloString;
 
@@ -55,11 +55,10 @@ public class ModelTest {
 		try {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
-		} catch (MotivoException e) {
+		} catch (OplModelException e) {
 			ServicoExcecao.reportarException(System.err, e);
-			Assert.assertEquals(MotivoExecutarOpl.OBTER_MODELO, e.getMotivo());
-		} finally {
-			facadeOPL.dispose();
+		} catch (NoSolutionException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -89,11 +88,10 @@ public class ModelTest {
 		try {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
-		} catch (MotivoException e) {
+		} catch (OplModelException e) {
 			ServicoExcecao.reportarException(System.err, e);
-			Assert.assertEquals(MotivoExecutarOpl.OBTER_MODELO, e.getMotivo());
-		} finally {
-			facadeOPL.dispose();
+		} catch (NoSolutionException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -123,11 +121,10 @@ public class ModelTest {
 		try {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
-		} catch (MotivoException e) {
+		} catch (OplModelException e) {
 			ServicoExcecao.reportarException(System.err, e);
-			Assert.assertEquals(MotivoExecutarOpl.REALIZAR_MODELO, e.getMotivo());
-		} finally {
-			facadeOPL.dispose();
+		} catch (NoSolutionException e) {
+			e.printStackTrace();
 		}
 	}
 }

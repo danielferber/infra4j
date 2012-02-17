@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import infra.exception.ServicoExcecao;
-import infra.exception.motivo.MotivoException;
 import infra.ilog.cplex.ConfiguracaoCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
@@ -67,11 +66,9 @@ public class ProvedorModeloTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, null, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
@@ -82,11 +79,9 @@ public class ProvedorModeloTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, null, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
@@ -97,11 +92,9 @@ public class ProvedorModeloTest {
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, null, null);
 		try {
 			facadeOPL.executar();
-		} catch (MotivoException e) {
+		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
-		} finally {
-			facadeOPL.dispose();
 		}
 	}
 
