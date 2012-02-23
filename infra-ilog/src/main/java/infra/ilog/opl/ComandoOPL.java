@@ -21,6 +21,7 @@ import infra.exception.assertions.controlstate.design.UnsupportedMethodException
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
+import infra.exception.assertions.datastate.IllegalOutputDataException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
@@ -59,58 +60,62 @@ import org.slf4j.Logger;
 public class ComandoOPL {
 	public final Logger logger;
 	public final Logger loggerMeter;
-	public final Logger loggerExecucao;
-	public final Logger loggerDados;
+	public final Logger loggerExecution;
+	public final Logger loggerData;
 //	public final Logger loggerModelo;
-	public final Logger loggerSolucao;
+	public final Logger loggerSolution;
 	public final Logger loggerExternalData;
 	public final Logger loggerInternalData;
 
-	/** Configurações de execução para esta instância. */
+	/** Configuration that guides the OPL execution. */
 	private final ConfiguracaoOPL configuracao;
+	/** @return Configuration that guides the OPL execution. */
 	protected  ConfiguracaoOPL getConfiguracaoOPL() { return configuracao; }
 
-	/** Instância de modelo OPL gerenciada. */
+	/** OPL instance being guided. */
 	private final IloOplModel oplModel;
+	/** @return OPL instance being guided. */
 	protected IloOplModel getOplModel() {  return oplModel; }
 
-	/** Instância do comando que executa o resolvedor. */
-	private final ComandoSolver comandoResolvedor;
-	protected ComandoSolver getComandoResolvedor() { return comandoResolvedor; }
+	/** Solver command that guides the execution of the CPLEX or CP instance. */
+	private final ComandoSolver solverCommand;
+	/** @return Solver command that guides the execution of the CPLEX or CP instance. */
+	protected ComandoSolver getComandoResolvedor() { return solverCommand; }
 
 	/** Cria o comando executor a partir de uma instância CPLEX existente. */
 	public ComandoOPL(IloOplModel oplModel, ConfiguracaoOPL configuracao, ComandoSolver comandoResolvedor) {
 		super();
 		assert NullArgumentException.apply(oplModel, configuracao, comandoResolvedor);
+
 		this.oplModel = oplModel;
 		this.configuracao = new ConfiguracaoOPL(configuracao);
-		this.comandoResolvedor = comandoResolvedor;
+		assert IllegalOutputDataException.apply(this.configuracao.equals(configuracao));
+		this.solverCommand = comandoResolvedor;
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracao.getNome());
-		this.loggerMeter = LoggerFactory.getLogger(this.logger, "meter");
-		this.loggerExecucao = LoggerFactory.getLogger(this.logger, "execucao");
-		this.loggerDados = LoggerFactory.getLogger(this.logger, "dados");
+		this.loggerMeter = LoggerFactory.getLogger(this.logger, "perf");
+		this.loggerExecution = LoggerFactory.getLogger(this.logger, "exec");
+		this.loggerData = LoggerFactory.getLogger(this.logger, "data");
 //		this.loggerModelo = LoggerFactory.getLogger(this.loggerDados, "modelo");
-		this.loggerSolucao = LoggerFactory.getLogger(this.loggerDados, "solucao");
-		this.loggerExternalData = LoggerFactory.getLogger(this.loggerDados, "externo");
-		this.loggerInternalData = LoggerFactory.getLogger(this.loggerDados, "internos");
+		this.loggerSolution = LoggerFactory.getLogger(this.loggerData, "solution");
+		this.loggerExternalData = LoggerFactory.getLogger(this.loggerData, "external");
+		this.loggerInternalData = LoggerFactory.getLogger(this.loggerData, "internal");
 	}
 
-	private final Operation ExecutarOpl = OperationFactory.getOperation("executarOpl", "Executar OPL");
+	private final Operation ExecuteOpl = OperationFactory.getOperation("executeOpl", "Execute OPL");
 
 	/** Executa o resolvedor OPL.
 	 * @throws NoSolutionException */
 	public void executar() throws NoSolutionException {
 		assert IllegalAttributeException.apply(this.configuracao != null);
-		assert IllegalAttributeException.apply(this.comandoResolvedor != null);
+		assert IllegalAttributeException.apply(this.solverCommand != null);
 		assert IllegalAttributeException.apply(this.oplModel != null);
 
 		IllegalAttributeException.apply(oplModel.hasCplex());
 		IllegalAttributeException.apply(oplModel.isGenerated());
 
-		Meter op = MeterFactory.getMeter(loggerMeter, ExecutarOpl).start();
+		Meter op = MeterFactory.getMeter(loggerMeter, ExecuteOpl).start();
 		try {
-
 			/*
 			 * TODO Só faz sentido executar se não existe um main no modelo opl?
 			 * O comando OPL poderia ignorar o main e executar o modelo.
@@ -139,7 +144,7 @@ public class ComandoOPL {
 			/*
 			 * Executar CPLEX.
 			 */
-			comandoResolvedor.executar();
+			solverCommand.executar();
 
 			/*
 			 * Reportar estado final do OPL.
@@ -180,10 +185,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printExternalData(os);
 			os.close();
-			loggerExecucao.info("Cópia dos dados externos salva em {}.", caminho.getAbsolutePath());
+			loggerExecution.info("Cópia dos dados externos salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia dos dados externos em {}.", caminho.getAbsolutePath(), e);
+			loggerExecution.warn("Falha ao salvar cópia dos dados externos em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 
@@ -201,10 +206,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printSolution(os);
 			os.close();
-			loggerExecucao.info("Cópia da solução salva em {}.", caminho.getAbsolutePath());
+			loggerExecution.info("Cópia da solução salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia da solução em {}.", caminho.getAbsolutePath(), e);
+			loggerExecution.warn("Falha ao salvar cópia da solução em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 
@@ -222,10 +227,10 @@ public class ComandoOPL {
 			OutputStream os = new FileOutputStream(caminho);
 			this.oplModel.printInternalData(os);
 			os.close();
-			loggerExecucao.info("Cópia dos dados internos salva em {}.", caminho.getAbsolutePath());
+			loggerExecution.info("Cópia dos dados internos salva em {}.", caminho.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia dos dados internos em {}.", caminho.getAbsolutePath(), e);
+			loggerExecution.warn("Falha ao salvar cópia dos dados internos em {}.", caminho.getAbsolutePath(), e);
 		}
 	}
 
@@ -235,7 +240,7 @@ public class ComandoOPL {
 	protected void logPropriedades() {
 		assert IllegalAttributeException.apply(this.oplModel != null);
 		IloOplModelDefinition definition = oplModel.getModelDefinition();
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
+		PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
 		out.println("Propriedades do modelo OPL:");
 		out.format(ComandoOPL.strPropertyPrintPattern, "id", Integer.toString(oplModel.getModelID()));
 		out.format(ComandoOPL.strPropertyPrintPattern, "name", oplModel.getName());
@@ -251,8 +256,8 @@ public class ComandoOPL {
 
 	/** Registra no log uma cópia dos dados da solução. */
 	protected void logSolutionData() {
-		if(! loggerSolucao.isInfoEnabled()) return;
-		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerSolucao);
+		if(! loggerSolution.isInfoEnabled()) return;
+		PrintStream ps = LoggerFactory.getInfoPrintStream(loggerSolution);
 		ps.println();
 		this.oplModel.printSolution(ps);
 		ps.close();

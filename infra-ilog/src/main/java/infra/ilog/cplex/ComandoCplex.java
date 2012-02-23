@@ -43,7 +43,6 @@ import java.io.PrintStream;
 
 import org.slf4j.Logger;
 
-
 /**
  * Implementação padrão específica para o CPLEX para o 'command' design pattern.
  * Executa o CPLEX conforme as configurações. A classe que implementa as configurações
@@ -72,31 +71,34 @@ public class ComandoCplex implements ComandoSolver {
 	public final Logger loggerMeter;
 	public final Logger loggerDados;
 
-	/** Configurações de execução da instância. */
+	/** Configuration that guides the CPLEX execution. */
 	private final ConfiguracaoCplex configuracao;
+	/** @return Configuration that guides the CPLEX execution. */
 	protected ConfiguracaoCplex getConfiguracao() { return configuracao; }
 
-	/** Instância CPLEX gerenciada. */
+	/** CPLEX instance being guided. */
 	private final IloCplex cplex;
+	/** @return CPLEX instance being guided. */
 	public IloCplex getCplex() { return cplex; }
 
-	/** Delegate que auxilia nas decisões. */
+	/** Delegate implementation that decided if CPLEX shall continue to run. */
 	private final Delegate delegate;
 
-	/** Cria o comando executor a partir de uma instância CPLEX existente. */
+	/** Creates the command pattern that guids the CPLEX instance. */
 	public ComandoCplex(IloCplex cplex, ConfiguracaoCplex configuracao) {
 		super();
 
 		NullArgumentException.apply(cplex, configuracao);
+		IllegalArgumentException.apply(configuracao.getNome() != null);
 
-		this.configuracao = new ConfiguracaoCplex(configuracao); /* guarda uma cópia da configuração. */
+		this.configuracao = new ConfiguracaoCplex(configuracao); /* for thread safety, stores a copy of configuration. */
 		this.cplex = cplex;
 		this.delegate = configuracao.getDelegate();
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.cplex"), configuracao.getNome());
-		this.loggerExecucao = LoggerFactory.getLogger(logger, "execucao");
-		this.loggerMeter = LoggerFactory.getLogger(logger, "meter");
-		this.loggerDados = LoggerFactory.getLogger(logger, "dados");
+		this.loggerExecucao = LoggerFactory.getLogger(logger, "exec");
+		this.loggerMeter = LoggerFactory.getLogger(logger, "perf");
+		this.loggerDados = LoggerFactory.getLogger(logger, "data");
 	}
 
 	private final Operation ExecutarCplex = OperationFactory.getOperation("executarCplex", "Executar CPLEX");

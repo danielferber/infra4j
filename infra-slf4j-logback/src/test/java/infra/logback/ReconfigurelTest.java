@@ -37,19 +37,20 @@ import ch.qos.logback.classic.LoggerContext;
 public class ReconfigurelTest {
 	@BeforeClass
 	public static void inicio() {
-		if (! ServicoLogback.isInstalado()) {
-			ServicoLogback.instalar();
+		if (! LogbackService.isInstalado()) {
+			LogbackService.install();
 		}
-		Assert.assertTrue(ServicoLogback.isInstalado());
+		Assert.assertTrue(LogbackService.isInstalado());
 	}
 
 	/**
 	 * Configuration file does not exist.
 	 */
+	@SuppressWarnings("static-method")
 	@Test
 	public void a() {
 		try {
-			ServicoLogback.reconfigurar(new File("config/notFound.xml"));
+			LogbackService.reconfigure(new File("config/notFound.xml"));
 		} catch (LogbackReconfigureException e) {
 			Assert.assertEquals(LogbackReconfigureException.Reason.ARQUIVO_CONFIG, e.reason);
 		}
@@ -58,10 +59,11 @@ public class ReconfigurelTest {
 	/**
 	 * Configuration file with invalid XML.
 	 */
+	@SuppressWarnings("static-method")
 	@Test()
 	public void b() {
 		try {
-			ServicoLogback.reconfigurar(new File("config/invalidXml.xml"));
+			LogbackService.reconfigure(new File("config/invalidXml.xml"));
 		} catch (LogbackReconfigureException e) {
 			Assert.assertEquals(LogbackReconfigureException.Reason.CONFIGURACAO, e.reason);
 		}
@@ -70,25 +72,27 @@ public class ReconfigurelTest {
 	/**
 	 * Configuration file with good XML.
 	 */
+	@SuppressWarnings("static-method")
 	@Test()
 	public void c() {
 		Properties properties = new Properties();
 		properties.setProperty("globalLevel", "WARN");
-		ServicoLogback.reconfigurar(new File("config/goodXml.xml"), properties);
-		Assert.assertTrue(ServicoLogback.isInstalado());
-		Assert.assertTrue(ServicoLogback.isUsandoConfiguracaoEspecifica());
-		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoClasspath());
-		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoProperty());
+		LogbackService.reconfigure(new File("config/goodXml.xml"), properties);
+		Assert.assertTrue(LogbackService.isInstalado());
+		Assert.assertTrue(LogbackService.isUsandoConfiguracaoEspecifica());
+		Assert.assertFalse(LogbackService.isUsandoConfiguracaoClasspath());
+		Assert.assertFalse(LogbackService.isUsandoConfiguracaoProperty());
 	}
 
 	/**
 	 * Test properties injection.
 	 */
+	@SuppressWarnings("static-method")
 	@Test()
 	public void d() {
 		Properties properties = new Properties();
 		properties.setProperty("globalLevel", "WARN");
-		ServicoLogback.reconfigurar(new File("config/propertiesXml.xml"), properties);
+		LogbackService.reconfigure(new File("config/propertiesXml.xml"), properties);
 
 		LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 		final Appender dummyAppender = new Appender("dummy");

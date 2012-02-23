@@ -59,10 +59,10 @@ public class InstallTest {
 
 	@BeforeClass
 	public static void inicio() {
-		if (! ServicoLogback.isInstalado()) {
-			ServicoLogback.instalar();
+		if (! LogbackService.isInstalado()) {
+			LogbackService.install();
 		}
-		Assert.assertTrue(ServicoLogback.isInstalado());
+		Assert.assertTrue(LogbackService.isInstalado());
 		((Logger) LoggerFactory.getLogger("c")).addAppender(InstallTest.appC);
 		((Logger) LoggerFactory.getLogger("d")).addAppender(InstallTest.appD);
 		((Logger) LoggerFactory.getLogger("e")).addAppender(InstallTest.appE);
@@ -81,26 +81,29 @@ public class InstallTest {
 	/**
 	 * Default install (without any configuration file on classpath) does not report any special install configuration flag.
 	 */
+	@SuppressWarnings("static-method")
 	@Test
 	public void a() {
-		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoClasspath());
-		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoProperty());
-		Assert.assertFalse(ServicoLogback.isUsandoConfiguracaoEspecifica());
+		Assert.assertFalse(LogbackService.isUsandoConfiguracaoClasspath());
+		Assert.assertFalse(LogbackService.isUsandoConfiguracaoProperty());
+		Assert.assertFalse(LogbackService.isUsandoConfiguracaoEspecifica());
 	}
 
 	/**
 	 * Does not allow to install twice.
 	 */
+	@SuppressWarnings("static-method")
 	@Test()
 	public void b() {
 		try {
-			ServicoLogback.instalar();
+			LogbackService.install();
 			Assert.fail();
 		} catch (LogbackInstallException e) {
 			Assert.assertEquals(LogbackInstallException.Reason.DUPLICATED_INSTALL, e.reason);
 		}
 	}
 
+	@SuppressWarnings("static-method")
 	@Test
 	public void c() {
 		java.util.logging.Logger logger = java.util.logging.Logger.getLogger("c");
@@ -109,6 +112,7 @@ public class InstallTest {
 		Assert.assertEquals(msg, InstallTest.appC.lastMessage);
 	}
 
+	@SuppressWarnings("static-method")
 	@Test
 	public void d() {
 		org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("d");
@@ -117,6 +121,7 @@ public class InstallTest {
 		Assert.assertEquals(msg, InstallTest.appD.lastMessage);
 	}
 
+	@SuppressWarnings("static-method")
 	@Test
 	public void e() {
 		org.apache.log4j.Logger logger = org.apache.log4j.LogManager.getLogger("e");
@@ -125,6 +130,7 @@ public class InstallTest {
 		Assert.assertEquals(msg, InstallTest.appE.lastMessage);
 	}
 
+	@SuppressWarnings("static-method")
 	@Test
 	public void f() {
 		org.apache.commons.logging.Log log = org.apache.commons.logging.LogFactory.getLog("f");
