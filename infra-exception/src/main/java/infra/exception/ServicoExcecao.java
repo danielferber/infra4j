@@ -19,7 +19,6 @@ import infra.exception.assertions.controlstate.IllegalControlStateException;
 import infra.exception.assertions.datastate.IllegalDataStateException;
 import infra.exception.motivo.Motivo;
 import infra.exception.motivo.MotivoException;
-import infra.exception.motivo.MotivoRuntimeException;
 
 import java.io.PrintStream;
 
