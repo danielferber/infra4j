@@ -17,8 +17,8 @@ package infra.ilog.opl;
 
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
+import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.datastate.IllegalArgumentException;
 import infra.exception.assertions.datastate.IllegalAttributeException;
 import infra.exception.assertions.datastate.IllegalOutputDataException;
@@ -159,7 +159,7 @@ public class ComandoOPL {
 			throw e;
 		} catch (RuntimeException e) {
 			op.fail(e);
-			throw new UnhandledException(e);
+			throw RichRuntimeException.enrich(e, ExecuteOpl);
 		}
 	}
 

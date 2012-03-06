@@ -15,6 +15,7 @@
  */
 package infra.exception;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -118,4 +119,26 @@ public class RichRuntimeException extends RuntimeException {
 		return reasons.contains(reason);
 	}
 
+	public static RichRuntimeException enrich(Throwable e, Object operation) {
+		return RichRuntimeException.enrichImpl(e).operation(operation);
+	}
+
+	public static RichRuntimeException enrich(Throwable e, Object operation, Object reason) {
+		return RichRuntimeException.enrichImpl(e).operation(operation).reason(reason);
+	}
+
+	public static RichRuntimeException enrich(Throwable e) {
+		return RichRuntimeException.enrichImpl(e);
+	}
+
+	public static RichRuntimeException enrichImpl(Throwable e) {
+		if (e instanceof RichRuntimeException) { // ( ou UnhandledRuntimeException)
+			return (RichRuntimeException) e;
+		}
+		RichRuntimeException newE = new UnhandledRuntimeException(e);
+		StackTraceElement[] st = newE.getStackTrace();
+		st = Arrays.copyOfRange(st, 2, st.length);
+		newE.setStackTrace(st);
+		return newE;
+	}
 }

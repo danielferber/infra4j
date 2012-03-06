@@ -23,11 +23,12 @@ import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import ilog.opl.IloOplModelSource;
 import ilog.opl.IloOplSettings;
-import infra.exception.MotivoRuntimeException;
+import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.exception.motivo.Motivo;
+import infra.exception.motivo.MotivoRuntimeException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
 import infra.ilog.cplex.ComandoCplex;
@@ -42,6 +43,7 @@ import infra.slf4j.OperationWithMessage;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -186,7 +188,7 @@ public class FacadeOPL {
 			throw e;
 		} catch (RuntimeException e) {
 			allOp.fail(e);
-			throw e;
+			throw RichRuntimeException.enrich(e, FacadeOPL.ExecuteFacade);
 		} finally {
 			if (oplFactory != null) {
 				oplFactory.end();
@@ -533,7 +535,11 @@ public class FacadeOPL {
 	 */
 	protected static RuntimeException wrapPossibleSpuriousIloException(Exception e) {
 		if (e instanceof IloException)  LoggerFactory.getLogger(FacadeOPL.class).warn("JNI has thrown undeclared exception.", e);
-		return new UnhandledException(e);
+		UnhandledException newE = new UnhandledException(e);
+		StackTraceElement[] st = newE.getStackTrace();
+		st = Arrays.copyOfRange(st, 1, st.length);
+		newE.setStackTrace(st);
+		return newE;
 	}
 
 	/**
@@ -564,7 +570,6 @@ public class FacadeOPL {
 			throw e;
 		} catch (Exception e) {
 			op.fail(e);
-
 			throw FacadeOPL.wrapPossibleSpuriousIloException(e);
 		}
 	}

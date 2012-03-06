@@ -19,7 +19,7 @@ import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
 import ilog.cplex.IloCplex.Algorithm;
 import ilog.cplex.IloCplex.Status;
-import infra.exception.UnhandledRuntimeException;
+import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.bug.ImpossibleConditionException;
 import infra.exception.assertions.controlstate.bug.ImpossibleException;
 import infra.exception.assertions.controlstate.design.UnsupportedException;
@@ -199,10 +199,10 @@ public class ComandoCplex implements ComandoSolver {
 			op.ok();
 		} catch (NoSolutionException e) {
 			op.put("reason", e.reason.toString()).fail(e);
-			throw e;
+			throw e.operation(ExecutarCplex);
 		} catch (RuntimeException e) {
 			op.fail(e);
-			throw new UnhandledRuntimeException(e);
+			throw RichRuntimeException.enrich(e, ExecutarCplex);
 		}
 	}
 

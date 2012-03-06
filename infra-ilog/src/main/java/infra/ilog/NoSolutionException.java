@@ -24,4 +24,19 @@ public class NoSolutionException extends RichException {
 		super(reason);
 		this.reason = reason;
 	}
+
+	@Override
+	public NoSolutionException data(String key, Object value) {
+		return (NoSolutionException) super.data(key, value);
+	}
+
+	@Override
+	public NoSolutionException reason(Object reason) {
+		return (NoSolutionException) super.reason(reason);
+	}
+
+	@Override
+	public NoSolutionException operation(Object operation) {
+		return (NoSolutionException) super.operation(operation);
+	}
 }
