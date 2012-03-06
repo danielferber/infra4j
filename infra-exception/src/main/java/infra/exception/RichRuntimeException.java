@@ -33,7 +33,7 @@ public class RichRuntimeException extends RuntimeException {
 	Set<Object> operations = new LinkedHashSet<Object>();
 	Set<Object> reasons = new LinkedHashSet<Object>();
 
-	protected RichRuntimeException(Object operation, Object reason) {
+	public RichRuntimeException(Object operation, Object reason) {
 		super();
 		if (operation == null || reason == null) {
 			RichRuntimeException.logger.error("Called RichRuntimeException(operation={}, reason={}) with null parameter.", operation, reason);
@@ -42,7 +42,7 @@ public class RichRuntimeException extends RuntimeException {
 		this.operations.add(operation);
 	}
 
-	protected RichRuntimeException(Object operation, Object reason, Throwable cause) {
+	public RichRuntimeException(Object operation, Object reason, Throwable cause) {
 		super(cause);
 		if (operation == null || reason == null || cause == null) {
 			RichRuntimeException.logger.error("Called RichRuntimeException(operation={}, reason={}, cause={}) with null parameter.", new Object[] { operation, reason, cause });
@@ -51,7 +51,7 @@ public class RichRuntimeException extends RuntimeException {
 		this.operations.add(operation);
 	}
 
-	protected RichRuntimeException(Object reason) {
+	public RichRuntimeException(Object reason) {
 		super();
 		if (reason == null) {
 			RichRuntimeException.logger.error("Called RichRuntimeException(operation={}, reason={}) with null parameter.", reason);
@@ -59,7 +59,7 @@ public class RichRuntimeException extends RuntimeException {
 		this.reasons.add(reason);
 	}
 
-	protected RichRuntimeException(Object reason, Throwable cause) {
+	public RichRuntimeException(Object reason, Throwable cause) {
 		super(cause);
 		if (reason == null || cause == null) {
 			RichRuntimeException.logger.error("Called RichRuntimeException(reason={}, cause={}) with null parameter.", reason, cause);
@@ -67,10 +67,11 @@ public class RichRuntimeException extends RuntimeException {
 		this.reasons.add(reason);
 	}
 
+
 	/** Builder method to add meta data to the exception. */
 	public RichRuntimeException data(String key, Object value) {
 		if (key == null || value == null) {
-			RichRuntimeException.logger.error("Called put(key={}, value={}) with null parameter.", key, value);
+			RichRuntimeException.logger.error("Called data(key={}, value={}) with null parameter.", key, value);
 			return this;
 		}
 		metaData.put(key, value);

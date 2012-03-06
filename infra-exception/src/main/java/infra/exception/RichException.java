@@ -70,7 +70,7 @@ public class RichException extends Exception {
 	/** Builder method to add meta data to the exception. */
 	public RichException data(String key, Object value) {
 		if (key == null || value == null) {
-			RichException.logger.error("Called put(key={}, value={}) with null parameter.", key, value);
+			RichException.logger.error("Called data(key={}, value={}) with null parameter.", key, value);
 			return this;
 		}
 		metaData.put(key, value);
