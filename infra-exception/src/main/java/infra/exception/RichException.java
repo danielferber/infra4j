@@ -33,29 +33,44 @@ public class RichException extends Exception {
 	Set<Object> operations = new LinkedHashSet<Object>();
 	Set<Object> reasons = new LinkedHashSet<Object>();
 
+	protected RichException(Object operation, Object reason) {
+		super();
+		if (operation == null || reason == null) {
+			RichException.logger.error("Called RichException(operation={}, reason={}) with null parameter.", operation, reason);
+		}
+		this.reasons.add(reason);
+		this.operations.add(operation);
+	}
+
+	protected RichException(Object operation, Object reason, Throwable cause) {
+		super(cause);
+		if (operation == null || reason == null || cause == null) {
+			RichException.logger.error("Called RichException(operation={}, reason={}, cause={}) with null parameter.", new Object[] { operation, reason, cause });
+		}
+		this.reasons.add(reason);
+		this.operations.add(operation);
+	}
 
 	protected RichException(Object reason) {
 		super();
+		if (reason == null) {
+			RichException.logger.error("Called RichException(operation={}, reason={}) with null parameter.", reason);
+		}
 		this.reasons.add(reason);
 	}
 
 	protected RichException(Object reason, Throwable cause) {
 		super(cause);
+		if (reason == null || cause == null) {
+			RichException.logger.error("Called RichException(reason={}, cause={}) with null parameter.", reason, cause);
+		}
 		this.reasons.add(reason);
-	}
-
-
-	public static <T extends RichException> T addData(T e, String key, Object value) {
-		return e;
 	}
 
 	/** Builder method to add meta data to the exception. */
 	public RichException data(String key, Object value) {
-		if (key == null) {
-			RichException.logger.error("Called put(key={}, value={}) with null key.", key, value);
-			return this;
-		} else if (value == null) {
-			RichException.logger.error("Called put(key={}, value={}) with null value.", key, value);
+		if (key == null || value == null) {
+			RichException.logger.error("Called put(key={}, value={}) with null parameter.", key, value);
 			return this;
 		}
 		metaData.put(key, value);
@@ -65,7 +80,7 @@ public class RichException extends Exception {
 	/** Builder method to add a reason to the exception. */
 	public RichException reason(Object reason) {
 		if (reason == null) {
-			RichException.logger.error("Called reason(reason={}) with null reason.", reason);
+			RichException.logger.error("Called reason(reason={}) with null parameter.", reason);
 			return this;
 		}
 		reasons.add(reason);
@@ -75,7 +90,7 @@ public class RichException extends Exception {
 	/** Builder method to add a operation to the operation hierarchy of the exception. */
 	public RichException operation(Object operation) {
 		if (operation == null) {
-			RichException.logger.error("Called operation(operation={}) with null operation.", operation);
+			RichException.logger.error("Called operation(operation={}) with null parameter.", operation);
 			return this;
 		}
 		operations.add(operation);
