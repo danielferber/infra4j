@@ -39,7 +39,7 @@ public class MotivoRuntimeException extends RuntimeException {
 		this.motivo = motivo;
 	}
 
-	public Motivo getMotivo() { return motivo; };
+	public Motivo getMotivo() { return motivo; }
 
 	public String getCodigoMotivo() {
 		return MotivoException.codigoMotivo(motivo);

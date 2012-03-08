@@ -15,6 +15,8 @@
  */
 package infra.exception.motivo;
 
+import infra.exception.RichRuntimeException;
+
 /**
  * Exceção que encapsula um {@link Motivo} e uma {@link Exception} que detalha o {@link Motivo}.
  * Métodos públicos que realizam uma operação devem lançar esta exceção ao invés de
@@ -22,6 +24,8 @@ package infra.exception.motivo;
  * cada possível motivo da falha.
  *
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ *
+ * @deprecated This class shall be replaced by {@link RichRuntimeException}.
  */
 @Deprecated
 public class MotivoException extends Exception {
@@ -39,7 +43,7 @@ public class MotivoException extends Exception {
 		this.motivo = motivo;
 	}
 
-	public Motivo getMotivo() { return motivo; };
+	public Motivo getMotivo() { return motivo; }
 
 	public String getCodigoMotivo() {
 		return MotivoException.codigoMotivo(motivo);

@@ -15,6 +15,9 @@
  */
 package infra.exception.motivo;
 
+import infra.exception.RichException;
+import infra.exception.RichRuntimeException;
+
 
 /**
  * Identifica o "motivo" (ou causa) de uma operação não poder ser realizada. Normalmente é uma falha que faz parte da
@@ -30,6 +33,9 @@ package infra.exception.motivo;
  * enum que agrupa os motivos).
  *
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ *
+ * @deprecated This class shall be replaced by {@link RichException} or preferably by {@link RichRuntimeException}, since most
+ * exception patterns were better described as runtime.
  */
 @Deprecated
 public interface Motivo {
