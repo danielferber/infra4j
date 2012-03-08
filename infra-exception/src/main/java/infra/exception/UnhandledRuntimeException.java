@@ -1,12 +1,11 @@
 package infra.exception;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public final class UnhandledRuntimeException extends RichRuntimeException {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LoggerFactory.getLogger(UnhandledRuntimeException.class);
+	private static final Logger logger = ServicoExcecao.logger;
 
 	public static enum Reason {
 		UNHANDLED_RUNTIME_EXCEPTION

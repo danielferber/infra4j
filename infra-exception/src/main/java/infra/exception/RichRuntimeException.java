@@ -23,11 +23,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RichRuntimeException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LoggerFactory.getLogger(RichRuntimeException.class);
+	private static final Logger logger = ServicoExcecao.logger;
 
 	Map<String, Object> metaData = new TreeMap<String, Object>();
 

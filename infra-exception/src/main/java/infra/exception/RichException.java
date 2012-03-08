@@ -22,11 +22,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RichException extends Exception {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = LoggerFactory.getLogger(RichException.class);
+	private static final Logger logger = ServicoExcecao.logger;
 
 	Map<String, Object> metaData = new TreeMap<String, Object>();
 
@@ -99,6 +98,10 @@ public class RichException extends Exception {
 
 	public Object getData(String key) {
 		return this.metaData.get(key);
+	}
+
+	public Map<String, Object> getData() {
+		return Collections.unmodifiableMap(metaData);
 	}
 
 	public Set<Object> getReasons() {

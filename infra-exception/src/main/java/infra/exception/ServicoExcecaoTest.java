@@ -49,7 +49,7 @@ public class ServicoExcecaoTest {
 			try {
 				throw new FileNotFoundException("O arquivo não foi encontrado!");
 			} catch (IOException e) {
-				throw new MotivoException(MotivoA.ARQUIVO, e);
+				throw new MotivoException(e, MotivoA.ARQUIVO);
 			}
 		} catch (Exception e) {
 			ServicoExcecao.reportarException(System.err, e);
