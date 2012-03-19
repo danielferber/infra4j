@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -24,6 +24,7 @@ public class NullArgumentException extends IllegalArgumentException {
 
 	public NullArgumentException() { super(); }
 	public NullArgumentException(String message) { super(message); }
+	protected NullArgumentException(SystemRule sr) { super(sr); }
 
 	/** Raises exception any parameter is null. */
 	public static boolean apply(Object... values) {
@@ -32,4 +33,12 @@ public class NullArgumentException extends IllegalArgumentException {
 		}
 		return true;
 	}
+	/** Raises exception any parameter is null. */
+	public static boolean apply(SystemRule sr, Object... values) {
+		for (Object value : values) {
+			if (value == null) throw new NullArgumentException(sr);
+		}
+		return true;
+	}
+
 }
