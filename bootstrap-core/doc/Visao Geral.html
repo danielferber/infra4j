@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="LibreOffice 3.4  (Win32)">
+	<META NAME="CREATED" CONTENT="20111016;10205826">
+	<META NAME="CHANGED" CONTENT="20111016;11564262">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { margin: 2cm }
+		P { margin-bottom: 0.21cm; text-align: justify }
+		P.western { font-size: 12pt }
+		P.cjk { font-size: 10pt }
+		H1 { margin-bottom: 0.21cm }
+		H1.western { font-family: "Arial", sans-serif; font-size: 16pt }
+		H1.cjk { font-family: "Microsoft YaHei"; font-size: 16pt }
+		H1.ctl { font-family: "Mangal"; font-size: 16pt }
+		H2 { margin-bottom: 0.21cm }
+		H2.western { font-family: "Arial", sans-serif; font-size: 14pt; font-style: italic }
+		H2.cjk { font-family: "Microsoft YaHei"; font-size: 14pt; font-style: italic }
+		H2.ctl { font-family: "Mangal"; font-size: 14pt; font-style: italic }
+		TT.western { font-size: 10pt }
+		TT.cjk { font-family: "NSimSun", monospace; font-size: 10pt }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="pt-BR" DIR="LTR">
+<H1 CLASS="western">Bootstrap</H1>
+<H2 CLASS="western">Windows/Linux</H2>
+<P CLASS="western">O Bootstrap suporta uma implementa&ccedil;&atilde;o
+comum para servi&ccedil;os Windows e para daemons Linux. A diferen&ccedil;a
+est&aacute; nos scripts utilizados para instalar e iniciar o servi&ccedil;o
+ou deamon.</P>
+<H2 CLASS="western">Iniciar o servidor</H2>
+<P CLASS="western">No windows, o servidor &eacute; iniciado quando o
+gerenciador de servi&ccedil;os solicitar o in&iacute;cio do servi&ccedil;o,
+por exemplo, quando o usu&aacute;rio clicar no bot&atilde;o &ldquo;Iniciar&rdquo;
+no painel de propriedades do servi&ccedil;o. Outra forma de iniciar &eacute;
+atrav&eacute;s de um dos scripts na linha de comando. O servidor
+tamb&eacute;m pode ser executado como um programa num terminal. Neste
+caso, o bootstrap executa como um programa comum, mas emula o
+comportamento de um servi&ccedil;o ou daemon.</P>
+<H2 CLASS="western">Terminar o servidor</H2>
+<P CLASS="western">No windows, o servidor &eacute; iniciado quando o
+gerenciador de servi&ccedil;os solicitar a parada do servi&ccedil;o,
+por exemplo, quando o usu&aacute;rio clicar no bot&atilde;o &ldquo;Parar&rdquo;
+no painel de propriedades do servi&ccedil;o. Outra forma de iniciar &eacute;
+atrav&eacute;s de um dos scripts na linha de comando. Caso o servidor
+esteja executando em um terminal, ent&atilde;o &eacute; poss&iacute;vel
+terminar atrav&eacute;s de Ctrl+C. Caso o servidor esteja executando
+em um terminal e tenha sido inicializado sem argumentos, ent&atilde;o
+tamb&eacute;m &eacute; poss&iacute;vel escrever &ldquo;stop&rdquo; +
+ENTER na linha de comando do servidor.</P>
+<H2 CLASS="western">Pausar e continuar o servidor</H2>
+<P CLASS="western">Estas opera&ccedil;&otilde;es n&atilde;o s&atilde;o
+suportadas pelo bootstrap.</P>
+<H2 CLASS="western">M&eacute;todos para iniciar e para terminar
+servidor</H2>
+<P CLASS="western">A classe que implementa <TT CLASS="western">BootstrapHandler</TT>
+&eacute; respons&aacute;vel por executar as tarefas para iniciar
+todos os componentes do servidor durante a inicializa&ccedil;&atilde;o
+e por finalizar os componentes durante o t&eacute;rmino do servidor.</P>
+<P CLASS="western">A implementa&ccedil;&atilde;o do m&eacute;todo
+<TT CLASS="western">startServer()</TT> dever&aacute; iniciar os
+componentes do servidor, na ordem correta. Passos t&iacute;picos s&atilde;o:
+configurar logging, configurar acesso ao banco de dados e iniciar
+threads para receber conex&otilde;es via rede. 
+</P>
+<P CLASS="western">A implementa&ccedil;&atilde;o do m&eacute;todo
+<TT CLASS="western">stopServer()</TT> dever&aacute; terminar os
+componentes do servidor e liberar mem&oacute;ria. O m&eacute;todo
+deve ser capaz de lidar com componentes n&atilde;o iniciados ou em
+estado consistentes Caso o m&eacute;todo <TT CLASS="western">startServer()</TT>
+lance uma exce&ccedil;&atilde;o, o bootstrap assume falha na
+inicializa&ccedil;&atilde;o e chama o m&eacute;todo <TT CLASS="western">stopServer()</TT>
+para terminar os componentes parcialmente iniciados. Caso o m&eacute;todo
+<TT CLASS="western">stopServer()</TT> lance uma exce&ccedil;&atilde;o,
+ent&atilde;o ela ser&aacute; ignorada.</P>
+<P CLASS="western">O bootstrap garante o sequenciamento correto do
+m&eacute;todos <TT CLASS="western">startServer()</TT> e <TT CLASS="western">stopServer()</TT>.
+Garante que n&atilde;o sejam reentrantes, que s&atilde;o chamadas
+sincronizadas e que s&atilde;o chamados alternadamente. 
+</P>
+<P CLASS="western">A implementa&ccedil;&atilde;o de <TT CLASS="western">stopServer()</TT>
+deve restaurar o ambiente para as mesmas condi&ccedil;&otilde;es
+antes da chamada de <TT CLASS="western">startServer()</TT> de forma
+que o servidor possa ser iniciado novamente.</P>
+<H2 CLASS="western">Fases da execu&ccedil;&atilde;o</H2>
+<P CLASS="western">O servidor encontra-se na fase <TT CLASS="western">INATIVO</TT>
+assim que &eacute; criado o servi&ccedil;o windows ou o daemon linux
+correspondente ao servidor. Durante a execu&ccedil;&atilde;o do
+m&eacute;todo <TT CLASS="western">startServer()</TT>, o servidor
+permanece na fase <TT CLASS="western">INICIANDO</TT>. Completada a
+execu&ccedil;&atilde;o com sucesso do m&eacute;todo, o servidor passa
+para a fase <TT CLASS="western">EXECUTANDO</TT>. Durante a execu&ccedil;&atilde;o
+do m&eacute;todo <TT CLASS="western">stopServer()</TT> o servidor
+permanece na fase <TT CLASS="western">TERMINANDO</TT>. Depois passa
+para a fase <TT CLASS="western">INATIVO</TT>. 
+</P>
+<P CLASS="western">N&atilde;o &eacute; poss&iacute;vel interromper a
+fase de inicio do servidor. Caso o administrador desista de esperar
+durante a execu&ccedil;&atilde;o prolongada de <TT CLASS="western">startServer()</TT>
+e deseje for&ccedil;ar o t&eacute;rmino do servi&ccedil;o, a chamada
+de <TT CLASS="western">stopServer()</TT> ser&aacute; agendada at&eacute;
+completar a execu&ccedil;&atilde;o <TT CLASS="western">startServer()</TT>,
+pois seria muito complicado lidar com execu&ccedil;&otilde;es
+concorrentes de <TT CLASS="western">startServer()</TT> e
+<TT CLASS="western">stopServer()</TT>.</P>
+<H2 CLASS="western">Passo a passo</H2>
+<OL>
+	<LI><P CLASS="western">Implementar a interface BootstrapHandler.</P>
+	<LI><P CLASS="western">Criar um arquivo bootstrap/handler, no
+	classpath, com uma &uacute;nica linha de texto com o nome
+	qualificado da classe que implementa BootstrapHandler. Como
+	alternativa, passar para a JVM a propriedade &ldquo;bootstrap.handler&rdquo;
+	com o nome qualificado.</P>
+	<LI><P CLASS="western">Editar o script servico.config.bat para
+	atribuir um nome e um identificador ao servi&ccedil;o.</P>
+</OL>
+<P CLASS="western" ALIGN=LEFT STYLE="margin-bottom: 0cm">Observa&ccedil;&atilde;o:
+Os passos 2 e 3 poderiam ser realizado automaticamente e
+consistentemente por um build ANT que obt&eacute;m as configura&ccedil;&otilde;es
+de um arquivo bootstrap.properties.</P>
+<H2 CLASS="western">Estrutura de diret&oacute;rios</H2>
+<P CLASS="western">Cada inst&acirc;ncia da aplica&ccedil;&atilde;o
+java oferecida como servi&ccedil;o deve residir em um diret&oacute;rio
+diferente. Assim &eacute; poss&iacute;vel separar arquivos de
+configura&ccedil;&atilde;o, diret&oacute;rios de logging e diret&oacute;rios
+de bin&aacute;rios.</P>
+<UL>
+	<LI><P CLASS="western">/<B>bin</B> &ndash; Todos os arquivos .jars
+	que comp&otilde;em a aplica&ccedil;&atilde;o e os .jars das
+	depend&ecirc;ncias. N&atilde;o esquecer .jar do bootstrap, que
+	tamb&eacute;m &eacute; uma depend&ecirc;ncia, e o jar que cont&eacute;m
+	o arquivo bootstrap/handler.</P>
+	<LI><P CLASS="western">/<B>config</B> &ndash; Todos os arquivos .xml
+	ou .properties que comp&otilde;em a configura&ccedil;&atilde;o dos
+	componentes da aplica&ccedil;&atilde;o. Por padr&atilde;o, os
+	m&oacute;dulos infra-* assumem este diret&oacute;rio para buscar
+	configura&ccedil;&otilde;es.</P>
+	<LI><P CLASS="western">/ &ndash; Os scripts de bootstrap para
+	instalar, remover, configurar, iniciar e terminar o servi&ccedil;o.</P>
+	<LI><P CLASS="western">/<B>log</B> &ndash; Destino dos arquivos de
+	logging. O m&oacute;dulos infra-* assumem este diret&oacute;rio.</P>
+</UL>
+</BODY>
+</HTML>

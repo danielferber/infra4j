@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="Common build file">
+    <description>
+    	Esqueleto do build padrão.
+    </description>
+
+	<property file="commons.properties" />
+	
+	<property name="component.jar" value="${component.name}-${component.version}.jar" />
+	<property name="path.target.jar" value="${path.target}/${component.jar}" />
+ 
+	<target name="info">
+		<echo level="info" message="component.jar=${component.jar}" />
+		<echo level="info" message="path.target.jar=${path.target.jar}" />
+	</target>
+		
+    <target name="init" description="Initialize environment">
+        <mkdir dir="${path.src.main}"/>
+        <mkdir dir="${path.src.test}"/>
+        <mkdir dir="${path.src.main.java}"/>
+        <mkdir dir="${path.src.test.java}"/>    	
+        <mkdir dir="${path.src.main.resources}"/>
+        <mkdir dir="${path.src.test.resources}"/>
+    	
+        <mkdir dir="${path.tmp}"/>
+        <mkdir dir="${path.tmp.main.classes}"/>
+        <mkdir dir="${path.tmp.test.classes}"/>
+	</target>
+    	
+    <target name="compile" depends="init" description="Compile source">
+        <javac fork="true"
+        	debug="${compile.debug}" deprecation="${compile.deprecation}" 
+        	destdir="${path.tmp.main.classes}" target="${compile.jdk-version.target}" 
+        	source="${compile.jdk-version.source}" optimize="${compile.optimize}" 
+        	srcdir="${path.src.main.java}" includeantruntime="false" >
+            <classpath refid="compile.classpath"/>
+        </javac>
+    	<copy todir="${path.tmp.main.classes}">
+    		<fileset dir="${path.src.main.resources}" />
+    	</copy>
+    	<!-- TODO: pensar melhor isto: se deve ficar na raiz ou no source -->
+    	<copy file="version.properties" todir="path.src.main.resources" />
+    	<!-- TODO: no futuro, uma flag para copiar arquivos de sorce para dentro do jar -->
+    </target>
+	
+    <target name="compile-test" depends="compile" description="Compile test cases">
+        <javac fork="true"
+        	debug="${compile.debug}" deprecation="${compile.deprecation}" 
+        	destdir="${path.tmp.test.classes}" target="${compile.jdk-version.target}" 
+        	source="${compile.jdk-version.source}" optimize="${compile.optimize}" 
+        	srcdir="${path.src.test.java}" includeantruntime="false" >
+        	<classpath refid="compile.classpath"/>
+        	<classpath location="${path.tmp.main.classes}" />
+        </javac>
+    	<copy todir="${path.tmp.test.classes}">
+    		<fileset dir="${path.src.test.resources}"/>
+    	</copy>
+    </target>
+
+    <target name="clean" description="Wipeout all generated files">
+        <delete dir="${path.tmp}"/>
+    </target>
+
+<!--
+    <target name="javadoc" description="Create Javadoc documentation">
+        <delete dir="${path.docs.api}"/>
+        <mkdir dir="${path.docs.api}"/>
+        <javadoc author="true" bottom="${component.title}" destdir="${path.docs.api}" source="${compile.jdk-version.source}" doctitle="${component.title}" packagenames="*" access="protected" sourcepath="${path.src.java}" version="true" windowtitle="${component.title} (Version ${component.version})">
+            <classpath refid="compile.classpath"/>
+        </javadoc>
+    </target>
+-->
+
+    <target name="jar" depends="compile" description="Create binary distribution">
+        <jar basedir="${path.tmp.main.classes}" jarfile="${path.target.jar}">
+        	<manifest>
+        		<attribute name="version" value="${component.version}" />
+        		<attribute name="name" value="${component.name}" />
+        		<attribute name="group" value="${component.group}" />
+        	</manifest>
+        </jar>
+    </target>
+	
+    <target name="zip" description="Create external files distribution">
+        <zip basedir="${path.src.main.external}" zipfile="${path.target.zip}" />
+    </target>
+	
+	<target name="deliver" depends="jar" description="Deliver component to repository">
+		<mkdir dir="${path.repositorio.delivered}/${component.group}/${component.name}/${component.version}"/>
+		<copy file="${path.target.jar}" tofile="${path.repositorio.delivered}/${component.group}/${component.name}/${component.version}/${component.jar}"/>
+	</target>
+
+    <target name="src-zip" depends="compile" description="Creates source distribution">
+        <copy file="LICENSE" todir="${path.src.java}"/>
+        <delete>
+            <fileset dir="${path.dist.lib}" includes="*-src.zip"/>
+        </delete>
+        <zip basedir="." destfile="${path.dist.lib}/${component.name}-${component.version}-src.zip" whenempty="fail">
+            <include name="**/*.*"/>
+            <include name="*"/>
+            <include name="**/*"/>
+            <exclude name="${path.dist}/**/*.*"/>
+            <exclude name="*.*~"/>      <!-- JEdit backups -->
+            <exclude name=".nbattrs"/>  <!-- Netbeans filesystem attributes -->
+            <exclude name="*.old"/>
+        </zip>
+    </target>
+</project>
