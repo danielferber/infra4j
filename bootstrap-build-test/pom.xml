@@ -1,0 +1,24 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<artifactId>bootstrap-build</artifactId>
+		<groupId>br.pro.danielferber.bootstrap</groupId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../bootstrap-build</relativePath>
+	</parent>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>br.pro.danielferber.bootstrap</groupId>
+	<artifactId>bootstrap-build-test</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<dependencies>
+		<dependency>
+			<groupId>br.pro.danielferber.bootstrap</groupId>
+			<artifactId>bootstrap-core-test</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+	<name>Bootstrap - Build reference POM (teste)</name>
+	<description>Constroi um servi�o windows utilizando a implementa��o vazia de bootstrap-core-test.
+Utilizado apenas para demonstrar o conceito de bootstrap-build.</description>
+</project>

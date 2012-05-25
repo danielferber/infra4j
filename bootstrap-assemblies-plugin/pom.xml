@@ -1,0 +1,20 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>br.pro.danielferber.bootstrap</groupId>
+  <artifactId>bootstrap-assemblies-plugin</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+    <name>Bootstrap - Assemblies Plugin</name>
+    <description>Agrega scripts de assembly que s�o recorrentes entre diferentes projetos maven.</description>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.3.2</version>
+                <configuration>
+                    <debug>false</debug>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

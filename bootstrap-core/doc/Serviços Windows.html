@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=windows-1252">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="LibreOffice 3.4  (Win32)">
+	<META NAME="CREATED" CONTENT="20110302;15385737">
+	<META NAME="CHANGED" CONTENT="20111016;11472863">
+	<STYLE TYPE="text/css">
+	<!--
+		@page { margin: 2cm }
+		P { margin-bottom: 0.21cm }
+		P.western { so-language: pt-BR }
+		H2 { margin-bottom: 0.21cm }
+		H2.western { font-family: "Arial", sans-serif; font-size: 14pt; so-language: pt-BR; font-style: italic }
+		H2.cjk { font-family: "Arial Unicode MS"; font-size: 14pt; font-style: italic }
+		H2.ctl { font-size: 14pt; font-style: italic }
+		H1 { margin-bottom: 0.21cm }
+		H1.western { font-family: "Arial", sans-serif; font-size: 16pt; so-language: pt-BR }
+		H1.cjk { font-family: "Arial Unicode MS"; font-size: 16pt }
+		H1.ctl { font-family: "Tahoma"; font-size: 16pt }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="pt-BR" DIR="LTR">
+<H1 CLASS="western">Administra&ccedil;&atilde;o de Servi&ccedil;os
+Windows</H1>
+<H2 CLASS="western">Scripts para manuten&ccedil;&atilde;o do servi&ccedil;o</H2>
+<UL>
+	<LI><P CLASS="western"><B>instalar-servico.bat</B><SPAN STYLE="font-weight: normal">
+	&ndash; Registra a aplica&ccedil;&atilde;o Java como um novo servi&ccedil;o
+	no registro do windows. As propriedades deste novo servi&ccedil;o
+	s&atilde;o obtidas das defini&ccedil;&otilde;es dos arquivos
+	</SPAN><I><SPAN STYLE="font-weight: normal">set-configuracao.bat</SPAN></I><SPAN STYLE="font-weight: normal">
+	e </SPAN><I><SPAN STYLE="font-weight: normal">set-configuracao-extras.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">,
+	que devem especificar detalhadamente como executar a aplica&ccedil;&atilde;o
+	Java.</SPAN></SPAN></P>
+	<LI><P CLASS="western"><SPAN STYLE="font-style: normal"><B>remover-servico.bat</B></SPAN><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+	&ndash; Remove a aplica&ccedil;&atilde;o java do registro de
+	servi&ccedil;os do windows.</SPAN></SPAN></P>
+	<LI><P CLASS="western"><B>atualizar-servico.bat </B>&ndash; Altera
+	as propriedades do servi&ccedil;o para refletir as (novas)
+	defini&ccedil;&otilde;es dos arquivos <I>set-configuracao.bat</I> e
+	<I>set-configuracao-extras.bat</I>. Pressup&otilde;e que o servi&ccedil;o
+	j&aacute; foi instalado anteriormente utilizando o script
+	<I>instalar-servico.bat</I>.</P>
+	<P CLASS="western">Tamb&eacute;m &eacute; poss&iacute;vel editar as
+	propriedades utilizando uma interface gr&aacute;fica, executando o
+	script <I>executar-servico.bat</I>.</P>
+	<LI><P CLASS="western"><B>editar-servico.bat </B>&ndash; Apresenta
+	uma interface gr&aacute;fica para editar as propriedades do servi&ccedil;o.
+	Pressup&otilde;e que o servi&ccedil;o j&aacute; foi instalado
+	anteriormente utilizando o script <I>instalar-servico.bat</I>. &Eacute;
+	uma interface id&ecirc;ntica a utilizada pelo gerenciador de
+	servi&ccedil;os do windows, acrescida com abas adicionais para
+	configura&ccedil;&otilde;es espec&iacute;ficas do java.</P>
+	<LI><P CLASS="western" STYLE="font-style: normal"><B>config/servico.config.bat</B><SPAN STYLE="font-weight: normal">
+	&ndash; Cont&eacute;m as defini&ccedil;&otilde;es b&aacute;sicas de
+	propriedades do servi&ccedil;o, que variam de uma aplica&ccedil;&atilde;o
+	para outra. &Eacute; necess&aacute;rio redefinir estas propriedades
+	para cada inst&acirc;ncia do servi&ccedil;o. </SPAN>
+	</P>
+	<P CLASS="western" STYLE="font-style: normal; font-weight: normal">Estas
+	propriedades devem ser alteradas antes de instalar o servi&ccedil;o,
+	em especial, o identificador, que deve ser diferente para cada
+	inst&acirc;ncia do servi&ccedil;o, e diferente dos identificadores
+	dos demais servi&ccedil;os j&aacute; instalados no registro do
+	windows.</P>
+	<P CLASS="western" STYLE="font-style: normal; font-weight: normal">Uma
+	vez instalado o servi&ccedil;o, o identificador n&atilde;o poder&aacute;
+	mais ser alterado. Caso seja necess&aacute;rio alterar o
+	identificador, ent&atilde;o &eacute; necess&aacute;rio desinstalar o
+	servi&ccedil;o utilizando o identificador antigo e instalar
+	novamente utilizando o identificador novo.</P>
+	<LI><P CLASS="western" STYLE="font-style: normal"><B>config/servico-extras.config.bat</B><SPAN STYLE="font-weight: normal">
+	&ndash; Cont&eacute;m defini&ccedil;&otilde;es avan&ccedil;adas para
+	configurar as propriedades do servi&ccedil;o. Normalmente, n&atilde;o
+	deveria ser necess&aacute;rio editar estas defini&ccedil;&otilde;es.</SPAN></P>
+</UL>
+<H2 CLASS="western">Scripts para execu&ccedil;&atilde;o e monitora&ccedil;&atilde;o
+do servico</H2>
+<UL>
+	<LI><P CLASS="western"><B>executar-servico.bat</B> &ndash; Executa a
+	aplica&ccedil;&atilde;o java como se fosse um processo comum chamado
+	pela linha de comando. Ou seja, a execu&ccedil;&atilde;o ocorre sem
+	supervis&atilde;o do mecanismo de servi&ccedil;os do windows. &Eacute;
+	uma forma simples para testar diretamente a aplica&ccedil;&atilde;o,
+	caso haja suspeita de que as falhas estejam relacionadas com a
+	integra&ccedil;&atilde;o com o mecanismo de servi&ccedil;os do
+	windows.</P>
+	<LI><P CLASS="western"><B>iniciar-e-monitorar-servico</B> &ndash;
+	Executa a aplica&ccedil;&atilde;o java como um servi&ccedil;o
+	windows. Mostra a interface gr&aacute;fica que permite observar o
+	estado do servi&ccedil;o e que oferece comandos para parar e iniciar
+	novamente o servi&ccedil;o. &Eacute; uma forma simples para testar a
+	aplica&ccedil;&atilde;o como um servi&ccedil;o pela linha de comando
+	sem precisar recorrer ao gerenciador de servi&ccedil;os do windows.</P>
+	<LI><P CLASS="western"><B>iniciar-servico.bat</B> &ndash; Executa a
+	aplica&ccedil;&atilde;o java como um servi&ccedil;o windows. &Eacute;
+	uma forma simples para iniciar o servi&ccedil;o pela linha de
+	comando sem precisar recorrer ao gerenciador de servi&ccedil;os do
+	windows.</P>
+	<LI><P CLASS="western"><B>parar-servico.bat</B> &ndash; Termina a
+	execu&ccedil;&atilde;o da aplica&ccedil;&atilde;o como servi&ccedil;o
+	windows. Pressup&otilde;e que ela tenha sido iniciada antes como um
+	servi&ccedil;o windows. &Eacute; uma forma simples para parar o
+	servi&ccedil;o pela linha de comando sem precisar recorrer ao
+	gerenciador de servi&ccedil;os do windows.</P>
+</UL>
+<H2 CLASS="western">Log, hist&oacute;rico de execu&ccedil;&atilde;o e
+mensagens de erro.</H2>
+<P CLASS="western">Quando a aplica&ccedil;&atilde;o java executa como
+servi&ccedil;o windows, ent&atilde;o n&atilde;o &eacute; poss&iacute;vel
+visualizar o conte&uacute;do escrito nos streams stdout e stderr. Por
+este motivo, as defini&ccedil;&otilde;es padr&atilde;o do script 
+<I><SPAN STYLE="font-weight: normal">config/servico-extras.config.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+redirecionam os streams stdour e stderr, respectivamente, para os
+arquivos log/</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">servico-stdout.txt</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+e log/</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">servico-stderr.txt</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">.</SPAN></SPAN></P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">As
+defini&ccedil;&otilde;es padr&atilde;o do script
+</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">config/servico-extras.config.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+tamb&eacute;m definem o arquivo log-dia-mes-ano.txt como hist&oacute;rico
+de mensagens relacionadas &agrave;s opera&ccedil;&otilde;es de
+instala&ccedil;&atilde;o, remo&ccedil;&atilde;o, atualiza&ccedil;&atilde;o,
+in&iacute;cio e t&eacute;rmino do servi&ccedil;o.</SPAN></SPAN></P>
+<H2 CLASS="western">Mem&oacute;ria, heap e stack</H2>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">A
+quantidade de mem&oacute;ria dispon&iacute;vel para a aplica&ccedil;&atilde;o
+java pode ser definida de forma permanente no script
+</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">config/servico-extras.config.bat.
+</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">&Eacute;
+necess&aacute;rio habilitar as propriedades PR_JvmMs, PR_JvmMx e
+PR_JvmSs. Em seguida, execute o script </SPAN></SPAN><I><SPAN STYLE="font-weight: normal">atualizar-servico.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+para aplicar as altera&ccedil;&otilde;es. </SPAN></SPAN>
+</P>
+<P CLASS="western"><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">Outra
+forma de alterar estas propriedades &eacute; executar o script
+</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">editar-servico.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">
+para utilizar a interface gr&aacute;fica. No entanto, as altera&ccedil;&otilde;es
+n&atilde;o ser&aacute; persistidas no arquivo
+</SPAN></SPAN><I><SPAN STYLE="font-weight: normal">config/servico-extras.config.bat</SPAN></I><SPAN STYLE="font-style: normal"><SPAN STYLE="font-weight: normal">,
+ou seja, caso o servi&ccedil;o seja removido e novamente instalado,
+as altera&ccedil;&otilde;es ser&atilde;o perdidas.</SPAN></SPAN></P>
+</BODY>
+</HTML>

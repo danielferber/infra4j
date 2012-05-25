@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<project name="bootstrap-core" basedir="." default="compile">
+	<path id="compile.classpath">
+	</path>
+
+	<property file="component.properties" />
+	<property file="version.properties" />
+	
+	<import file="./build_common.xml" />
+</project>
