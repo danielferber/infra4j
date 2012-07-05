@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="infra-slf4j-logback">
+    <property environment="env"/>
+    <property name="junit.output.dir" value="junit"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="ivy.xml [*].libraryclasspath">
+        <pathelement location="lib/jars/jcl-over-slf4j-1.6.4.jar"/>
+        <pathelement location="lib/jars/jul-to-slf4j-1.6.4.jar"/>
+        <pathelement location="lib/jars/log4j-over-slf4j-1.6.4.jar"/>
+        <pathelement location="../../../.ivy2/cache/ch.qos.logback/logback-classic/jars/logback-classic-1.0.6.jar"/>
+        <pathelement location="../../../.ivy2/cache/ch.qos.logback/logback-core/jars/logback-core-1.0.6.jar"/>
+        <pathelement location="../../../.ivy2/cache/org.slf4j/slf4j-api/jars/slf4j-api-1.6.5.jar"/>
+        <pathelement location="lib/jars/mail-1.4.jar"/>
+        <pathelement location="lib/jars/activation-1.1.jar"/>
+        <pathelement location="../../../.ivy2/cache/org.codehaus.janino/janino/jars/janino-2.5.16.jar"/>
+        <pathelement location="lib/jars/groovy-all-1.7.6.jar"/>
+        <pathelement location="lib/jars/geronimo-jms_1.1_spec-1.0.jar"/>
+        <pathelement location="lib/jars/servlet-api-2.5.jar"/>
+        <pathelement location="lib/jars/junit-4.10.jar"/>
+        <pathelement location="lib/jars/hamcrest-core-1.1.jar"/>
+    </path>
+    <path id="infra-slf4j-logback.classpath">
+        <pathelement location="target/classes"/>
+        <pathelement location="target/test-classes"/>
+        <path refid="ivy.xml [*].libraryclasspath"/>
+    </path>
+    <target name="init">
+        <mkdir dir="target/classes"/>
+        <mkdir dir="target/test-classes"/>
+        <copy includeemptydirs="false" todir="target/classes">
+            <fileset dir="src/main/java">
+                <exclude name="**/.copyarea.db"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+        <copy includeemptydirs="false" todir="target/test-classes">
+            <fileset dir="src/test/java">
+                <exclude name="**/.copyarea.db"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="target/classes"/>
+        <delete dir="target/test-classes"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/classes" source="${source}" target="${target}">
+            <src path="src/main/java"/>
+            <classpath refid="infra-slf4j-logback.classpath"/>
+        </javac>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="target/test-classes" source="${source}" target="${target}">
+            <src path="src/test/java"/>
+            <classpath refid="infra-slf4j-logback.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target name="InstallTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="infra.logback.InstallTest" todir="${junit.output.dir}"/>
+            <classpath refid="infra-slf4j-logback.classpath"/>
+        </junit>
+    </target>
+    <target name="ReconfigurelTest">
+        <mkdir dir="${junit.output.dir}"/>
+        <junit fork="yes" printsummary="withOutAndErr">
+            <formatter type="xml"/>
+            <test name="infra.logback.ReconfigurelTest" todir="${junit.output.dir}"/>
+            <classpath refid="infra-slf4j-logback.classpath"/>
+        </junit>
+    </target>
+    <target name="junitreport">
+        <junitreport todir="${junit.output.dir}">
+            <fileset dir="${junit.output.dir}">
+                <include name="TEST-*.xml"/>
+            </fileset>
+            <report format="frames" todir="${junit.output.dir}"/>
+        </junitreport>
+    </target>
+</project>
