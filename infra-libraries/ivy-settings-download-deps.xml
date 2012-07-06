@@ -5,9 +5,9 @@
 		<ibiblio name="maven-central" m2compatible="true" />
 		<filesystem name="infra-dependencies">
 			<ivy
-				pattern="dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
+				pattern="${basedir}/dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
 			<artifact
-				pattern="dep/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
+				pattern="${basedir}/dep/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
 		</filesystem>
 	</resolvers>
 </ivysettings>
