@@ -1,15 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="download" name="Preparar dependências">
+<project basedir="." default="dep-downloads" name="Preparar dependências" xmlns:ivy="antlib:org.apache.ivy.ant">
 	<property name="ivy.version" value="2.3.0-rc1" />
 	<property name="ivy.jar.dir" value="${basedir}/ant" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.version}.jar" />
 
-	<target name="ivy-download">
+	<target name="ivy-download-jar" depends="ivy-check-file" unless="ivy.jar.file.exist" description="Download Ivy jar">
 		<mkdir dir="${ivy.jar.dir}" />
 		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="${ivy.jar.file}" />
 	</target>
-	
-	<target name="download" depends="ivy-download">
-		
+
+	<target name="ivy-check-file">
+		<available file="${ivy.jar.file}" property="ivy.jar.file.exist" />
+	</target>
+
+	<target name="ivy-install-task" depends="ivy-download-jar" description="Install Ivy task">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+
+	<target name="ivy-init-settings" depends="ivy-install-task">
+		<ivy:settings id="ivy-settings-download-deps" file="ivy-settings-download-deps.xml" /> 
+	</target>
+
+	<target name="ant-downloads" depends="ivy-download-jar">
+
+	</target>
+
+	<target name="dep-downloads" depends="ivy-init-settings">
+
 	</target>
 </project>
