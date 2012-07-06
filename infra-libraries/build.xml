@@ -21,7 +21,11 @@
 	</target>
 
 	<target name="ivy-init-settings" depends="ivy-install-task">
-		<ivy:settings id="ivy-settings-download-deps" file="ivy-settings-download-deps.xml" /> 
+		<ivy:settings id="ivy-settings-download-deps" file="ivy-settings-download-deps.xml" />
+	</target>
+
+	<target name="maven2-deps" depends="ivy-install-task" description="">
+		<ivy:install from="maven-central" to="infra-dependencies" settingsRef="ivy-settings-download-deps" organisation="org.hibernate" module="hibernate" revision="3.2.5.ga" transitive="true" />
 	</target>
 
 	<target name="ant-downloads" depends="ivy-download-jar">
