@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="download" name="Preparar dependências">
+	<property name="ivy.version" value="2.3.0-rc1" />
+	<property name="ivy.jar.dir" value="${basedir}/ant" />
+	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.version}.jar" />
+
+	<target name="ivy-download">
+		<mkdir dir="${ivy.jar.dir}" />
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="${ivy.jar.file}" />
+	</target>
+	
+	<target name="download" depends="ivy-download">
+		
+	</target>
+</project>
