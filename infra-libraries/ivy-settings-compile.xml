@@ -1,9 +1,9 @@
 <ivysettings>
-	<settings defaultResolver="build-lib-dependencies" defaultConflictManager="latest-revision" />
+	<settings defaultResolver="build-lib-dependencies" defaultConflictManager="all" />
 	<resolvers>
 		<filesystem name="build-lib-dependencies">
 			<ivy
-				pattern="${infra-libraries.dep.dir}/[organisation]/[module]/ivys/ivy-[revision].xml" />
+				pattern="${ivy.settings.dir}/dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
 			<artifact
 				pattern="${build.lib.pattern}" />
 		</filesystem>

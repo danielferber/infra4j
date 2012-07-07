@@ -1,11 +1,11 @@
 <ivysettings>
-	<settings defaultResolver="infra-dependencies" defaultConflictManager="latest-revision" />
+	<settings defaultResolver="infra-dependencies" defaultConflictManager="all" />
 	<resolvers>
 		<filesystem name="infra-dependencies">
 			<ivy
-				pattern="${infra-libraries.dep.dir}/[organisation]/[module]/ivys/ivy-[revision].xml" />
+				pattern="${ivy.settings.dir}/dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
 			<artifact
-				pattern="${infra-libraries.dep.dir}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
+				pattern="${ivy.settings.dir}/dep/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
 		</filesystem>
 	</resolvers>
 </ivysettings>
