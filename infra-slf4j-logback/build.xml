@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="infra-slf4j-logback" default="default" basedir=".">
     <description>Builds, tests, and runs the project infra-slf4j-logback</description>
-    <import file="../infra-libraries/build-template.xml"/>
-	
-	<target name="default">
-	</target>
+    <import file="../infra-libraries/build-java-template.xml"/>
+
 </project>

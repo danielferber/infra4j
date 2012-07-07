@@ -1,13 +1,13 @@
 <ivysettings>
-	<settings defaultResolver="maven-central" defaultConflictManager="all" />		<!-- in order to get all revisions without any eviction -->
+	<settings defaultResolver="maven-central-repo" defaultConflictManager="all" />		<!-- in order to get all revisions without any eviction -->
 <!-- 	<caches defaultCacheDir="${ivy.cache.dir}/no-namespace" /> -->
 	<resolvers>
-		<ibiblio name="maven-central" m2compatible="true" />
+		<ibiblio name="maven-central-repo" m2compatible="true" />
 		<filesystem name="infra-dependencies">
 			<ivy
-				pattern="${basedir}/dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
+				pattern="${infra-libraries.dep.dir}/[organisation]/[module]/ivys/ivy-[revision].xml" />
 			<artifact
-				pattern="${basedir}/dep/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
+				pattern="${infra-libraries.dep.dir}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
 		</filesystem>
 	</resolvers>
 </ivysettings>

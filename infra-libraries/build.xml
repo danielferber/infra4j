@@ -1,58 +1,77 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="dep-downloads" name="Preparar dependências" xmlns:ivy="antlib:org.apache.ivy.ant">
-	<property name="ivy.version" value="2.3.0-rc1" />
-	<property name="ivy.jar.dir" value="${basedir}/ant" />
-	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.version}.jar" />
-	<property name="ivy.haltonfailure" value="false" />
+<project name="infra-libraries-bootstrap" basedir="." default="dep-downloads" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="infra-libraries.dir" value="${basedir}" />
+	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant" />
+	<property name="infra-libraries.dep.dir" value="${infra-libraries.dir}/dep" />
+	
+	<property file="ivy-install.properties" />
 	<property name="ivy.overwrite" value="true" />
+	<property name="ivy.haltonfailure" value="false" />	
 
-	<target name="ant-downloads" depends="ivy-download-jar">
+	<target name="ant-downloads" depends="ivy-download-jar" description="Download ant dependencies.">
 		<!-- nada, por enquanto -->
 	</target>
-
-	<target name="dep-downloads" depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10">
-		<!-- nada, por enquanto -->
+	
+	<target name="ant-init">
+		<mkdir dir="${infra-libraries.ant.dir}" />
+	</target>
+	
+	<target name="ant-clean">
+		<delete dir="${infra-libraries.ant.dir}" />
 	</target>
 
-	<target name="ivy-download-jar" depends="ivy-check-file" unless="ivy.jar.file.exist" description="Download Ivy jar">
-		<mkdir dir="${ivy.jar.dir}" />
-		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" dest="${ivy.jar.file}" />
+	<target name="ivy-download-jar" depends="ant-init,ivy-check-file" unless="ivy.install.jar.file.exist" >
+		<mkdir dir="${ivy.install.jar.dir}" />
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.install.jar.file}" />
 	</target>
 
 	<target name="ivy-check-file">
-		<available file="${ivy.jar.file}" property="ivy.jar.file.exist" />
+		<available file="${ivy.install.jar.file}" property="ivy.install.jar.file.exist" />
 	</target>
 
-	<target name="dep-ivy-install-task" depends="ivy-download-jar" description="Install Ivy task">
+	<target name="dep-ivy-install-task" depends="ivy-download-jar">
 		<path id="ivy.lib.path">
-			<fileset dir="${ivy.jar.dir}" includes="*.jar" />
+			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
 		<ivy:configure file="ivy-settings-download-deps.xml" override="notallowed" />
 	</target>
+	
+	
+	<target name="dep-downloads" description="Download jar dependencies." depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10">
+		<!-- nada, por enquanto -->
+	</target>
 
-	<target name="dep-slf4j-1.6.6" depends="dep-ivy-install-task">
-		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+	<target name="dep-init">
+		<mkdir dir="${infra-libraries.dep.dir}" />
+	</target>
+	
+	<target name="dep-clean">
+		<delete dir="${infra-libraries.dep.dir}" />
+	</target>
+
+	<target name="dep-slf4j-1.6.6" depends="dep-init,dep-ivy-install-task">
+		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		</target>
 
-	<target name="dep-slf4j-1.6.5" depends="dep-ivy-install-task">
-		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.5" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.5" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.5" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.5" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+	<target name="dep-slf4j-1.6.5" depends="dep-init,dep-ivy-install-task">
+		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 		
-	<target name="dep-logback-1.0.6" depends="dep-ivy-install-task">
-		<ivy:install organisation="ch.qos.logback" module="logback-classic" revision="1.0.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="ch.qos.logback" module="logback-core" revision="1.0.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="ch.qos.logback" module="logback-access" revision="1.0.6" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+	<target name="dep-logback-1.0.6" depends="dep-init,dep-ivy-install-task">
+		<ivy:install organisation="ch.qos.logback" module="logback-classic" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="ch.qos.logback" module="logback-core" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="ch.qos.logback" module="logback-access" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 			
-	<target name="dep-junit-4.10" depends="dep-ivy-install-task">
-		<ivy:install organisation="junit" module="junit" revision="4.10" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
-		<ivy:install organisation="org.hamcrest" module="hamcrest-core" revision="1.1" from="maven-central" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+	<target name="dep-junit-4.10" depends="dep-init,dep-ivy-install-task">
+		<ivy:install organisation="junit" module="junit" revision="4.10" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.hamcrest" module="hamcrest-core" revision="1.1" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 </project>
