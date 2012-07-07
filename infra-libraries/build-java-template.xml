@@ -8,7 +8,7 @@
 
 	<property file="${basedir}/build.properties" />
 	<property file="${infra-libraries.dir}/build-java-template.properties" />
-	
+
 	<fail message="Please build using Ant 1.8.0 or higher.">
 		<condition>
 			<not>
@@ -44,15 +44,36 @@
 	</target>
 
 	<target name="retrieve" depends="ivy-init,init">
-		<ivy:retrieve pattern="${build.lib.pattern}" conf="default,test" settingsref="ivy.settings.retrieve"  />
+		<ivy:retrieve pattern="${build.lib.pattern}" conf="default,test" settingsref="ivy.settings.retrieve" />
 	</target>
-	
+
 	<target name="compile" depends="retrieve">
-		<report conf="default" settingsRef="ivy.settings.compile" todir="${build.dir}" />
+		<!-- Get class path. -->
+		<ivy:cachepath pathid="ivy.cachepath.compile" settingsRef="ivy.settings.compile" />
+		<pathconvert pathsep="${line.separator}  " property="dependency.list.compile" refid="ivy.cachepath.compile" />
+		<echo>DEPENDENCY LIST</echo>
+		<echo>  ${dependency.list.compile}</echo>
+		<ivy:report conf="default" settingsRef="ivy.settings.compile" todir="${build.dir}" />
+
+		<!-- Copy resource files to classes directory. -->
+		<copy todir="${build.class.dir}" preservelastmodified="true" overwrite="true">
+			<fileset dir="${src.main.res}" />
+		</copy>
+
+		<!-- Compile source files to classes directory. -->
+		<javac srcdir="${src.main.java.dir}" destdir="${build.class.dir}"
+			debug="${compile.debug}" debuglevel="${compile.debuglevel}"
+			encoding="${compile.encoding}"
+			target="${compile.target}" source="${compile.source}"
+			includeAntRuntime="false">
+			<classpath>
+				<pathelement id="ivy.cachepath.compile" />
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="test-compile" depends="compile">
-		<report conf="detault,test" />
+
 	</target>
 
 </project>

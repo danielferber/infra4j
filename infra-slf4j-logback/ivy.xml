@@ -19,7 +19,7 @@
     <dependencies>
     	<dependency  
 			org="org.slf4j" 
-			name="slf4j-api" 
+			name="slf4j-api"  
 			rev="1.6.6" 
 			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		

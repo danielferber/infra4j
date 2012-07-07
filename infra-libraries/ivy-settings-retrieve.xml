@@ -1,5 +1,5 @@
 <ivysettings>
-	<settings defaultResolver="infra-dependencies" defaultConflictManager="all" />
+	<settings defaultResolver="infra-dependencies" />
 	<resolvers>
 		<filesystem name="infra-dependencies">
 			<ivy

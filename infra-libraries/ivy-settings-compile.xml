@@ -1,5 +1,5 @@
 <ivysettings>
-	<settings defaultResolver="build-lib-dependencies" defaultConflictManager="all" />
+	<settings defaultResolver="build-lib-dependencies" />
 	<resolvers>
 		<filesystem name="build-lib-dependencies">
 			<ivy
