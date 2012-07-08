@@ -1,11 +1,12 @@
 <ivysettings>
-	<settings defaultResolver="build-lib-dependencies" />
+	<settings defaultResolver="infra-dependencies" defaultConflictManager="latest-revision" />
+	<caches useOrigin="true" defaultCacheDir="${ivy.settings.dir}/ivy-cache" />
 	<resolvers>
-		<filesystem name="build-lib-dependencies">
+		<filesystem name="infra-dependencies">
 			<ivy
 				pattern="${ivy.settings.dir}/dep/[organisation]/[module]/ivys/ivy-[revision].xml" />
 			<artifact
-				pattern="${build.lib.pattern}" />
+				pattern="${ivy.settings.dir}/dep/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]" />
 		</filesystem>
 	</resolvers>
 </ivysettings>

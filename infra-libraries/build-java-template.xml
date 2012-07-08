@@ -17,7 +17,7 @@
 		</condition>
 	</fail>
 
-	<target name="default" depends="retrieve">
+	<target name="default" depends="resolve-dependencies">
 	</target>
 
 	<target name="ivy-init">
@@ -25,39 +25,40 @@
 			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
-		<ivy:configure file="${infra-libraries.dir}/ivy-settings-retrieve.xml" settingsid="ivy.settings.retrieve" override="notallowed" />
-		<ivy:configure file="${infra-libraries.dir}/ivy-settings-compile.xml" settingsid="ivy.settings.compile" override="notallowed" />
+		<ivy:configure file="${infra-libraries.dir}/ivy-settings-compile.xml" override="notallowed" />
 	</target>
 
 	<target name="init">
 		<mkdir dir="${build.dir}" />
 		<mkdir dir="${build.artifacts.dir}" />
 		<mkdir dir="${build.class.dir}" />
-		<mkdir dir="${build.lib.dir}" />
 	</target>
 
 	<target name="clean">
 		<delete dir="${build.artifacts.dir}" />
 		<delete dir="${build.class.dir}" />
-		<delete dir="${build.lib.dir}" />
 		<delete dir="${build.dir}" />
 	</target>
 
-	<target name="retrieve" depends="ivy-init,init">
-		<ivy:retrieve pattern="${build.lib.pattern}" conf="default,test" settingsref="ivy.settings.retrieve" />
+	<target name="resolve-dependencies" depends="ivy-init,init">
+		<ivy:resolve refresh="true" />
+		<ivy:cachepath pathid="ivy.cachepath.compile.main" conf="default" type="jar" />
+		<ivy:cachepath pathid="ivy.cachepath.compile.test" conf="default,test" type="jar" />
+
+		<!-- Get class path. -->
+		<pathconvert pathsep="${line.separator}  " property="dependency.list.main" refid="ivy.cachepath.compile.main" />
+		<pathconvert pathsep="${line.separator}  " property="dependency.list.test" refid="ivy.cachepath.compile.test" />
+		<echo>DEPENDENCY LIST (MAIN)</echo>
+		<echo>  ${dependency.list.main}</echo>
+		<echo>DEPENDENCY LIST (TEST)</echo>
+		<echo>  ${dependency.list.test}</echo>
+		<ivy:report conf="default" todir="${build.dir}" />
 	</target>
 
-	<target name="compile" depends="retrieve">
-		<!-- Get class path. -->
-		<ivy:cachepath pathid="ivy.cachepath.compile" settingsRef="ivy.settings.compile" />
-		<pathconvert pathsep="${line.separator}  " property="dependency.list.compile" refid="ivy.cachepath.compile" />
-		<echo>DEPENDENCY LIST</echo>
-		<echo>  ${dependency.list.compile}</echo>
-		<ivy:report conf="default" settingsRef="ivy.settings.compile" todir="${build.dir}" />
-
+	<target name="compile" depends="resolve-dependencies">
 		<!-- Copy resource files to classes directory. -->
-		<copy todir="${build.class.dir}" preservelastmodified="true" overwrite="true">
-			<fileset dir="${src.main.res}" />
+		<copy todir="${build.class.dir}" preservelastmodified="true" overwrite="true" failonerror="false">
+			<fileset dir="${src.main.res.dir}" />
 		</copy>
 
 		<!-- Compile source files to classes directory. -->
@@ -66,9 +67,7 @@
 			encoding="${compile.encoding}"
 			target="${compile.target}" source="${compile.source}"
 			includeAntRuntime="false">
-			<classpath>
-				<pathelement id="ivy.cachepath.compile" />
-			</classpath>
+			<classpath refid="ivy.cachepath.compile.main" />
 		</javac>
 	</target>
 
