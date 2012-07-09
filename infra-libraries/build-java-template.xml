@@ -25,13 +25,16 @@
 	<target name="compile" depends="-compile-sources-test" description="Compile all sources."/>
 	<target name="default" depends="-compile-jar-main" description="Create jar artifact." />
 	<target name="jar" depends="-compile-jar-main" description="Create jar artifact." />
-	<target name="clean" description="Delete artifacts and temporary files." />
+	<target name="clean" depends="-clean-all" description="Delete artifacts and temporary files." />
 
-	<target  name="ivy-init">
+	<target name="-ivy-init">
 		<path id="ivy.lib.path">
 			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+	
+	<target  name="-ivy-configure">
 		<ivy:configure file="${infra-libraries.dir}/ivy-settings-compile.xml" override="notallowed" />
 	</target>
 
@@ -51,7 +54,11 @@
 		<delete dir="${build.dir}" />
 	</target>
 
-	<target name="resolve-dependencies" depends="ivy-init">
+	<target name="resolve-dependencies" depends="-resolve-dependencies" description="Resolve all dependencies." />
+	<target name="-resolve-dependencies" depends="-ivy-configure,-resolve-dependencies-before,-resolve-dependencies-impl,-resolve-dependencies-after" />
+	<target name="-resolve-dependencies-before" />
+	<target name="-resolve-dependencies-after" />
+	<target name="-resolve-dependencies-impl">
 		<mkdir dir="${build.dir}" />
 		<ivy:resolve />
 		<ivy:cachepath pathid="ivy.cachepath.compile.main" conf="default" type="jar" />
@@ -74,7 +81,7 @@
 		</copy>
 	</target>
 -->
-	<target name="-compile-sources-main" depends="resolve-dependencies" if="src.main.java.exists">
+	<target name="-compile-sources-main" depends="-resolve-dependencies" if="src.main.java.exists">
 		<!-- Get class path. -->
 		<pathconvert pathsep="${line.separator}  " property="dependency.list.main" refid="ivy.cachepath.compile.main" />
 		<echo>DEPENDENCY LIST (MAIN)</echo>
@@ -93,7 +100,7 @@
 		</javac>
 	</target>
 
-	<target name="-compile-sources-test" depends="resolve-dependencies,-compile-sources-main" if="src.test.java.exists">
+	<target name="-compile-sources-test" depends="-resolve-dependencies,-compile-sources-main" if="src.test.java.exists">
 		<!-- Get class path. -->
 		<pathconvert pathsep="${line.separator}  " property="dependency.list.test" refid="ivy.cachepath.compile.test" />
 		<echo>DEPENDENCY LIST (TEST)</echo>
@@ -118,9 +125,9 @@
 		<property name="build.jar.file" value="${build.artifacts.dir}/${ivy.module}-${ivy.revision}.jar" />
 		<jar destfile="${build.jar.file}">
 			<manifest>
-				<attribute name="ivy.organisation" value="${ivy.organisation}" />
+				<!--<attribute name="ivy.organisation" value="${ivy.organisation}" />
 				<attribute name="ivy.module" value="${ivy.module}" />
-				<attribute name="ivy.revision" value="${ivy.version}" />
+				<attribute name="ivy.revision" value="${ivy.version}" />-->
 			</manifest>
 			<fileset dir="${build.bin.main.dir}" />
 			<fileset dir="${src.main.res.dir}" erroronmissingdir="false" />
@@ -131,6 +138,7 @@
 		<ivy:publish artifactspattern="${build.artifacts.dir}/[artifact]-[revision].[ext]"
 				resolver="infra-artifacts"
 				forcedeliver="true" 
-				overwrite="true" />
+				overwrite="true"
+				status="release" />
 	</target>
 </project>

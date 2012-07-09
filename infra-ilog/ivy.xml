@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-	<info organisation="infra" module="infra-exception" revision="0.1.0"/>
-   
+	<info organisation="infra" module="infra-ilog" revision="0.1.0"/>
+    
 	<configurations>
 		<conf name="default" visibility="public" description="runtime dependencies and master artifact can be used with this conf" extends="runtime,master"/>
 		<conf name="master" visibility="public" description="contains only the artifact published by this module itself, with no transitive dependencies"/>
@@ -16,11 +16,35 @@
 		<conf name="optional" visibility="public" description="contains all optional dependencies"/>
 	</configurations>
 	 
-        <dependencies>
-    	<dependency  
-			org="org.slf4j" 
-			name="slf4j-api"  
-			rev="1.6.6" 
+	<dependencies>
+		<dependency  
+			org="infra" 
+			name="infra-slf4j-ext"  
+			rev="0.1.0" 
 			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
-    	</dependencies>
+		<dependency  
+			org="ilog" 
+			name="opl"  
+			rev="12.2" 
+			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+		<dependency  
+			org="infra" 
+			name="infra-exception"  
+			rev="0.1.0" 
+			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+		<dependency  
+			org="commons-io"  
+			name="commons-io"
+			rev="2.1"/>
+		<dependency   
+			org="ch.qos.logback" 
+			name="logback-classic" 
+			rev="1.0.6" 
+			conf="test->runtime(*),master(*)" />
+		<dependency  
+			org="junit" 
+			name="junit" 
+			rev="4.10" 
+			conf="test->runtime(*),master(*)" />
+    </dependencies>
  </ivy-module>

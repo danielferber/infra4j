@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="infra-ilog" default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+    <description>Builds, tests, and runs the project infra-slf4j-logback</description>
+    <import file="../infra-libraries/build-java-template.xml"/>
+	
+	<!-- C:\Users\Daniel\.m2\repository3\ilog\opl\12.2\opl-12.2.jar -->
+	
+	<target name="install-ilog-12.2-jar" depends="ilog-opl-check-for-jar" if="ilog-opl.missing">
+		<input message="Absolute path to ilog opl jar file" addproperty="ilog.opl.jar.dir" />
+		<fail message="File does not exist: ${ilog.opl.jar.dir}">
+			<condition>
+				<not>
+					<available file="${ilog.opl.jar.dir}" />
+				</not>
+			</condition>
+		</fail>
+		<mkdir dir="${build.dir}/opl"/>
+		<copy tofile="${build.dir}/opl/opl-12.2.jar" file="${ilog.opl.jar.dir}" />
+		<copy tofile="${build.dir}/opl/ivy-12.2.xml" file="ivy-opl-12.2.xml" />
+		<ivy:publish 
+			organisation="ilog"
+			module="opl" 
+			revision="12.2" 
+			resolver="infra-artifacts"
+		    overwrite="false"
+		    update="true"
+			status="release" 
+			artifactspattern="${build.dir}/opl/[artifact]-[revision].[ext]"/>
+	</target>
+	
+	<target name="ilog-opl-check-for-jar" depends="-ivy-configure">
+			<ivy:resolve inline="true" resolveId="ilog-opl.check-for-jar" failurepropery="ilog-opl.missing" haltonfailure="false" 
+				organisation="ilog"
+				module="opl" 
+				revision="12.2"
+				/>
+	</target>
+	
+	<target name="-resolve-dependencies-before" depends="install-ilog-12.2-jar" />
+	
+</project>
