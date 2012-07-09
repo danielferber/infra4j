@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <ivy-module version="2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
-	<info organisation="infra" module="infra-slf4j-logback" revision="0.1.0"/>
+	<info organisation="infra" module="infra-slf4j-ext" revision="0.1.0"/>
    
 	<configurations>
 		<conf name="default" visibility="public" description="runtime dependencies and master artifact can be used with this conf" extends="runtime,master"/>
@@ -16,7 +16,7 @@
 		<conf name="optional" visibility="public" description="contains all optional dependencies"/>
 	</configurations>
 	 
-<dependencies>
+        <dependencies>
     	<dependency  
 			org="org.slf4j" 
 			name="slf4j-api"  
@@ -24,27 +24,15 @@
 			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
-			org="org.slf4j" 
-			name="jcl-over-slf4j" 
+			org="org.slf4j"  
+			name="slf4j-ext"  
 			rev="1.6.6" 
 			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
-			org="org.slf4j" 
-			name="jul-to-slf4j" 
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
-		
-		<dependency  
-			org="org.slf4j" 
-			name="log4j-over-slf4j" 
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
-		
-		<dependency 
-			org="ch.qos.logback" 
-			name="logback-classic" 
-			rev="1.0.6" 
+			org="org.eclipse.persistence" 
+			name="javax.persistence" 
+			rev="2.0.0" 
 			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
@@ -53,5 +41,5 @@
 			rev="4.10" 
 			conf="test->runtime(*),master(*)" />
 			
-    </dependencies>
+    	</dependencies>
  </ivy-module>
