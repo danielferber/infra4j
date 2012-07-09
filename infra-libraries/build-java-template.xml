@@ -123,7 +123,7 @@
 				<attribute name="ivy.revision" value="${ivy.version}" />
 			</manifest>
 			<fileset dir="${build.bin.main.dir}" />
-			<fileset dir="${src.main.res.dir}" />
+			<fileset dir="${src.main.res.dir}" erroronmissingdir="false" />
 		</jar>
 	</target>
 	

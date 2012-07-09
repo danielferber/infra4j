@@ -39,7 +39,7 @@
 	</target>
 	
 	
-	<target name="dep-downloads" description="Download jar dependencies." depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10">
+	<target name="dep-downloads" description="Download jar dependencies." depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10,dep-javax.persistence-2">
 		<!-- nada, por enquanto -->
 	</target>
 
@@ -55,16 +55,20 @@
 
 	<target name="dep-slf4j-1.6.6" depends="dep-init,dep-ivy-install-task">
 		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="slf4j-ext" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="ch.qos.cal10n" module="cal10n-api" revision="0.7.4" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		</target>
 
 	<target name="dep-slf4j-1.6.5" depends="dep-init,dep-ivy-install-task">
 		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="org.slf4j" module="slf4j-ext" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jul-to-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="log4j-over-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+		<ivy:install organisation="ch.qos.cal10n" module="cal10n-api" revision="0.7.4" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 		
 	<target name="dep-logback-1.0.6" depends="dep-init,dep-ivy-install-task">
@@ -77,4 +81,9 @@
 		<ivy:install organisation="junit" module="junit" revision="4.10" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.hamcrest" module="hamcrest-core" revision="1.1" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
+	
+	<target name="dep-javax.persistence-2" depends="dep-init,dep-ivy-install-task">
+		<ivy:install organisation="org.eclipse.persistence" module="javax.persistence" revision="2.0.0" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
+	</target>
+
 </project>
