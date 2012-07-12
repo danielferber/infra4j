@@ -20,7 +20,7 @@
     	<dependency  
 			org="org.slf4j" 
 			name="slf4j-api"  
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.6.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
     	</dependencies>
  </ivy-module>

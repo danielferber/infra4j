@@ -16,7 +16,7 @@
 		<conf name="optional" visibility="public" description="contains all optional dependencies"/>
 	</configurations>
 	 
-	<dependencies>
+	<dependencies> 
 		<dependency  
 			org="infra" 
 			name="infra-slf4j-ext"  
@@ -39,7 +39,7 @@
 		<dependency   
 			org="ch.qos.logback" 
 			name="logback-classic" 
-			rev="1.0.6" 
+			rev="1.0.6"
 			conf="test->runtime(*),master(*)" />
 		<dependency  
 			org="junit" 

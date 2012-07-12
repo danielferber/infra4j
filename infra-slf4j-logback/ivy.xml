@@ -20,37 +20,37 @@
     	<dependency  
 			org="org.slf4j" 
 			name="slf4j-api"  
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.6.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
 			org="org.slf4j" 
 			name="jcl-over-slf4j" 
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.6.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
 			org="org.slf4j" 
 			name="jul-to-slf4j" 
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.6.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency  
 			org="org.slf4j" 
 			name="log4j-over-slf4j" 
-			rev="1.6.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.6.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
 			org="ch.qos.logback" 
 			name="logback-classic" 
-			rev="1.0.6" 
-			force="true" conf="compile->compile(*),master(*);runtime->runtime(*)" />
+			rev="1.0.+" 
+			conf="compile->compile(*),master(*);runtime->runtime(*)" />
 		
 		<dependency 
 			org="junit" 
 			name="junit" 
-			rev="4.10" 
+			rev="4.+" 
 			conf="test->runtime(*),master(*)" />
 			
     </dependencies>
