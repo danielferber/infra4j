@@ -90,4 +90,29 @@
 			<ivy:install organisation="commons-io" module="commons-io" revision="2.1" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 
+	<!-- ANT-CONTRIB autoinstaller -->
+	  <available property="ant-contrib-exists"
+	             file="${ant.library.dir}/ant-contrib-1.0b3.jar" />
+	  <target name="download-ant-contrib" unless="ant-contrib-exists">
+	    <mkdir dir="${ant.library.dir}" />
+	    <get src="http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fant-contrib%2Ffiles%2Fant-contrib%2F1.0b3%2F&amp;use_mirror=cdnetworks-us-1"
+	         dest="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
+	         username="true" />
+	    <unzip src="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
+	           dest="${ant.library.dir}"
+	           overwrite="no" />
+	    <move todir="${ant.library.dir}">
+	      <fileset file="${ant.library.dir}/ant-contrib/*.jar" />
+	      <fileset file="${ant.library.dir}/ant-contrib/lib/*.jar" />
+	    </move>
+	    <delete file="${ant.library.dir}/ant-contrib-1.0b3-bin.zip" />
+	    <delete dir="${ant.library.dir}/ant-contrib" />
+	  </target>
+	  <target name="init-ant-contrib" depends="download-ant-contrib">
+	    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	      <classpath>
+	        <pathelement location="${ant.library.dir}/ant-contrib-1.0b3.jar" />
+	      </classpath>
+	    </taskdef>
+	  </target>
 </project>
