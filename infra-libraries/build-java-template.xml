@@ -1,92 +1,80 @@
 <project name="build-java-template" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- PRE-CONDITIONS -->
+	<fail message="Property 'infra-libraries.dir' must be defined before including the bootstrap ant template." unless="infra-libraries.dir"/>
 	<fail message="Please build using Ant 1.8.0 or higher.">
-		<condition>
-			<not>
-				<antversion atleast="1.8.0" />
-			</not>
-		</condition>
+		<condition><not><antversion atleast="1.8.0" /></not></condition>
 	</fail>
 
+	<!-- Configuration: overall. -->
 	<dirname property="build-java-template.basedir" file="${ant.file.build-java-template}" />
-	<property name="infra-libraries.dir" value="${build-java-template.basedir}" />
-	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant" />
-	<property name="infra-libraries.dep.dir" value="${infra-libraries.dir}/dep" />
 
+	<!-- Configuration: ant dependencies. -->
+	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant"/>
+
+	<!-- Configuration: local Ivy installation. -->
 	<property file="${infra-libraries.dir}/ivy-install.properties" />
+	<property file="${build-java-template.basedir}/ivy-install.properties" />
+	
+	<!-- Configuration: repository of dependency artifacts. -->
+	<property file="${infra-libraries.dir}/repository.properties" />
+	<property file="${build-java-template.basedir}/repository.properties" />
 
+	<!-- Configuration: build. -->
 	<property file="${basedir}/build.properties" />
 	<property file="${infra-libraries.dir}/build-java-template.properties" />
 
+	<!-- Configuration: local behavior. -->
 	<available file="${src.test.java.dir}" type="dir" property="src.test.java.exists" />
 	<available file="${src.test.res.dir}" type="dir" property="src.test.res.exists" />
 	<available file="${src.main.java.dir}" type="dir" property="src.main.java.exists" />
-	<available file="${src.main.res.dir}" type="dir" property="src.main.res.exists" />
-	
-	<target name="compile" depends="-compile-sources-test" description="Compile all sources."/>
-	<target name="default" depends="-publish-jar-main" description="Create jar artifact." />
-	<target name="jar" depends="-compile-jar-main" description="Create jar artifact." />
-	<target name="clean" depends="-clean-all" description="Delete artifacts and temporary files." />
+	<available file="${src.main.res.dir}" type="dir" property="src.main.res.exists"  />
+	<!-- If there is a file ivy-settings-compile-extras.xml, then reference it in the infra-libraries.ivy-settings-compile-extras.file property.
+	    Else, reference the default (empty) ivy-settings-compile-extras.xml. This file may provide additional resolvers to the compile resolve chain. -->
+	<available file="${infra-libraries.dir}/ivy-settings-compile-extras.xml" type="file" property="infra-libraries.ivy-settings-compile-extras.file" value="${infra-libraries.dir}/ivy-settings-compile-extras.xml" />
+	<property name="infra-libraries.ivy-settings-compile-extras.file" value="${build-java-template.basedir}/ivy-settings-compile-extras.xml" />
 
+	
+	<!-- Public targets that hide private targets. -->
+	<target name="default" depends="clean,publish" description="Publish fresh built jar artifact." />
+	<target name="clean" depends="-clean-all" description="Delete artifacts and temporary files." />
+	<target name="resolve" depends="-resolve-dependencies" description="Resolve artifact dependencies." />
+	<target name="compile" depends="-compile-sources-test" description="Compile all sources."/>
+	<target name="jar" depends="-compile-jar-main" description="Create jar artifact." />
+	<target name="publish" depends="-publish-jar-main" description="Publish jar artifact" />
+
+	<!-- Abstract targest to be inherited -->
+	<target name="resolve-dependencies-before" />
+	<target name="resolve-dependencies-after" />
+
+	<!-- *** IVY *** -->
+	<available file="${ivy.install.jar.file}" property="ivy.install.jar.file.exist" />
 	<target name="-ivy-init">
+		<fail message="Ivy is not installed. Run the bootstrap ant script in the libraries repository." unless="ivy.install.jar.file.exist" />
 		<path id="ivy.lib.path">
 			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
 		</path>
 		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<ivy:configure file="${build-java-template.basedir}/ivy-settings-compile.xml" override="notallowed" />
 	</target>
 	
-	<target  name="-ivy-configure" depends="-ivy-init" >
-		<ivy:configure file="${infra-libraries.dir}/ivy-settings-compile.xml" override="notallowed" />
-	</target>
-
-	<!--
-	<target name="init">
-		<mkdir dir="${build.dir}" />
-		<mkdir dir="${build.artifacts.dir}" />
-		<mkdir dir="${build.bin.dir}" />
-	</target>
-	-->
-
+	<!-- *** BUILD *** -->
 	<target name="-clean-all" >
-		<delete dir="${build.artifacts.dir}" />
-		<delete dir="${build.bin.dir}" />
+		<delete dir="${build.pub.dir}" />
 		<delete dir="${build.bin.main.dir}" />
 		<delete dir="${build.bin.test.dir}" />
+		<delete dir="${build.bin.dir}" />
 		<delete dir="${build.dir}" />
 	</target>
 
-	<target name="resolve-dependencies" depends="-resolve-dependencies" description="Resolve all dependencies." />
-	<target name="-resolve-dependencies" depends="-ivy-configure,-resolve-dependencies-before,-resolve-dependencies-impl,-resolve-dependencies-after" />
-	<target name="-resolve-dependencies-before" />
-	<target name="-resolve-dependencies-after" />
+	<target name="-resolve-dependencies" depends="-ivy-init,resolve-dependencies-before,-resolve-dependencies-impl,resolve-dependencies-after" />
 	<target name="-resolve-dependencies-impl">
-		<mkdir dir="${build.dir}" />
-		<ivy:resolve />
+		<ivy:resolve showprogress="false" log="quiet" />
 		<ivy:cachepath pathid="ivy.cachepath.compile.main" conf="default" type="jar" />
 		<ivy:cachepath pathid="ivy.cachepath.compile.test" conf="default,test" type="jar" />
 		<ivy:report conf="default" todir="${build.dir}" />
 	</target>
 
-<!--
-	<target name="-copy-resources-main" depends="init" if="src.main.res.exists">
-		<mkdir dir="${build.bin.main.dir}" />
-		<copy todir="${build.bin.main.dir}" preservelastmodified="true" overwrite="true" >
-			<fileset dir="${src.main.res.dir}" />
-		</copy>
-	</target>
-
-	<target name="copy-resources-test" depends="init" if="src.test.res.exists">
-		<mkdir dir="${build.bin.test.dir}" />
-		<copy todir="${build.bin.test.dir}" preservelastmodified="true" overwrite="true" >
-			<fileset dir="${src.test.res.dir}" />
-		</copy>
-	</target>
--->
 	<target name="-compile-sources-main" depends="-resolve-dependencies" if="src.main.java.exists">
-		<!-- Get class path. -->
-		<pathconvert pathsep="${line.separator}  " property="dependency.list.main" refid="ivy.cachepath.compile.main" />
-		<echo>DEPENDENCY LIST (MAIN)</echo>
-		<echo>  ${dependency.list.main}</echo>
-
 		<!-- Compile source files to classes directory. -->
 		<mkdir dir="${build.bin.main.dir}" />
 		<javac srcdir="${src.main.java.dir}" destdir="${build.bin.main.dir}"
@@ -101,11 +89,6 @@
 	</target>
 
 	<target name="-compile-sources-test" depends="-resolve-dependencies,-compile-sources-main" if="src.test.java.exists">
-		<!-- Get class path. -->
-		<pathconvert pathsep="${line.separator}  " property="dependency.list.test" refid="ivy.cachepath.compile.test" />
-		<echo>DEPENDENCY LIST (TEST)</echo>
-		<echo>  ${dependency.list.test}</echo>
-
 		<!-- Compile source files to (test) classes directory. -->
 		<mkdir dir="${build.bin.test.dir}" />
 		<javac srcdir="${src.test.java.dir}" destdir="${build.bin.test.dir}"
@@ -114,20 +97,21 @@
 				target="${compile.target}" source="${compile.source}"
 				includeAntRuntime="false">
 			<classpath>
-				<dirset dir="${build.bin.main.dir}" />
+				<fileset dir="${build.bin.main.dir}" erroronmissingdir="false" />
+				<!--<dirset dir="${build.bin.main.dir}"  /> -->
 				<path refid="ivy.cachepath.compile.test" />
 			</classpath>
 		</javac>
 	</target>
 
 	<target name="-compile-jar-main" depends="-compile-sources-main">
-		<mkdir dir="${build.artifacts.dir}"/>
-		<property name="build.jar.file" value="${build.artifacts.dir}/${ivy.module}-${ivy.revision}.jar" />
+		<mkdir dir="${build.pub.dir}"/>
+		<property name="build.jar.file" value="${build.pub.dir}/${ivy.module}-${ivy.revision}.jar" />
 		<jar destfile="${build.jar.file}">
 			<manifest>
-				<!--<attribute name="ivy.organisation" value="${ivy.organisation}" />
-				<attribute name="ivy.module" value="${ivy.module}" />
-				<attribute name="ivy.revision" value="${ivy.version}" />-->
+				<attribute name="ivy-organisation" value="${ivy.organisation}" />
+				<attribute name="ivy-module" value="${ivy.module}" />
+				<attribute name="ivy-revision" value="${ivy.version}" />
 			</manifest>
 			<fileset dir="${build.bin.main.dir}" />
 			<fileset dir="${src.main.res.dir}" erroronmissingdir="false" />
@@ -135,7 +119,7 @@
 	</target>
 	
 	<target name="-publish-jar-main" depends="-compile-jar-main" description="Publish artifacts to the library.">
-		<ivy:publish artifactspattern="${build.artifacts.dir}/[artifact]-[revision].[ext]"
+		<ivy:publish artifactspattern="${build.pub.dir}/[artifact]-[revision].[ext]"
 				resolver="infra-artifacts"
 				forcedeliver="true" 
 				overwrite="true"

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="bootstrap-template" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- PRE-CONDITIONS -->
+	<fail message="Property 'infra-libraries.dir' must be defined before including the bootstrap ant template." unless="infra-libraries.dir"/>
+	<fail message="Please build using Ant 1.8.0 or higher.">
+		<condition><not><antversion atleast="1.8.0" /></not></condition>
+	</fail>
+
+	<!-- Configuration: overall. -->
+	<dirname property="bootstrap-template.basedir" file="${ant.file.bootstrap-template}" />
+
+	<!-- Configuration: ant dependencies. -->
+	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant"/>
+
+	<!-- Configuration: local Ivy installation. -->
+	<property file="${infra-libraries.dir}/ivy-install.properties" />
+	<property file="${bootstrap-template.basedir}/ivy-install.properties" />
+	
+	<!-- Configuration: repository of dependency artifacts. -->
+	<property file="${infra-libraries.dir}/repository.properties" />
+	<property file="${bootstrap-template.basedir}/repository.properties" />
+
+	<!-- Configuration: local behavior. -->
+	<property name="ivy.overwrite" value="true" />
+	<property name="ivy.haltonfailure" value="false" />	
+
+	<!-- Public targets that hide private targets. -->
+	<target name="default" depends="install" />
+	<target name="install" depends="ivy-install,rep-download-artifacts" description="Install the build environment." />
+		
+	<target name="ivy-install" depends="-ivy-download-jar" description="Local Ivy installation." />
+	<target name="ivy-clean" depends="-ivy-clean" description="Local Ivy installation." />
+		
+	<target name="rep-download-artifacts" depends="-ivy-init,download-artifacts-do" description="Populate repository with all dependencies artifacts." />
+	<target name="rep-clean-artifacts" depends="-rep-clean-ivy-cache,-rep-clean-repository" description="Delete repository with all dependencies artifacts." />
+	<target name="rep-clean-ivy-cache" depends="-rep-clean-ivy-cache" description="Delete ivy cache." />
+
+	<!-- Abstract targest to be inherited -->
+	<target name="download-artifacts-do">
+		<fail message="This is an abstract target. Override it with one that calls ivy:install tasks to download all artifacts with Ivy."/>
+	</target>
+	
+	<!-- *** IVY *** -->
+	<target name="-ivy-clean">
+		<delete dir="${ivy.install.jar.dir}" />
+	</target>
+
+	<available file="${ivy.install.jar.file}" property="ivy.install.jar.file.exist" />
+	<target name="-ivy-download-jar" unless="ivy.install.jar.file.exist" >
+		<mkdir dir="${ivy.install.jar.dir}" />
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.install.jar.file}" />
+	</target>
+
+	<target name="-ivy-init" depends="-ivy-download-jar">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<ivy:configure file="${bootstrap-template.basedir}/ivy-settings-download-artifacts.xml" override="notallowed" />
+	</target>
+	
+	<!-- *** REPOSITORY BUILD *** -->
+	<target name="-rep-clean-repository">
+		<delete dir="${infra-libraries.dep.dir}" />
+	</target>
+	
+	<target name="-rep-clean-ivy-cache">
+		<delete dir="${infra-libraries.ivy-cache.dir}" />
+	</target>
+
+	<!-- FUTURE WORK: Install ant-contrib. -->
+
+	<!-- ANT-CONTRIB autoinstaller -->
+	  <available property="ant-contrib-exists"
+	             file="${ant.library.dir}/ant-contrib-1.0b3.jar" />
+	  <target name="download-ant-contrib" unless="ant-contrib-exists">
+	    <mkdir dir="${ant.library.dir}" />
+	    <get src="http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fant-contrib%2Ffiles%2Fant-contrib%2F1.0b3%2F&amp;use_mirror=cdnetworks-us-1"
+	         dest="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
+	         username="true" />
+	    <unzip src="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
+	           dest="${ant.library.dir}"
+	           overwrite="no" />
+	    <move todir="${ant.library.dir}">
+	      <fileset file="${ant.library.dir}/ant-contrib/*.jar" />
+	      <fileset file="${ant.library.dir}/ant-contrib/lib/*.jar" />
+	    </move>
+	    <delete file="${ant.library.dir}/ant-contrib-1.0b3-bin.zip" />
+	    <delete dir="${ant.library.dir}/ant-contrib" />
+	  </target>
+	  <target name="init-ant-contrib" depends="download-ant-contrib">
+	    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	      <classpath>
+	        <pathelement location="${ant.library.dir}/ant-contrib-1.0b3.jar" />
+	      </classpath>
+	    </taskdef>
+	  </target>
+</project>

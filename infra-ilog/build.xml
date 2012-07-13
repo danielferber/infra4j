@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="infra-ilog" default="default" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
     <description>Builds, tests, and runs the project infra-slf4j-logback</description>
-    <import file="../infra-libraries/build-java-template.xml"/>
-	
-	<!-- C:\Users\Daniel\.m2\repository3\ilog\opl\12.2\opl-12.2.jar -->
+	<property name="infra-libraries.dir" value="${basedir}/../infra-libraries" />	
+    <import file="${basedir}/../infra-libraries/build-java-template.xml"/>
 	
 	<target name="install-ilog-12.2-jar" depends="ilog-opl-check-for-jar" if="ilog-opl.missing">
 		<input message="Absolute path to ilog opl jar file" addproperty="ilog.opl.jar.dir" />
@@ -28,7 +27,7 @@
 			artifactspattern="${build.dir}/opl/[artifact]-[revision].[ext]"/>
 	</target>
 	
-	<target name="ilog-opl-check-for-jar" depends="-ivy-configure">
+	<target name="ilog-opl-check-for-jar" >
 			<ivy:resolve inline="true" resolveId="ilog-opl.check-for-jar" failurepropery="ilog-opl.missing" haltonfailure="false" 
 				organisation="ilog"
 				module="opl" 
@@ -36,6 +35,6 @@
 				/>
 	</target>
 	
-	<target name="-resolve-dependencies-before" depends="install-ilog-12.2-jar" />
+	<target name="resolve-dependencies-before" depends="install-ilog-12.2-jar" />
 	
 </project>

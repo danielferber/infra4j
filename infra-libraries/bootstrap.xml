@@ -1,59 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="infra-libraries-bootstrap" basedir="." default="dep-downloads" xmlns:ivy="antlib:org.apache.ivy.ant">
-	<property name="infra-libraries.dir" value="${basedir}" />
-	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant" />
-	<property name="infra-libraries.dep.dir" value="${infra-libraries.dir}/dep" />
-	<property name="infra-libraries.ivy-cache.dir" value="${infra-libraries.dir}/ivy-cache" />
+<project name="bootstrap" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="." default="default" >
+    <description>Builds the artifacts repository for: infra4j.</description>
 	
-	<property file="ivy-install.properties" />
-	<property name="ivy.overwrite" value="true" />
-	<property name="ivy.haltonfailure" value="false" />	
-
-	<target name="ant-downloads" depends="ivy-download-jar" description="Download ant dependencies.">
-		<!-- nada, por enquanto -->
-	</target>
-	
-	<target name="ant-init">
-		<mkdir dir="${infra-libraries.ant.dir}" />
-	</target>
-	
-	<target name="ant-clean">
-		<delete dir="${infra-libraries.ant.dir}" />
-	</target>
-
-	<target name="ivy-download-jar" depends="ant-init,ivy-check-file" unless="ivy.install.jar.file.exist" >
-		<mkdir dir="${ivy.install.jar.dir}" />
-		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar" dest="${ivy.install.jar.file}" />
-	</target>
-
-	<target name="ivy-check-file">
-		<available file="${ivy.install.jar.file}" property="ivy.install.jar.file.exist" />
-	</target>
-
-	<target name="dep-ivy-install-task" depends="ivy-download-jar">
-		<path id="ivy.lib.path">
-			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
-		</path>
-		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
-		<ivy:configure file="ivy-settings-download-deps.xml" override="notallowed" />
-	</target>
-	
-	
-	<target name="dep-downloads" description="Download jar dependencies." depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10,dep-javax.persistence-2,apache-commons">
-		<!-- nada, por enquanto -->
-	</target>
-
-	<target name="dep-init">
-		<mkdir dir="${infra-libraries.dep.dir}" />
-		<mkdir dir="${infra-libraries.ivy-cache.dir}" />
-	</target>
-	
-	<target name="dep-clean">
-		<delete dir="${infra-libraries.dep.dir}" />
-		<delete dir="${infra-libraries.ivy-cache.dir}" />
-	</target>
-
-	<target name="dep-slf4j-1.6.6" depends="dep-init,dep-ivy-install-task">
+	<property name="infra-libraries.dir" value="${basedir}" />	
+    <import file="../infra-libraries/bootstrap-template.xml"/>
+    
+    <target name="download-artifacts-do" depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10,dep-javax.persistence-2,apache-commons" />
+    
+    <target name="dep-slf4j-1.6.6" >
 		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="slf4j-ext" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
@@ -62,7 +16,7 @@
 		<ivy:install organisation="ch.qos.cal10n" module="cal10n-api" revision="0.7.4" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		</target>
 
-	<target name="dep-slf4j-1.6.5" depends="dep-init,dep-ivy-install-task">
+	<target name="dep-slf4j-1.6.5" >
 		<ivy:install organisation="org.slf4j" module="slf4j-api" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="slf4j-ext" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.slf4j" module="jcl-over-slf4j" revision="1.6.5" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
@@ -71,48 +25,23 @@
 		<ivy:install organisation="ch.qos.cal10n" module="cal10n-api" revision="0.7.4" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 		
-	<target name="dep-logback-1.0.6" depends="dep-init,dep-ivy-install-task">
+	<target name="dep-logback-1.0.6" >
 		<ivy:install organisation="ch.qos.logback" module="logback-classic" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="ch.qos.logback" module="logback-core" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="ch.qos.logback" module="logback-access" revision="1.0.6" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 			
-	<target name="dep-junit-4.10" depends="dep-init,dep-ivy-install-task">
+	<target name="dep-junit-4.10" >
 		<ivy:install organisation="junit" module="junit" revision="4.10" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 		<ivy:install organisation="org.hamcrest" module="hamcrest-core" revision="1.1" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 	
-	<target name="dep-javax.persistence-2" depends="dep-init,dep-ivy-install-task">
+	<target name="dep-javax.persistence-2" >
 		<ivy:install organisation="org.eclipse.persistence" module="javax.persistence" revision="2.0.0" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
 	
-	<target name="apache-commons" depends="dep-init,dep-ivy-install-task">
+	<target name="apache-commons" >
 			<ivy:install organisation="commons-io" module="commons-io" revision="2.1" from="maven-central-repo" to="infra-dependencies" transitive="false" haltonfailure="${ivy.haltonfailure}" overwrite="${ivy.overwrite}" />
 	</target>
-
-	<!-- ANT-CONTRIB autoinstaller -->
-	  <available property="ant-contrib-exists"
-	             file="${ant.library.dir}/ant-contrib-1.0b3.jar" />
-	  <target name="download-ant-contrib" unless="ant-contrib-exists">
-	    <mkdir dir="${ant.library.dir}" />
-	    <get src="http://downloads.sourceforge.net/project/ant-contrib/ant-contrib/1.0b3/ant-contrib-1.0b3-bin.zip?r=http%3A%2F%2Fsourceforge.net%2Fprojects%2Fant-contrib%2Ffiles%2Fant-contrib%2F1.0b3%2F&amp;use_mirror=cdnetworks-us-1"
-	         dest="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
-	         username="true" />
-	    <unzip src="${ant.library.dir}/ant-contrib-1.0b3-bin.zip"
-	           dest="${ant.library.dir}"
-	           overwrite="no" />
-	    <move todir="${ant.library.dir}">
-	      <fileset file="${ant.library.dir}/ant-contrib/*.jar" />
-	      <fileset file="${ant.library.dir}/ant-contrib/lib/*.jar" />
-	    </move>
-	    <delete file="${ant.library.dir}/ant-contrib-1.0b3-bin.zip" />
-	    <delete dir="${ant.library.dir}/ant-contrib" />
-	  </target>
-	  <target name="init-ant-contrib" depends="download-ant-contrib">
-	    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
-	      <classpath>
-	        <pathelement location="${ant.library.dir}/ant-contrib-1.0b3.jar" />
-	      </classpath>
-	    </taskdef>
-	  </target>
+ 
 </project>
