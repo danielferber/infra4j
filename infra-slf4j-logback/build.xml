@@ -2,5 +2,5 @@
 <project name="infra-slf4j-logback" default="default" basedir=".">
     <description>Builds, tests, and runs the project infra-slf4j-logback</description>
 	<property name="infra-libraries.dir" value="${basedir}/../infra-libraries" />	
-    <import file="${basedir}/../infra-libraries/build-java-template.xml"/>
+    <import file="${basedir}/../infra-libraries/build-java-common.xml"/>
 </project>

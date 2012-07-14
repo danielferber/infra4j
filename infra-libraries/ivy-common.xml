@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project name="ivy-common" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<!-- PRE-CONDITIONS -->
+	<fail message="Please build using Ant 1.8.0 or higher.">
+		<condition><not><antversion atleast="1.8.0" /></not></condition>
+	</fail>
+	<fail message="Property 'infra-libraries.dir' must be defined before including the bootstrap ant template." unless="infra-libraries.dir"/>
+
+	<!-- Configuration. -->
+	<property file="${infra-libraries.dir}/ivy-common.properties" />
+	
+	<!-- *** IVY *** -->
+	<target name="-ivy-clean">
+		<delete dir="${ivy.install.jar.dir}" />
+	</target>
+
+	<available file="${ivy.install.jar.file}" property="ivy.install.jar.file.exist" />
+	<target name="-ivy-download-jar" unless="ivy.install.jar.file.exist" >
+		<mkdir dir="${ivy.install.jar.dir}" />
+		<get src="${ivy.install.url}" dest="${ivy.install.jar.file}" />
+	</target>
+	
+	<target name="-ivy-init" depends="-ivy-download-jar">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<ivy:configure file="${infra-libraries.dir}/ivy-settings-compile.xml" override="notallowed" />
+	</target>
+	
+	<target name="-ivy-init-download-artifacts" depends="-ivy-download-jar">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.install.jar.dir}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+		<ivy:configure file="${infra-libraries.dir}/ivy-settings-download-artifacts.xml" override="notallowed" />
+	</target>
+</project>

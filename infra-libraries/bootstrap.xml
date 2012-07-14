@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project name="bootstrap" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="." default="default" >
-    <description>Builds the artifacts repository for: infra4j.</description>
+<project name="bootstrap-infra4j" xmlns:ivy="antlib:org.apache.ivy.ant" basedir="." default="default" >
+    <description>Builds the dependency artifact repository for: infra4j.</description>
 	
-	<property name="infra-libraries.dir" value="${basedir}" />	
-    <import file="../infra-libraries/bootstrap-template.xml"/>
+    <import file="bootstrap-common.xml"/>
     
     <target name="download-artifacts-do" depends="dep-slf4j-1.6.6,dep-slf4j-1.6.5,dep-logback-1.0.6,dep-junit-4.10,dep-javax.persistence-2,apache-commons" />
     
