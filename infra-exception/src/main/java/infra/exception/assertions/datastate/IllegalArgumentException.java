@@ -25,7 +25,7 @@ public class IllegalArgumentException extends IllegalDataStateException {
 
 	public IllegalArgumentException() { super(); }
 	public IllegalArgumentException(String message) { super(message); }
-	protected IllegalArgumentException(SystemRule sr) {	super(sr); }
+	public IllegalArgumentException(SystemRule sr) {	super(sr); }
 
 	/** Raises exception if condition is false. */
 	public static boolean apply(boolean condition) {
