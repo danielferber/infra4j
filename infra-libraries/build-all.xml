@@ -1,0 +1,23 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="infra-all" default="default">
+
+	<target name="default" depends="-build-projects" />
+	
+	<import file="ivy-common.xml" />
+		
+    <target name="-build-projects" depends="-ivy-init">
+    	<!-- List of projects to compile. -->
+        <ivy:buildlist reference="build-path">
+            <fileset dir=".." includes="**/build.xml" excludes="infra-all/build.xml"/>
+        </ivy:buildlist>
+    	
+        <!-- Print projects to compile. -->
+        <pathconvert pathsep="${line.separator}"             
+            property="echo.path.compile"             
+            refid="build-path">
+        </pathconvert>
+        <echo>${echo.path.compile}</echo>
+    	
+    	<!-- Compile. -->
+        <subant target="default" buildpathref="build-path" />
+    </target>
+</project>
