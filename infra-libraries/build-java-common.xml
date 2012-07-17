@@ -40,6 +40,7 @@
 	<!-- *** BUILD *** -->
 	<target name="-clean-all" >
 		<delete dir="${build.pub.dir}" />
+		<delete dir="${build.lib.dir}" />
 		<delete dir="${build.bin.main.dir}" />
 		<delete dir="${build.bin.test.dir}" />
 		<delete dir="${build.bin.dir}" />
@@ -49,6 +50,7 @@
 	<target name="-resolve-dependencies" depends="-ivy-init,resolve-dependencies-before,-resolve-dependencies-impl,resolve-dependencies-after" />
 	<target name="-resolve-dependencies-impl">
 		<ivy:resolve showprogress="false" log="quiet" />
+		<ivy:retrieve pattern="${build.lib.dir}/[artifact].[ext]" type="jar" symlink="true" sync="true" transitive="false" />
 		<ivy:cachepath pathid="ivy.cachepath.compile.main" conf="default" type="jar" />
 		<ivy:cachepath pathid="ivy.cachepath.compile.test" conf="default,test" type="jar" />
 		<ivy:report conf="default" todir="${build.dir}" />

@@ -1,13 +1,16 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="infra-all" default="default">
-
+	
+	<dirname property="infra-libraries.dir" file="${ant.file.infra-all}" />
+	<property name="infra-libraries.ant.dir" value="${infra-libraries.dir}/ant"/>
+	
 	<target name="default" depends="-build-projects" />
 	
 	<import file="ivy-common.xml" />
 		
     <target name="-build-projects" depends="-ivy-init">
     	<!-- List of projects to compile. -->
-        <ivy:buildlist reference="build-path">
-            <fileset dir=".." includes="**/build.xml" excludes="infra-all/build.xml"/>
+        <ivy:buildlist reference="build-path" onMissingDescriptor="skip">
+            <fileset dir=".." includes="**/build.xml" excludes="infra-all/*,bootstrap*/*,infra-hibernate/*,infra-jetty/*,infra-misc/*,infra-pojo/*"/>
         </ivy:buildlist>
     	
         <!-- Print projects to compile. -->
