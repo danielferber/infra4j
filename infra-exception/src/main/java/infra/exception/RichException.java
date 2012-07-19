@@ -33,7 +33,7 @@ public class RichException extends Exception {
 	Set<Object> reasons = new LinkedHashSet<Object>();
 
 	private static Object nullToStr(Object o) {
-		if (o == null) return "null";
+		if (o == null) return "'null'";
 		return o;
 	}
 
@@ -58,7 +58,7 @@ public class RichException extends Exception {
 	protected RichException(Object reason) {
 		super();
 		if (reason == null) {
-			RichException.logger.error("Called RichException(reason={}) with null parameter.", RichException.nullToStr(reason));
+			RichException.logger.error("Called RichException(reason='null') with null parameter.");
 		}
 		this.reasons.add(reason);
 	}
@@ -84,7 +84,7 @@ public class RichException extends Exception {
 	/** Builder method to add a reason to the exception. */
 	public RichException reason(Object reason) {
 		if (reason == null) {
-			RichException.logger.error("Called reason(reason={}) with null parameter.", RichException.nullToStr(reason));
+			RichException.logger.error("Called reason(reason='null') with null parameter.");
 			return this;
 		}
 		reasons.add(reason);
@@ -94,7 +94,7 @@ public class RichException extends Exception {
 	/** Builder method to add a operation to the operation hierarchy of the exception. */
 	public RichException operation(Object operation) {
 		if (operation == null) {
-			RichException.logger.error("Called operation(operation={}) with null parameter.", operation);
+			RichException.logger.error("Called operation(operation='null') with null parameter.");
 			return this;
 		}
 		operations.add(operation);

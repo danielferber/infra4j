@@ -14,7 +14,7 @@ public final class UnhandledRuntimeException extends RichRuntimeException {
 	public UnhandledRuntimeException(Throwable cause) {
 		super(cause instanceof UnhandledRuntimeException ? cause.getCause() : cause);
 		if (cause == null) {
-			UnhandledRuntimeException.logger.error("Called UnhandledRuntimeException(cause={}) with null parameter.", cause);
+			UnhandledRuntimeException.logger.error("Called UnhandledRuntimeException(cause='null') with null parameter.");
 		}
 		if (cause instanceof UnhandledRuntimeException) {
 			UnhandledRuntimeException.logger.error("Called UnhandledRuntimeException(cause={}) with recursive UnhandledRuntimeException parameter.", cause);
