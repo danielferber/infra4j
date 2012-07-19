@@ -15,6 +15,9 @@
  */
 package infra.ilog.cplex;
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
+import static infra.exception.Assert.Precondition;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
 import ilog.cplex.IloCplex.Algorithm;
@@ -26,9 +29,6 @@ import infra.exception.assertions.controlstate.design.UnsupportedException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
-import infra.exception.assertions.datastate.IllegalArgumentException;
-import infra.exception.assertions.datastate.IllegalAttributeException;
-import infra.exception.assertions.datastate.NullArgumentException;
 import infra.exception.motivo.MotivoException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
@@ -89,8 +89,11 @@ public class ComandoCplex implements ComandoSolver {
 	public ComandoCplex(IloCplex cplex, ConfiguracaoCplex configuracao) {
 		super();
 
-		NullArgumentException.apply(cplex, configuracao);
-		IllegalArgumentException.apply(configuracao.getNome() != null);
+		double a = Math.PI;
+
+		Argument.notNull(cplex);
+		Argument.notNull(configuracao);
+		Argument.notNull(configuracao.getNome());
 
 		this.configuracao = new ConfiguracaoCplex(configuracao); /* for thread safety, stores a copy of configuration. */
 		this.cplex = cplex;
@@ -108,10 +111,11 @@ public class ComandoCplex implements ComandoSolver {
 	/** Executa o resolvedor CPLEX. */
 	@Override
 	public void executar() throws NoSolutionException {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		assert IllegalAttributeException.apply(this.configuracao != null);
+		Attribute.notNull(this.cplex);
+		Attribute.notNull(this.configuracao);
+
 		try {
-			IllegalAttributeException.apply(this.cplex.getStatus() == Status.Unknown); /* não pode ter rodado o cplex ainda. */
+			Precondition.equal(this.cplex.getStatus(), Status.Unknown); /* não pode ter rodado o cplex ainda. */
 		} catch (IloException e) {
 			/* IloCplex.getStatus() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
@@ -207,8 +211,8 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void executarIteracao(int numeroIteracao) {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		assert IllegalAttributeException.apply(this.configuracao != null);
+		Attribute.notNull(this.cplex);
+		Attribute.notNull(this.configuracao);
 
 		/*
 		 * TODO Aplicar configurações ao CPLEX de acordo com a subclasse da configuração.
@@ -292,8 +296,8 @@ public class ComandoCplex implements ComandoSolver {
 	 * @param logger
 	 */
 	protected static void validarEstadoInicialCplex(IloCplex cplex, Logger logger) throws NoSolutionException {
-		assert NullArgumentException.apply(cplex);
-		assert NullArgumentException.apply(logger);
+		Argument.notNull(cplex);
+		Argument.notNull(logger);
 
 		String statusString = null;
 		NoSolutionException exception = null;
@@ -346,8 +350,9 @@ public class ComandoCplex implements ComandoSolver {
 	 * Ou seja, um estado que não permite ler a solução, se ela parcial ou ótima.
 	 */
 	protected static void validarEstadoFinalCplex(IloCplex cplex, Logger logger) throws NoSolutionException {
-		assert NullArgumentException.apply(cplex);
-		assert NullArgumentException.apply(logger);
+		Argument.notNull(cplex);
+		Argument.notNull(logger);
+
 		String statusString = null;
 		NoSolutionException exception = null;
 
@@ -395,7 +400,8 @@ public class ComandoCplex implements ComandoSolver {
 	protected static final String strPropertyPrintPattern = "  - %s = %s%n";
 
 	protected void logPropriedadesSolucionadorCplex() {
-		assert IllegalAttributeException.apply(this.cplex != null);
+		Attribute.notNull(cplex);
+
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características do CPLEX:");
@@ -409,7 +415,8 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void logPropriedadesExecucao() {
-		assert IllegalAttributeException.apply(this.cplex != null);
+		Attribute.notNull(cplex);
+
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características da execução:");
@@ -424,7 +431,8 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void logPropriedadesModelo() {
-		assert IllegalAttributeException.apply(this.cplex != null);
+		Attribute.notNull(cplex);
+
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		out.println("Características da matriz:");
 		out.format(ComandoCplex.strPropertyPrintPattern, "colunas", Integer.toString(cplex.getNcols()));
@@ -445,7 +453,8 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void logPropriedadesResultado(boolean solucaoEncontrada) {
-		assert IllegalAttributeException.apply(this.cplex != null);
+		Attribute.notNull(cplex);
+
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.println("Características da solução:");
@@ -474,7 +483,8 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void logPropriedadesSolucao() {
-		assert IllegalAttributeException.apply(this.cplex != null);
+		Attribute.notNull(cplex);
+
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
 			out.format(ComandoCplex.strPropertyPrintPattern, "número de soluções", Integer.toString(cplex.getSolnPoolNsolns()));
@@ -520,9 +530,9 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void salvarModelo(File file) {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		assert NullArgumentException.apply(file);
-		assert IllegalArgumentException.apply(file.isAbsolute());
+		Attribute.notNull(cplex);
+		Argument.notNull(file);
+		Argument.check(file.isAbsolute());
 
 		try {
 			ComandoCplex.assureDiretoryForFile(file);
@@ -536,9 +546,9 @@ public class ComandoCplex implements ComandoSolver {
 
 
 	protected void salvarSettings(File file) {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		assert NullArgumentException.apply(file);
-		assert IllegalArgumentException.apply(file.isAbsolute());
+		Attribute.notNull(cplex);
+		Argument.notNull(file);
+		Argument.check(file.isAbsolute());
 
 		try {
 			ComandoCplex.assureDiretoryForFile(file);
@@ -551,9 +561,9 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected void salvarSolucao(File file) {
-		assert IllegalAttributeException.apply(this.cplex != null);
-		assert NullArgumentException.apply(file);
-		assert IllegalArgumentException.apply(file.isAbsolute());
+		Attribute.notNull(cplex);
+		Argument.notNull(file);
+		Argument.check(file.isAbsolute());
 
 		try {
 			ComandoCplex.assureDiretoryForFile(file);

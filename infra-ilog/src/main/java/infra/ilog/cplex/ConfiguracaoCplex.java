@@ -15,10 +15,10 @@
  */
 package infra.ilog.cplex;
 
+import static infra.exception.Assert.Argument;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
 import infra.exception.assertions.datastate.IllegalDataStateException;
-import infra.exception.assertions.datastate.NullArgumentException;
 
 import java.io.File;
 
@@ -36,8 +36,8 @@ public class ConfiguracaoCplex {
 	 * @param caminho O caminho base da configuração. Todos os demais caminhos da configuração são relativos a ele. Deve ser absoluto.
 	 */
 	public ConfiguracaoCplex(String nome, File caminho) {
-		NullArgumentException.apply(caminho, nome);
-		IllegalArgumentException.apply(caminho.isAbsolute());
+		Argument.notNull(nome, caminho);
+		Argument.check(caminho.isAbsolute());
 
 		this.caminhoBase = caminho;
 		this.nome = nome;
@@ -48,9 +48,10 @@ public class ConfiguracaoCplex {
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
 	public ConfiguracaoCplex(ConfiguracaoCplex configuracao) {
-		assert IllegalArgumentException.apply(configuracao.nome != null);
-		assert IllegalArgumentException.apply(configuracao.caminhoBase != null);
-		assert IllegalArgumentException.apply(configuracao.caminhoBase.isAbsolute());
+		Argument.notNull(configuracao);
+		Argument.notNull(configuracao.nome);
+		Argument.notNull(configuracao.caminhoBase);
+		Argument.check(configuracao.caminhoBase.isAbsolute());
 
 		this.nome = configuracao.nome;
 		this.caminhoBase = configuracao.caminhoBase;
@@ -74,7 +75,7 @@ public class ConfiguracaoCplex {
 	/** @param caminho O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	public ConfiguracaoCplex setCaminhoBase(File caminho) {
 		NullArgumentException.apply(caminho);
-		IllegalArgumentException.apply(caminho.isAbsolute());
+		IllegalArgumentDataException.apply(caminho.isAbsolute());
 
 		this.caminhoBase = caminho;
 		return this;

@@ -16,7 +16,7 @@
 package infra.ilog.opl;
 
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
 import infra.exception.assertions.datastate.IllegalDataStateException;
 import infra.exception.assertions.datastate.NullArgumentException;
 
@@ -69,7 +69,7 @@ public class ConfiguracaoOPL {
 	 */
 	public ConfiguracaoOPL(String nome, File caminho) {
 		assert NullArgumentException.apply(nome, caminho);
-		assert IllegalArgumentException.apply(caminho.isAbsolute());
+		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
 		this.nome = nome;
 		this.caminhoBase = caminho;
 	}
@@ -79,9 +79,9 @@ public class ConfiguracaoOPL {
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
 	public ConfiguracaoOPL(ConfiguracaoOPL configuracao) {
-		assert IllegalArgumentException.apply(configuracao.nome != null);
-		assert IllegalArgumentException.apply(configuracao.caminhoBase != null);
-		assert IllegalArgumentException.apply(configuracao.caminhoBase.isAbsolute());
+		assert IllegalArgumentDataException.apply(configuracao.nome != null);
+		assert IllegalArgumentDataException.apply(configuracao.caminhoBase != null);
+		assert IllegalArgumentDataException.apply(configuracao.caminhoBase.isAbsolute());
 
 		this.nome = configuracao.nome;
 		this.modoDebug = configuracao.modoDebug;
@@ -106,7 +106,7 @@ public class ConfiguracaoOPL {
 	/** @param caminho O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	public ConfiguracaoOPL setCaminhoBase(File caminho) {
 		NullArgumentException.apply(caminho);
-		IllegalArgumentException.apply(caminho.isAbsolute());
+		IllegalArgumentDataException.apply(caminho.isAbsolute());
 
 		this.caminhoBase = caminho;
 		return this;

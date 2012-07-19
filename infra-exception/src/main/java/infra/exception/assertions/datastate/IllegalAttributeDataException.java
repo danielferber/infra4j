@@ -20,23 +20,23 @@ package infra.exception.assertions.datastate;
  * The attribute for current object is not valid.
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
-public class IllegalAttributeException extends IllegalDataStateException {
+public class IllegalAttributeDataException extends IllegalPreConditionException {
 	private static final long serialVersionUID = 1L;
 
-	public IllegalAttributeException() { super(); }
-	public IllegalAttributeException(String message) { super(message); }
-	public IllegalAttributeException(SystemRule rule) { super(rule); }
+	public IllegalAttributeDataException() { super(); }
+	public IllegalAttributeDataException(String message) { super(message); }
+	public IllegalAttributeDataException(SystemRule rule) { super(rule); }
 
-	/** Raises exception if condition is false. */
-	public static boolean apply(boolean condition) {
-		if (!condition) throw new IllegalAttributeException();
-		return true;
-	}
-	/** Raises exception if one condition is false. */
-	public static boolean apply(boolean ... conditions) {
-		for (boolean b : conditions) {
-			if (!b) throw new IllegalAttributeException();
-		}
-		return true;
-	}
+//	/** Raises exception if condition is false. */
+//	public static boolean apply(boolean condition) {
+//		if (!condition) throw new IllegalAttributeDataException();
+//		return true;
+//	}
+//	/** Raises exception if one condition is false. */
+//	public static boolean apply(boolean ... conditions) {
+//		for (boolean b : conditions) {
+//			if (!b) throw new IllegalAttributeDataException();
+//		}
+//		return true;
+//	}
 }

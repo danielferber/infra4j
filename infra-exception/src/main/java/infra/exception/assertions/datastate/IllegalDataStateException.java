@@ -32,31 +32,31 @@ public class IllegalDataStateException extends IllegalStateException {
 
 	public SystemRule getSystemRule() { return this.systemRule; }
 
-	/** Raises exception if condition is false. */
-	public /*final*/ static boolean apply(boolean condition) {
-		if (!condition) throw new IllegalDataStateException();
-		return true;
-	}
-
-	/** Raises exception if condition is false. */
-	public /*final*/ static boolean apply(SystemRule sr, boolean condition) {
-		if (!condition) throw new IllegalDataStateException(sr);
-		return true;
-	}
-
-	/** Raises exception if one condition is false. */
-	public /*final*/ static boolean apply(boolean ... conditions) {
-		for (boolean b : conditions) {
-			if (!b) throw new IllegalDataStateException();
-		}
-		return true;
-	}
-
-	/** Raises exception if one condition is false. */
-	public /*final*/ static boolean apply(SystemRule sr, boolean ... conditions) {
-		for (boolean b : conditions) {
-			if (!b) throw new IllegalDataStateException(sr);
-		}
-		return true;
-	}
+//	/** Raises exception if condition is false. */
+//	public /*final*/ static boolean apply(boolean condition) {
+//		if (!condition) throw new IllegalDataStateException();
+//		return true;
+//	}
+//
+//	/** Raises exception if condition is false. */
+//	public /*final*/ static boolean apply(SystemRule sr, boolean condition) {
+//		if (!condition) throw new IllegalDataStateException(sr);
+//		return true;
+//	}
+//
+//	/** Raises exception if one condition is false. */
+//	public /*final*/ static boolean apply(boolean ... conditions) {
+//		for (boolean b : conditions) {
+//			if (!b) throw new IllegalDataStateException();
+//		}
+//		return true;
+//	}
+//
+//	/** Raises exception if one condition is false. */
+//	public /*final*/ static boolean apply(SystemRule sr, boolean ... conditions) {
+//		for (boolean b : conditions) {
+//			if (!b) throw new IllegalDataStateException(sr);
+//		}
+//		return true;
+//	}
 }

@@ -19,8 +19,8 @@ import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentException;
-import infra.exception.assertions.datastate.IllegalAttributeException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
+import infra.exception.assertions.datastate.IllegalAttributeDataException;
 import infra.exception.assertions.datastate.IllegalOutputDataException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.ilog.ComandoSolver;
@@ -107,12 +107,12 @@ public class ComandoOPL {
 	/** Executa o resolvedor OPL.
 	 * @throws NoSolutionException */
 	public void executar() throws NoSolutionException {
-		assert IllegalAttributeException.apply(this.configuracao != null);
-		assert IllegalAttributeException.apply(this.solverCommand != null);
-		assert IllegalAttributeException.apply(this.oplModel != null);
+		assert IllegalAttributeDataException.apply(this.configuracao != null);
+		assert IllegalAttributeDataException.apply(this.solverCommand != null);
+		assert IllegalAttributeDataException.apply(this.oplModel != null);
 
-		IllegalAttributeException.apply(oplModel.hasCplex());
-		IllegalAttributeException.apply(oplModel.isGenerated());
+		IllegalAttributeDataException.apply(oplModel.hasCplex());
+		IllegalAttributeDataException.apply(oplModel.isGenerated());
 
 		Meter op = MeterFactory.getMeter(loggerMeter, ExecuteOpl).start();
 		try {
@@ -177,8 +177,8 @@ public class ComandoOPL {
 	 */
 	protected void salvarDadosExternos(File caminho) {
 		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentException.apply(caminho.isAbsolute());
-		assert IllegalAttributeException.apply(this.oplModel != null);
+		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
+		assert IllegalAttributeDataException.apply(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -198,8 +198,8 @@ public class ComandoOPL {
 	 */
 	protected void salvarSolucao(File caminho) {
 		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentException.apply(caminho.isAbsolute());
-		assert IllegalAttributeException.apply(this.oplModel != null);
+		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
+		assert IllegalAttributeDataException.apply(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -219,8 +219,8 @@ public class ComandoOPL {
 	 */
 	protected void salvarDadosInternos(File caminho) {
 		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentException.apply(caminho.isAbsolute());
-		assert IllegalAttributeException.apply(this.oplModel != null);
+		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
+		assert IllegalAttributeDataException.apply(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -238,7 +238,7 @@ public class ComandoOPL {
 
 	/** Registra no log propriedades do modelo OPL. */
 	protected void logPropriedades() {
-		assert IllegalAttributeException.apply(this.oplModel != null);
+		assert IllegalAttributeDataException.apply(this.oplModel != null);
 		IloOplModelDefinition definition = oplModel.getModelDefinition();
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
 		out.println("Propriedades do modelo OPL:");

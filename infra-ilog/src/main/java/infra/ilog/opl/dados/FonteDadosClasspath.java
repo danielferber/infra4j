@@ -16,7 +16,7 @@
 package infra.ilog.opl.dados;
 
 import ilog.opl.IloOplModel;
-import infra.exception.assertions.datastate.IllegalArgumentException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
 import infra.exception.assertions.datastate.NullArgumentException;
 
 import java.io.IOException;
@@ -44,7 +44,7 @@ public class FonteDadosClasspath extends AbstractFonteDadosStream {
 		super(nome);
 		NullArgumentException.apply(caminhoArquivo);
 		this.caminhoArquivo = this.getClass().getResource(caminhoArquivo);
-		IllegalArgumentException.apply(this.caminhoArquivo != null);
+		IllegalArgumentDataException.apply(this.caminhoArquivo != null);
 	}
 
 	@Override

@@ -1,6 +1,6 @@
 package infra.ilog.opl;
 
-import infra.exception.assertions.datastate.IllegalArgumentException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,8 +14,8 @@ public class OplModelException extends RuntimeException {
 
 	public OplModelException(List<OplModelParseError> newParseErrors) {
 		super();
-		assert IllegalArgumentException.apply(newParseErrors != null);
-		assert IllegalArgumentException.apply(newParseErrors.size() > 0);
+		assert IllegalArgumentDataException.apply(newParseErrors != null);
+		assert IllegalArgumentDataException.apply(newParseErrors.size() > 0);
 		parseErrors.addAll(newParseErrors);
 	}
 

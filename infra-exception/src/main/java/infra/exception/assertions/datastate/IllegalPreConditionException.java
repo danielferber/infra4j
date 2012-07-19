@@ -15,17 +15,10 @@
  */
 package infra.exception.assertions.datastate;
 
-
-/**
- * There is data that shall not be used, although allowed by the domain.
- * A better interface design should not lead to data that are is not intended to be used.
- * However, the interface or domain may have been designed by third party or you may be overriding
- * the interface for a purpose that was not originally designed.
- * @author Daniel Felix Ferber
- */
-public class UnsupportedDataException extends IllegalDataStateException {
+public class IllegalPreConditionException extends IllegalDataStateException {
 	private static final long serialVersionUID = 1L;
 
-	public UnsupportedDataException() { super(); }
-	public UnsupportedDataException(String message) { super(message); }
+	public IllegalPreConditionException() { super(); }
+	public IllegalPreConditionException(String message) { super(message); }
+	public IllegalPreConditionException(SystemRule sr) { super(sr); }
 }

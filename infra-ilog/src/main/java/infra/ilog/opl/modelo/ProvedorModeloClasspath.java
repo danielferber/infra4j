@@ -16,7 +16,7 @@
 package infra.ilog.opl.modelo;
 
 import infra.exception.assertions.controlstate.bug.ImpossibleException;
-import infra.exception.assertions.datastate.IllegalArgumentException;
+import infra.exception.assertions.datastate.IllegalArgumentDataException;
 import infra.exception.assertions.datastate.NullArgumentException;
 import infra.ilog.opl.ProvedorModelo;
 
@@ -42,7 +42,7 @@ public class ProvedorModeloClasspath extends AbstractProvedorModelo {
 		super(nome);
 		NullArgumentException.apply(caminhoArquivo);
 		this.caminhoArquivo = this.getClass().getResource(caminhoArquivo);
-		IllegalArgumentException.apply(this.caminhoArquivo != null);
+		IllegalArgumentDataException.apply(this.caminhoArquivo != null);
 	}
 
 	@Override

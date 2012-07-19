@@ -17,42 +17,38 @@ package infra.exception.assertions.datastate;
 
 
 /**
- * Data that is being consumed is not valid.
+ * The argument passed to method is not valid.
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
-public class IllegalEnvironmentDataException extends IllegalPreConditionException {
+public class IllegalArgumentDataException extends IllegalPreConditionException {
 	private static final long serialVersionUID = 1L;
 
-	public IllegalEnvironmentDataException() { super(); }
-	public IllegalEnvironmentDataException(String message) { super(message); }
-	public IllegalEnvironmentDataException(SystemRule sr) { super(sr); }
+	public IllegalArgumentDataException() { super(); }
+	public IllegalArgumentDataException(String message) { super(message); }
+	public IllegalArgumentDataException(SystemRule sr) { super(sr); }
 
 //	/** Raises exception if condition is false. */
+//	@Deprecated
 //	public static boolean apply(boolean condition) {
-//		if (!condition) throw new IllegalEnvironmentDataException();
+//		if (!condition) throw new IllegalArgumentDataException();
 //		return true;
 //	}
-//
-//	/** Raises exception if condition is false. */
-//	public static boolean apply(SystemRule sr, boolean condition) {
-//		if (!condition) throw new IllegalEnvironmentDataException(sr);
-//		return true;
-//	}
-//
-//	public static boolean notNull(Object value) {
-//		if (value == null) throw new IllegalEnvironmentDataException();
-//		return true;
-//	}
-//
-//	public static boolean notNull(SystemRule sr, Object value) {
-//		if (value == null) throw new IllegalEnvironmentDataException(sr);
-//		return true;
-//	}
-//
 //	/** Raises exception if one condition is false. */
 //	public static boolean apply(boolean ... conditions) {
 //		for (boolean b : conditions) {
-//			if (!b) throw new IllegalEnvironmentDataException();
+//			if (!b) throw new IllegalArgumentDataException();
+//		}
+//		return true;
+//	}
+//	/** Raises exception if condition is false. */
+//	public static boolean apply(SystemRule sr, boolean condition) {
+//		if (!condition) throw new IllegalArgumentDataException(sr);
+//		return true;
+//	}
+//	/** Raises exception if one condition is false. */
+//	public static boolean apply(SystemRule sr, boolean ... conditions) {
+//		for (boolean b : conditions) {
+//			if (!b) throw new IllegalArgumentDataException(sr);
 //		}
 //		return true;
 //	}
