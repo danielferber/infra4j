@@ -4,7 +4,6 @@
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry excluding="**" kind="src" path="src/test/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/infra-exception"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/infra-slf4j-ext"/>
 	<classpathentry kind="lib" path="lib/opl.jar"/>
 	<classpathentry kind="lib" path="lib/commons-io.jar"/>
@@ -16,5 +15,6 @@
 	<classpathentry kind="lib" path="lib/logback-core.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-ext.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/infra-exception"/>
 	<classpathentry kind="output" path="build/bin"/>
 </classpath>

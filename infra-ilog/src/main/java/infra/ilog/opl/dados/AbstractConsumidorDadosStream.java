@@ -15,6 +15,9 @@
  */
 package infra.ilog.opl.dados;
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Invariant;
+import static infra.exception.Assert.Poscondition;
 import ilog.opl.IloOplDataSerializer;
 import ilog.opl.IloOplElement;
 import ilog.opl.IloOplFactory;
@@ -71,9 +74,14 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 		} else {
 			this.filtro = filtro.clone();
 		}
+		Poscondition.notNull(this.filtro);
+		Poscondition.notNull(this.excludePattern);
+		Poscondition.notNull(this.includePattern);
 	}
 
 	protected void exportarStream(IloOplModel oplModel, OutputStream os) {
+		Argument.notNull(oplModel, os);
+
 		IloOplDataSerializer oplDataSerializer;
 		IloOplFactory oplFactory = IloOplFactory.getOplFactoryFrom(oplModel);
 		IloOplSettings settings = oplModel.getSettings();
@@ -83,6 +91,7 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 		Iterator<IloOplElement> itr = oplModel.getElementIterator();
 		main: while (itr.hasNext()) {
 			IloOplElement oplElement = itr.next();
+			Invariant.notNull(oplElement);
 
 			/* Verifica se o tipo do elemento que satisfaz o filtro. */
 			if (oplElement.isCalculated() && ! filtro.contains(Filtro.Calculated)) continue;

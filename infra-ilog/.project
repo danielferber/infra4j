@@ -3,6 +3,8 @@
 	<name>infra-ilog</name>
 	<comment></comment>
 	<projects>
+		<project>infra-exception</project>
+		<project>infra-slf4j-ext</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

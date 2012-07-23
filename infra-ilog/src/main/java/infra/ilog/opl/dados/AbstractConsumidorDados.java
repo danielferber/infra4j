@@ -15,8 +15,8 @@
  */
 package infra.ilog.opl.dados;
 
+import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
-import infra.exception.assertions.datastate.NullArgumentException;
 import infra.ilog.opl.ConsumidorDados;
 
 import java.io.IOException;
@@ -27,7 +27,8 @@ public abstract class AbstractConsumidorDados implements ConsumidorDados {
 
 	public AbstractConsumidorDados(String nome) {
 		super();
-		NullArgumentException.apply(nome);
+		Argument.notNull(nome);
+
 		this.nome = nome;
 	}
 
@@ -36,16 +37,16 @@ public abstract class AbstractConsumidorDados implements ConsumidorDados {
 
 	@Override
 	public void preparar(IloOplModel oplModel) throws IOException {
-		// empty
+		Argument.notNull(oplModel);
 	}
 
 	@Override
 	public void finalizar(IloOplModel oplModel) throws IOException {
-		// empty
+		Argument.notNull(oplModel);
 	}
 
 	@Override
 	public void definir(IloOplModel oplModel) {
-		// empty
+		Argument.notNull(oplModel);
 	}
 }

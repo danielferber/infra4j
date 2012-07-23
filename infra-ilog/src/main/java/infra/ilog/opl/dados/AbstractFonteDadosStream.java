@@ -15,6 +15,7 @@
  */
 package infra.ilog.opl.dados;
 
+import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplDataSource;
 import ilog.opl.IloOplFactory;
 import ilog.opl.IloOplModel;
@@ -40,6 +41,7 @@ public abstract class AbstractFonteDadosStream extends AbstractFonteDados {
 	}
 
 	protected void agendarFechamentoStream(IloOplModel oplModel, InputStream is) {
+		Argument.notNull(oplModel, is);
 		streamsAtivos.put(oplModel, is);
 	}
 
