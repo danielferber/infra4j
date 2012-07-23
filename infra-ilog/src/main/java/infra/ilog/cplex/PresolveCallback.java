@@ -18,9 +18,11 @@ package infra.ilog.cplex;
 
 import ilog.concert.IloException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.NullArgumentException;
 
 import org.slf4j.Logger;
+
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
 
 
 /**
@@ -34,7 +36,8 @@ class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 
 	public PresolveCallback(Logger logger, int numeroPassosEntreLogs) {
 		super();
-		assert NullArgumentException.apply(logger);
+		Argument.notNull(logger);
+		Argument.positive(numeroPassosEntreLogs);
 
 		this.logger = logger;
 		this.numeroPassosEntreLogs = numeroPassosEntreLogs;
@@ -42,12 +45,12 @@ class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 
 	@Override
 	protected void main() throws IloException {
+		Attribute.notNull(logger);
+
 		if (! logger.isInfoEnabled()) return;
-		if (contadorPassos > 0) {
-			contadorPassos--;
-			return;
-		}
+		if (contadorPassos-- > 0)  return;
 		contadorPassos = numeroPassosEntreLogs;
+
 		this.logger.info(
 				String.format("Presolve: nAggr=%d; nmodCoef=%d; nRemCol=%d; nremRow=%d; nCol=%d; nRow=%d; nQC=%d",
 						getNaggregations(),

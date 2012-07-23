@@ -1,12 +1,12 @@
 /*
  * Copyright 2012 Daniel Felix Ferber
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,17 +16,17 @@
 package infra.ilog.opl.modelo;
 
 import infra.exception.assertions.controlstate.bug.ImpossibleException;
-import infra.exception.assertions.datastate.IllegalArgumentDataException;
-import infra.exception.assertions.datastate.NullArgumentException;
 import infra.ilog.opl.ProvedorModelo;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
+
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Invariant;
 
 
 
@@ -36,24 +36,26 @@ import org.apache.commons.io.IOUtils;
  *
  */
 public class ProvedorModeloClasspath extends AbstractProvedorModelo {
-	private final URL caminhoArquivo;
+	private final URL urlClasspath;
 
 	public ProvedorModeloClasspath(String nome, String caminhoArquivo) {
 		super(nome);
-		NullArgumentException.apply(caminhoArquivo);
-		this.caminhoArquivo = this.getClass().getResource(caminhoArquivo);
-		IllegalArgumentDataException.apply(this.caminhoArquivo != null);
+		Argument.notNull(caminhoArquivo);
+		URL urlClasspathTmp = this.getClass().getResource(caminhoArquivo);
+		Argument.check(this.urlClasspath != null);
+		this.urlClasspath = urlClasspathTmp;
 	}
 
 	@Override
 	public String getArquivo(int linhaReportada, int colunaReportada) {
-		return caminhoArquivo.getPath();
+		return urlClasspath.getPath();
 	}
 
 	@Override
 	public String getConteudo() throws IOException {
-		InputStream is = caminhoArquivo.openStream();
-		if (is == null) throw new FileNotFoundException(caminhoArquivo.toString());
+		InputStream is = urlClasspath.openStream();
+		//if (is == null) throw new FileNotFoundException(urlClasspath.toString());
+		Invariant.notNull(is);
 		try {
 			String s = IOUtils.toString(is);
 			return s;
@@ -65,7 +67,7 @@ public class ProvedorModeloClasspath extends AbstractProvedorModelo {
 	@Override
 	public ProvedorModelo getProvedor(String caminhoRelativo) {
 		try {
-			URL url = new URL(caminhoArquivo, caminhoRelativo);
+			URL url = new URL(urlClasspath, caminhoRelativo);
 			return new ProvedorModeloURL(nome+":"+caminhoRelativo, url);
 		} catch (MalformedURLException e) {
 			throw new ImpossibleException(e);

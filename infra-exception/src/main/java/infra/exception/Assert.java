@@ -111,6 +111,19 @@ public abstract class Assert {
 		if (value <= 0) throw createException(String.format("%d must be positive", value));
 		return true;
 	}
+	public final boolean positive(Integer value) throws RuntimeException {
+		if (value == null || value.intValue() <= 0) throw createException(String.format("%d must be positive", value));
+		return true;
+	}
+	public final boolean positive(double value) throws RuntimeException {
+		if (value <= 0 || Double.isNaN(value) || Double.isInfinite(value)) throw createException(String.format("%f must be positive", value));
+		return true;
+	}
+	public final boolean positive(Double value) throws RuntimeException {
+		if (value == null || value.doubleValue() <= 0.0 || value.isNaN() || value.isInfinite()) throw createException(String.format("%f must be positive", value));
+		return true;
+	}
+
 
 	/** Argument(s) must not be <code>null</code>. */
 	public final <T> boolean notNull(T argument) throws RuntimeException {

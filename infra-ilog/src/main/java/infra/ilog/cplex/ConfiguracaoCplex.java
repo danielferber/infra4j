@@ -16,15 +16,14 @@
 package infra.ilog.cplex;
 
 import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentDataException;
-import infra.exception.assertions.datastate.IllegalDataStateException;
 
 import java.io.File;
 
 
 /**
- * Parâmetros que controlam a execução da uma instância de {@link ComandoCplex}.
+ * Parâmetros que controlam a execução da uma instância de {@link CommandCplex}.
  *
  * TODO: Criar subclasses especícias para cada um dos algoritmos de programação linear.
  *
@@ -66,7 +65,10 @@ public class ConfiguracaoCplex {
 
 	private String nome;
 	public String getNome() { return nome; }
-	public void setNome(String nome) { this.nome = nome; }
+	public void setNome(String nome) {
+		Argument.notNull(nome);
+		this.nome = nome;
+	}
 
 	/** O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	private File caminhoBase = new File(System.getProperty("user.dir"));
@@ -74,9 +76,8 @@ public class ConfiguracaoCplex {
 	public File getCaminhoBase() { return caminhoBase; }
 	/** @param caminho O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	public ConfiguracaoCplex setCaminhoBase(File caminho) {
-		NullArgumentException.apply(caminho);
-		IllegalArgumentDataException.apply(caminho.isAbsolute());
-
+		Argument.notNull(caminhoBase);
+		Argument.check(caminhoBase.isAbsolute());
 		this.caminhoBase = caminho;
 		return this;
 	}
@@ -92,7 +93,8 @@ public class ConfiguracaoCplex {
 	/** @return Caminho do absoluto do arquivo no qual será salvo o modelo utilizado para executar o Cplex. */
 	public File getCaminhoAbsolutoModeloExportado() {
 		if (caminhoModeloExportado.isAbsolute()) return caminhoModeloExportado;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Attribute.notNull(this.caminhoBase);
+		Attribute.check(this.caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoModeloExportado.getPath());
 	}
 
@@ -107,7 +109,8 @@ public class ConfiguracaoCplex {
 	/** @return Caminho do absoluto do arquivo no qual será serão salvos os parâmetros utilizados para executar o Cplex. */
 	public File getCaminhoAbsolutoParametrosExportados() {
 		if (caminhoParametrosExportado.isAbsolute()) return caminhoParametrosExportado;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Attribute.notNull(this.caminhoBase);
+		Attribute.check(this.caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoParametrosExportado.getPath());
 	}
 
@@ -122,14 +125,18 @@ public class ConfiguracaoCplex {
 	/** @return Caminho do absoluto do arquivo no qual será salva a solução gerada pelo Cplex. */
 	public File getCaminhoAbsolutoSolucaoExportada() {
 		if (caminhoSolucaoExportado.isAbsolute()) return caminhoSolucaoExportado;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Attribute.notNull(this.caminhoBase);
+		Attribute.check(this.caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoSolucaoExportado.getPath());
 	}
 
 	/** Número de interações executadas para reportar progresso. */
 	private int numeroPassosEntreProgresso = 10;
 	/** @param numero Número de interações executadas para reportar progresso. */
-	public void setNumeroPassosEntreProgresso(int numero) { this.numeroPassosEntreProgresso = numero; }
+	public void setNumeroPassosEntreProgresso(int numero) {
+		Argument.positive(numero);
+		this.numeroPassosEntreProgresso = numero;
+	}
 	/** @return Número de interações executadas para reportar progresso.  */
 	public int getNumeroPassosEntreProgresso() { return numeroPassosEntreProgresso; }
 
@@ -139,11 +146,11 @@ public class ConfiguracaoCplex {
 	public boolean equals(Object obj) { throw new UnsupportedMethodException(); }
 
 	private Integer simplexLimiteDeIteracoes = null;
-	public void setSimplexLimiteDeIteracoes(Integer simplexLimiteDeIteracoes) { this.simplexLimiteDeIteracoes = simplexLimiteDeIteracoes; }
+	public void setSimplexLimiteDeIteracoes(Integer simplexLimiteDeIteracoes) { Argument.positive(simplexLimiteDeIteracoes); this.simplexLimiteDeIteracoes = simplexLimiteDeIteracoes; }
 	public Integer getSimplexLimiteDeIteracoes() { return simplexLimiteDeIteracoes; }
 
 	private Double simplexLimiteDeTempo = null;
-	public void setSimplexLimiteDeTempo(Double simplexLimiteDeTempo) { this.simplexLimiteDeTempo = simplexLimiteDeTempo; }
+	public void setSimplexLimiteDeTempo(Double simplexLimiteDeTempo) { Argument.positive(simplexLimiteDeTempo); this.simplexLimiteDeTempo = simplexLimiteDeTempo; }
 	public Double getSimplexLimiteDeTempo() { return simplexLimiteDeTempo; }
 
 	private Delegate delegate;

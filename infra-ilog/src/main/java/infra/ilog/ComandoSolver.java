@@ -15,27 +15,26 @@
  */
 package infra.ilog;
 
-import infra.exception.motivo.MotivoException;
-
 /**
- * Interface para solucionadores apresentados através de 'commando' design
- * pattern. O objeto deve encapsular no método {@link #executar()} todos os
- * passos necessários para executar o solucionador para modelo e dados
- * previamente carregados.
- * <p>
- * A execução pode lançar uma {@link MotivoException} usando um motivo {@link MotivoExecutarSolver}
- * para descrever o motivo do solucionador não ser capaz de obter uma solução.
- * <p>
- * Opcionalmente, a implementação do comando pode adotar políticas específicas para
- * alterar o comportamento do solucionador.
+ * Interface to the ILOG solvers.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
- * @author Tiago de Morais Montanher (a7go) - Grupo de Pesquisa Operacional
+ * It is assumed that the model has been built previously and that the data has
+ * been loaded.
+ *
+ * The solver is presented through the 'command' design pattern. The method
+ * {@link #executar()} performs all steps required for a <u>typical</u>
+ * execution of the solver. Such typical execution may be configured, depending
+ * on the settings made available the implementation of this interface.
+ *
+ * @author Daniel Felix Ferber
+ * @author Tiago de Morais Montanher
  */
 public interface ComandoSolver {
 	/**
-	 * Executa o solucionador sobre a instância.
-	 * @throws MotivoException
+	 * Runs the solver over the model and the data that were previously loaded.
+	 *
+	 * @throws NoSolutionException
+	 *             the solver failed to obtain a solution.
 	 */
 	public abstract void executar() throws NoSolutionException;
 }

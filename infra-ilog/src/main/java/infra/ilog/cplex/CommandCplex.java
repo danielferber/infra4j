@@ -17,6 +17,7 @@ package infra.ilog.cplex;
 
 import static infra.exception.Assert.Argument;
 import static infra.exception.Assert.Attribute;
+import static infra.exception.Assert.Poscondition;
 import static infra.exception.Assert.Precondition;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
@@ -45,32 +46,36 @@ import java.io.PrintStream;
 import org.slf4j.Logger;
 
 /**
- * Implementação padrão específica para o CPLEX para o 'command' design pattern.
- * Executa o CPLEX conforme as configurações. A classe que implementa as configurações
- * especifica qual algoritmo de programação linear será utilizado.
+ * Solver specific implementation for CPLEX of the {@link ComandoSolver}
+ * ointerface. Its mais purpose is to gffer a uniform and intuitive
+ * understanding of the CPLEX solver.
  * <p>
- * Não é responsabilidade desta classe a geração do modelo, apenas a execução.
- * A classe permite apenas uma execução do CPLEX.
- * <p>
- * As responsabilidades da classe envolvem:
+ * Performs a typical execution fo the CPLEX solver. This execution may be
+ * configured through the settings that are passed to the constructor.
+ *
+ * This implementation does not create the model nor load data. It is assumed
+ * that both are already available. The method {@link #executar()} is typically
+ * called only once. However, one may call {@link #executar()} again to continue
+ * executing a model that was interrupted or that did run out of time.
+ *
+ *   The responsibilities of the class involves:
  * <ul>
- * <li>Tratar adequadamente as possíveis falhas de execução.
- * <li>Registrar progresso da execução em log.
- * <li>Registrar propriedades e status do modelo PL em log.
- * <li>Opcionalmente, salvar modelo e parâmetros em arquivo para depurar com CPLEX Studio.
- * <li>Opcionalmente, salvar a solução em arquivo para revisão manual.
+ * <li>Adequately address, log and report the possible execution failures.
+ * <li>Write execution progress and solver status to the log.
+ * <li>Optionally, write solver configuration properties, model, input data and
+ * solution to the log for future investigation with the IBM ILOG CPLEX Studio.
  * </ul>
- * A fazer
- * <ul>
- * <li>Estrutura de callback para personalizar chamada do solucionador (TODO).
- * </ul>
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ *
+ * TODO: Callback support to allow customizing the behavior of the typical implementation.
+ * TODO: Set solver algorithm according to the class that stores the settings (one settings class per algorithm).
+ *
+ * @author Daniel Felix Ferber
  */
-public class ComandoCplex implements ComandoSolver {
+public class CommandCplex implements ComandoSolver {
 	public final Logger logger;
 	public final Logger loggerExecucao;
 	public final Logger loggerMeter;
-	public final Logger loggerDados;
+	public final Logger loggerData;
 
 	/** Configuration that guides the CPLEX execution. */
 	private final ConfiguracaoCplex configuracao;
@@ -83,26 +88,24 @@ public class ComandoCplex implements ComandoSolver {
 	public IloCplex getCplex() { return cplex; }
 
 	/** Delegate implementation that decided if CPLEX shall continue to run. */
-	private final Delegate delegate;
+	private final Delegate delegate; /* TODO: really necessary to hold a local copy from the settings? */
 
 	/** Creates the command pattern that guids the CPLEX instance. */
-	public ComandoCplex(IloCplex cplex, ConfiguracaoCplex configuracao) {
+	public CommandCplex(IloCplex cplex, ConfiguracaoCplex configuracao) {
 		super();
-
-		double a = Math.PI;
 
 		Argument.notNull(cplex);
 		Argument.notNull(configuracao);
 		Argument.notNull(configuracao.getNome());
 
-		this.configuracao = new ConfiguracaoCplex(configuracao); /* for thread safety, stores a copy of configuration. */
+		this.configuracao = new ConfiguracaoCplex(configuracao); /* for thread safety and execution previsibility, stores a copy of configuration. */
 		this.cplex = cplex;
 		this.delegate = configuracao.getDelegate();
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.cplex"), configuracao.getNome());
 		this.loggerExecucao = LoggerFactory.getLogger(logger, "exec");
 		this.loggerMeter = LoggerFactory.getLogger(logger, "perf");
-		this.loggerDados = LoggerFactory.getLogger(logger, "data");
+		this.loggerData = LoggerFactory.getLogger(logger, "data");
 	}
 
 	private final Operation ExecutarCplex = OperationFactory.getOperation("executarCplex", "Executar CPLEX");
@@ -114,7 +117,9 @@ public class ComandoCplex implements ComandoSolver {
 		Attribute.notNull(this.cplex);
 		Attribute.notNull(this.configuracao);
 
+		/* TODO: evitar chamadas reentrantes se o modelo já estiver executando. */
 		try {
+			/* TODO: o estado também poderia ser unbounded ou feasible, se aceitarmos novas chamadas no método. */
 			Precondition.equal(this.cplex.getStatus(), Status.Unknown); /* não pode ter rodado o cplex ainda. */
 		} catch (IloException e) {
 			/* IloCplex.getStatus() is not known to actually throw IloException. */
@@ -126,20 +131,20 @@ public class ComandoCplex implements ComandoSolver {
 			/*
 			 * Reportar propriedades do solucionador.
 			 */
-			logPropriedadesSolucionadorCplex();
+			logSolverProperties();
 
 			/*
 			 * Reportar modelo e parâmetros em arquivo para depuração com CPLEX Studio, se assim configurado.
 			 */
 			if (this.configuracao.temCaminhoModeloExportado()) {
-				salvarModelo(this.configuracao.getCaminhoAbsolutoModeloExportado());
+				saveModel(this.configuracao.getCaminhoAbsolutoModeloExportado());
 			}
 			/*
-			 * TODO Estudar se os parâmetros não deveria ser escritos a cada iteração, uma vez que o Delegate pode
+			 * TODO Estudar se os parâmetros não deveriam ser escritos a cada iteração, uma vez que o Delegate pode
 			 * alterar os parâmetros a cada iteração.
 			 */
 			if (this.configuracao.temCaminhoParametrosExportados()) {
-				salvarSettings(this.configuracao.getCaminhoAbsolutoParametrosExportados());
+				saveSettings(this.configuracao.getCaminhoAbsolutoParametrosExportados());
 			}
 
 			int numeroIteracao = 0;
@@ -161,14 +166,14 @@ public class ComandoCplex implements ComandoSolver {
 						/* Por padrão, se não existe delegate, realiza a execução. */
 					}
 
-					ComandoCplex.validarEstadoInicialCplex(cplex, loggerExecucao);
+					CommandCplex.validarEstadoInicialCplex(cplex, loggerExecucao);
 
 					/*
 					 * Se a thread recebeu sinal de terminar, então também cancela a execução.
 					 */
 					if (Thread.interrupted()) {
 						loggerExecucao.debug("Solver thread interrpted. Cancel execution.");
-						ComandoCplex.validarEstadoFinalCplex(cplex, loggerExecucao);
+						CommandCplex.validarEstadoFinalCplex(cplex, loggerExecucao);
 						break;
 					}
 
@@ -198,7 +203,7 @@ public class ComandoCplex implements ComandoSolver {
 				}
 			}
 
-			ComandoCplex.validarEstadoFinalCplex(this.cplex, loggerExecucao);
+			CommandCplex.validarEstadoFinalCplex(this.cplex, loggerExecucao);
 
 			op.ok();
 		} catch (NoSolutionException e) {
@@ -232,7 +237,7 @@ public class ComandoCplex implements ComandoSolver {
 		/*
 		 * Reportar propriedades do modelo.
 		 */
-		logPropriedadesModelo();
+		logModelProperties();
 
 		/*
 		 * Ativar callbacks que direcionam o progresso do CPLEX no log.
@@ -273,18 +278,18 @@ public class ComandoCplex implements ComandoSolver {
 		/*
 		 * Reportar o tipo de resultado obtido.
 		 */
-		logPropriedadesResultado(solucaoEncontrada);
+		logSolutionProperties(solucaoEncontrada);
 
 		/*
 		 * Se existe uma (melhor) solução, então reporta ela no arquivo e no log.
 		 */
 		if (solucaoEncontrada) {
 			loggerExecucao.info("Existe uma solução (ou solução parcial).");
-			logPropriedadesSolucao();
+			logSolutionPoolProperties();
 
 			/* Reportar solução em arquivo, se assim configurado. */
 			if (this.configuracao.temCaminhoSolucaoExportada()) {
-				salvarSolucao(this.configuracao.getCaminhoAbsolutoSolucaoExportada());
+				saveSolution(this.configuracao.getCaminhoAbsolutoSolucaoExportada());
 			};
 		} else {
 			loggerExecucao.info("Não existe solução.");
@@ -310,15 +315,15 @@ public class ComandoCplex implements ComandoSolver {
 
 			} else if (IloCplex.Status.Infeasible.equals(cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new NoSolutionException(NoSolutionException.Reason.INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.INFEASIBLE);
 
 			} else if (IloCplex.Status.Unbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO);
+				exception = new NoSolutionException(NoSolutionException.Reason.UNBOUNDED);
 
 			} else if (IloCplex.Status.InfeasibleOrUnbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado/inviável (mesmo após eventuais intervenções manuais), não adianta continuar tentando. */
-				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO_INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.UNBOUNDED_INFEASIBLE);
 
 			} else if (IloCplex.Status.Unknown.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, nem sabe se o modelo é viável ou não, precisa continuar tentando. */
@@ -364,22 +369,22 @@ public class ComandoCplex implements ComandoSolver {
 
 			} else if (IloCplex.Status.Infeasible.equals(cplex.getStatus())) {
 				/* O modelo é inviável (mesmo após eventuais intervenções manuais). */
-				exception = new NoSolutionException(NoSolutionException.Reason.INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.INFEASIBLE);
 
 			} else if (IloCplex.Status.Unbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado (mesmo após eventuais intervenções manuais). */
-				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO);
+				exception = new NoSolutionException(NoSolutionException.Reason.UNBOUNDED);
 
 			} else if (IloCplex.Status.InfeasibleOrUnbounded.equals(cplex.getStatus())) {
 				/* O modelo é ilimitado/inviável (mesmo após eventuais intervenções manuais). */
-				exception = new NoSolutionException(NoSolutionException.Reason.ILIMITADO_INVIAVEL);
+				exception = new NoSolutionException(NoSolutionException.Reason.UNBOUNDED_INFEASIBLE);
 
 			} else if (IloCplex.Status.Unknown.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, nem sabe se o modelo é viável ou não. */
-				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETO);
+				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETE);
 			} else if (IloCplex.Status.Bounded.equals(cplex.getStatus())) {
 				/* Ainda não achou solução, aparentemente o modelo é viável. */
-				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETO);
+				exception = new NoSolutionException(NoSolutionException.Reason.INCOMPLETE);
 			} else if (IloCplex.Status.Optimal.equals(cplex.getStatus())) {
 				/* Encontrou uma solução ótima. */
 			} else if (IloCplex.Status.Feasible.equals(cplex.getStatus())) {
@@ -399,103 +404,134 @@ public class ComandoCplex implements ComandoSolver {
 
 	protected static final String strPropertyPrintPattern = "  - %s = %s%n";
 
-	protected void logPropriedadesSolucionadorCplex() {
+	protected void logSolverProperties() {
 		Attribute.notNull(cplex);
 
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
-			out.println("Características do CPLEX:");
-			out.format(ComandoCplex.strPropertyPrintPattern, "version", cplex.getVersion());
-		} catch (IloException e) {
-			/* IloCplex.get<*>() is not known to actually throw IloException. */
-			throw new UnsupportedException(e);
-		} finally {
-			out.close();
+			PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
+			try {
+				out.println("Solver properties:");
+				out.format(CommandCplex.strPropertyPrintPattern, "solver", cplex.getClass().getName());
+				out.format(CommandCplex.strPropertyPrintPattern, "version", cplex.getVersion());
+			} catch (IloException e) {
+				/* IloCplex.get<*>() is not known to actually throw IloException. */
+				throw new UnsupportedException(e);
+			} finally {
+				out.close();
+			}
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Failed to log model properties.", e);
 		}
 	}
 
-	protected void logPropriedadesExecucao() {
+	protected void logExecutionProperties() {
 		Attribute.notNull(cplex);
 
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
-			out.println("Características da execução:");
-			out.format(ComandoCplex.strPropertyPrintPattern, "algorithm", ComandoCplex.algorithmName(cplex.getAlgorithm()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "subAlgorithm", ComandoCplex.algorithmName(cplex.getSubAlgorithm()));
-		} catch (IloException e) {
-			/* IloCplex.get<*>() is not known to actually throw IloException. */
-			throw new UnsupportedException(e);
-		} finally {
-			out.close();
+			PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
+			try {
+				out.println("Execution properties:");
+				out.format(CommandCplex.strPropertyPrintPattern, "algorithm", CommandCplex.algorithmName(cplex.getAlgorithm()));
+				out.format(CommandCplex.strPropertyPrintPattern, "sub algorithm", CommandCplex.algorithmName(cplex.getSubAlgorithm()));
+			} catch (IloException e) {
+				/* IloCplex.get<*>() is not known to actually throw IloException. */
+				throw new UnsupportedException(e);
+			} finally {
+				out.close();
+			}
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Failed to log model properties.", e);
 		}
 	}
 
-	protected void logPropriedadesModelo() {
+	protected void logModelProperties() {
 		Attribute.notNull(cplex);
 
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
-		out.println("Características da matriz:");
-		out.format(ComandoCplex.strPropertyPrintPattern, "colunas", Integer.toString(cplex.getNcols()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "linhas", Integer.toString(cplex.getNrows()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis binárias", Integer.toString(cplex.getNbinVars()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis inteiras", Integer.toString(cplex.getNintVars()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiContVars()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiIntVars()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "elementos não zeros", Integer.toString(cplex.getNNZs()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "restrições quadráticas", Integer.toString(cplex.getNQCs()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "special ordered sets", Integer.toString(cplex.getNSOSs()));
-		out.println("Características do problema:");
-		out.format(ComandoCplex.strPropertyPrintPattern, "mixed integer program", Boolean.toString(cplex.isMIP()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic program", Boolean.toString(cplex.isQP()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic constrains", Boolean.toString(cplex.isQC()));
-		out.format(ComandoCplex.strPropertyPrintPattern, "quadratic objective", Boolean.toString(cplex.isQO()));
-		out.close();
-	}
-
-	protected void logPropriedadesResultado(boolean solucaoEncontrada) {
-		Attribute.notNull(cplex);
-
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
-			out.println("Características da solução:");
-			out.format(ComandoCplex.strPropertyPrintPattern, "status cplex", cplex.getCplexStatus().toString());
-			out.format(ComandoCplex.strPropertyPrintPattern, "sub status cplex", cplex.getCplexSubStatus().toString());
-			out.println();
-			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução", Boolean.toString(solucaoEncontrada));
-			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução primal", Boolean.toString(cplex.isPrimalFeasible()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "existe solução dual", Boolean.toString(cplex.isDualFeasible()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "status da solução", cplex.getStatus().toString());
-			out.println();
-			out.format(ComandoCplex.strPropertyPrintPattern, "nós analisados", Integer.toString(cplex.getNnodes()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "nós restantes", Integer.toString(cplex.getNnodesLeft()));
-			out.println();
-			out.format(ComandoCplex.strPropertyPrintPattern, "interações", Integer.toString(cplex.getNiterations()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "interações simplex fase 1", Integer.toString(cplex.getNphaseOneIterations()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting fase 1", Integer.toString(cplex.getNsiftingPhaseOneIterations()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "interações sifting", Integer.toString(cplex.getNsiftingIterations()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "interações barreira", Integer.toString(cplex.getNbarrierIterations()));
-		} catch (IloException e) {
-			/* IloCplex.get<*>() is not known to actually throw IloException. */
-			throw new UnsupportedException(e);
-		} finally {
-			out.close();
+			PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
+			try {
+				out.println("Model matrix properties:");
+				out.format(CommandCplex.strPropertyPrintPattern, "colunas", Integer.toString(cplex.getNcols()));
+				out.format(CommandCplex.strPropertyPrintPattern, "linhas", Integer.toString(cplex.getNrows()));
+				out.format(CommandCplex.strPropertyPrintPattern, "variáveis binárias", Integer.toString(cplex.getNbinVars()));
+				out.format(CommandCplex.strPropertyPrintPattern, "variáveis inteiras", Integer.toString(cplex.getNintVars()));
+				out.format(CommandCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiContVars()));
+				out.format(CommandCplex.strPropertyPrintPattern, "variáveis semi contínuas", Integer.toString(cplex.getNsemiIntVars()));
+				out.format(CommandCplex.strPropertyPrintPattern, "elementos não zeros", Integer.toString(cplex.getNNZs()));
+				out.format(CommandCplex.strPropertyPrintPattern, "restrições quadráticas", Integer.toString(cplex.getNQCs()));
+				out.format(CommandCplex.strPropertyPrintPattern, "special ordered sets", Integer.toString(cplex.getNSOSs()));
+				out.println();
+				out.println("Model properties:");
+				out.format(CommandCplex.strPropertyPrintPattern, "mixed integer program", Boolean.toString(cplex.isMIP()));
+				out.format(CommandCplex.strPropertyPrintPattern, "quadratic program", Boolean.toString(cplex.isQP()));
+				out.format(CommandCplex.strPropertyPrintPattern, "quadratic constrains", Boolean.toString(cplex.isQC()));
+				out.format(CommandCplex.strPropertyPrintPattern, "quadratic objective", Boolean.toString(cplex.isQO()));
+			} finally {
+				out.close();
+			}
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Failed to log model properties.", e);
 		}
 	}
 
-	protected void logPropriedadesSolucao() {
+	protected void logSolutionProperties(boolean solutionFound) {
 		Attribute.notNull(cplex);
 
-		PrintStream out = LoggerFactory.getInfoPrintStream(loggerDados);
 		try {
-			out.format(ComandoCplex.strPropertyPrintPattern, "número de soluções", Integer.toString(cplex.getSolnPoolNsolns()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da última solução", Double.toString(cplex.getObjValue()));
-			out.format(ComandoCplex.strPropertyPrintPattern, "função objetivo da melhor solução", Double.toString(cplex.getBestObjValue()));
-			out.close();
-		} catch (IloException e) {
-			/* IloCplex.get<*>() is not known to actually throw IloException. */
-			throw new UnsupportedException(e);
-		} finally {
-			out.close();
+			PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
+			try {
+				out.println("Solution:");
+				out.format(CommandCplex.strPropertyPrintPattern, "cplex - status", cplex.getCplexStatus().toString());
+				out.format(CommandCplex.strPropertyPrintPattern, "cplex - sub status", cplex.getCplexSubStatus().toString());
+				out.println();
+				out.format(CommandCplex.strPropertyPrintPattern, "solution - found", Boolean.toString(solutionFound));
+				out.format(CommandCplex.strPropertyPrintPattern, "solution - is primal", Boolean.toString(cplex.isPrimalFeasible()));
+				out.format(CommandCplex.strPropertyPrintPattern, "solution - is dual", Boolean.toString(cplex.isDualFeasible()));
+				out.format(CommandCplex.strPropertyPrintPattern, "solution - status ", cplex.getStatus().toString());
+				out.println();
+				out.format(CommandCplex.strPropertyPrintPattern, "nodes - analysed", Integer.toString(cplex.getNnodes()));
+				out.format(CommandCplex.strPropertyPrintPattern, "nodes - remaining", Integer.toString(cplex.getNnodesLeft()));
+				out.println();
+				out.format(CommandCplex.strPropertyPrintPattern, "interations", Integer.toString(cplex.getNiterations()));
+				out.format(CommandCplex.strPropertyPrintPattern, "interations - simplex fase 1", Integer.toString(cplex.getNphaseOneIterations()));
+				out.format(CommandCplex.strPropertyPrintPattern, "interations - sifting fase 1", Integer.toString(cplex.getNsiftingPhaseOneIterations()));
+				out.format(CommandCplex.strPropertyPrintPattern, "interations - sifting", Integer.toString(cplex.getNsiftingIterations()));
+				out.format(CommandCplex.strPropertyPrintPattern, "interations - barrier", Integer.toString(cplex.getNbarrierIterations()));
+			} catch (IloException e) {
+				/* IloCplex.get<*>() is not known to actually throw IloException. */
+				throw new UnsupportedException(e);
+			} finally {
+				out.close();
+			}
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Failed to log solution properties.", e);
+		}
+	}
+
+	protected void logSolutionPoolProperties() {
+		Attribute.notNull(cplex);
+
+		try {
+			PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
+			try {
+				out.println("Solution pool:");
+				out.format(CommandCplex.strPropertyPrintPattern, "number of solution", Integer.toString(cplex.getSolnPoolNsolns()));
+				out.format(CommandCplex.strPropertyPrintPattern, "objective function (last solution)", Double.toString(cplex.getObjValue()));
+				out.format(CommandCplex.strPropertyPrintPattern, "objective function (best solution)", Double.toString(cplex.getBestObjValue()));
+				out.close();
+			} catch (IloException e) {
+				/* IloCplex.get<*>() is not known to actually throw IloException. */
+				throw new UnsupportedException(e);
+			} finally {
+				out.close();
+			}
+		} catch (Exception e) {
+			/* Do not interrupt execution. Considered a minor failure. */
+			loggerExecucao.warn("Failed to log solution pool properties.", e);
 		}
 	}
 
@@ -522,56 +558,61 @@ public class ComandoCplex implements ComandoSolver {
 	}
 
 	protected static void assureDiretoryForFile(File file) throws IOException {
-		if (! file.getParentFile().exists()) {
-			if (! file.getParentFile().mkdirs()) {
-				throw new IOException(String.format("Failed to create directory '%s'.", file.getParentFile().getAbsolutePath()));
+		File parentDir = file.getParentFile();
+		if (! parentDir.exists()) {
+			if (! parentDir.mkdirs()) {
+				throw new IOException(String.format("Failed to create directory '%s'.", parentDir.getAbsolutePath()));
 			}
 		}
+		Poscondition.check(parentDir.exists());
 	}
 
-	protected void salvarModelo(File file) {
+	protected void saveModel(File file) {
 		Attribute.notNull(cplex);
 		Argument.notNull(file);
 		Argument.check(file.isAbsolute());
 
 		try {
-			ComandoCplex.assureDiretoryForFile(file);
+			CommandCplex.assureDiretoryForFile(file);
 			this.cplex.exportModel(file.getAbsolutePath());
-			loggerExecucao.info("Cópia do modelo salva em {}.", file.getAbsolutePath());
+			Poscondition.check(file.exists());
+			loggerExecucao.info("A copy of the model was saved to file {}.", file.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia do modelo em {}.", file.getAbsolutePath(), e);
+			loggerExecucao.warn("Failed to save a copy of the model to file {}.", file.getAbsolutePath(), e);
 		}
 	}
 
 
-	protected void salvarSettings(File file) {
+	protected void saveSettings(File file) {
 		Attribute.notNull(cplex);
 		Argument.notNull(file);
 		Argument.check(file.isAbsolute());
 
 		try {
-			ComandoCplex.assureDiretoryForFile(file);
+			CommandCplex.assureDiretoryForFile(file);
 			this.cplex.writeParam(file.getAbsolutePath());
-			loggerExecucao.info("Cópia da configuração salva em {}.", file.getAbsolutePath());
+			Poscondition.check(file.exists());
+			loggerExecucao.info("A copy of the configuration was saved to file {}.", file.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia da configuração em {}.", file.getAbsolutePath(), e);
+			loggerExecucao.warn("Failed to save a copy of the configuration to file {}.", file.getAbsolutePath(), e);
 		}
 	}
 
-	protected void salvarSolucao(File file) {
+	protected void saveSolution(File file) {
 		Attribute.notNull(cplex);
 		Argument.notNull(file);
 		Argument.check(file.isAbsolute());
 
 		try {
-			ComandoCplex.assureDiretoryForFile(file);
+			CommandCplex.assureDiretoryForFile(file);
 			this.cplex.writeSolution(file.getAbsolutePath());
-			loggerExecucao.info("Cópia da solução salva em {}.", file.getAbsolutePath());
+			Poscondition.check(file.exists());
+			loggerExecucao.info("A copy of the solution was saved to file {}.", file.getAbsolutePath());
 		} catch (Exception e) {
 			/* Do not interrupt execution. Considered a minor failure. */
-			loggerExecucao.warn("Falha ao salvar cópia da solução em {}.", file.getAbsolutePath(), e);
+			loggerExecucao.warn("Failed to save a copy of the solution to file {}.", file.getAbsolutePath(), e);
 		}
 	}
 

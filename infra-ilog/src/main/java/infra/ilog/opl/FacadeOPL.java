@@ -31,7 +31,7 @@ import infra.exception.motivo.Motivo;
 import infra.exception.motivo.MotivoRuntimeException;
 import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
-import infra.ilog.cplex.ComandoCplex;
+import infra.ilog.cplex.CommandCplex;
 import infra.ilog.cplex.ConfiguracaoCplex;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
@@ -163,8 +163,8 @@ public class FacadeOPL {
 			oplSettings = null;
 			ComandoSolver comandoSolver = createSolver(oplFactory, errorHandler, oplModelDefinition);
 			IloOplModel oplModel;
-			if (comandoSolver instanceof ComandoCplex) {
-				ComandoCplex comandoCplex = (ComandoCplex) comandoSolver;
+			if (comandoSolver instanceof CommandCplex) {
+				CommandCplex comandoCplex = (CommandCplex) comandoSolver;
 				oplModel = createModelOnSolver(oplFactory, errorHandler, oplModelDefinition, comandoCplex);
 			} else {
 				throw new UnimplementedConditionException();
@@ -173,8 +173,8 @@ public class FacadeOPL {
 			defineDataSources(oplModel);
 			defineDataSinks(oplModel);
 			registerDataSources(oplModel);
-			if (comandoSolver instanceof ComandoCplex) {
-				ComandoCplex comandoCplex = (ComandoCplex) comandoSolver;
+			if (comandoSolver instanceof CommandCplex) {
+				CommandCplex comandoCplex = (CommandCplex) comandoSolver;
 				realizeModelOnSolver(oplFactory, errorHandler, oplModel, comandoCplex);
 			} else {
 				throw new UnimplementedConditionException();
@@ -207,7 +207,7 @@ public class FacadeOPL {
 			Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.CreateCplex).start();
 			try {
 					IloCplex cplex = oplFactory.createCplex();
-					comandoSolver = new ComandoCplex(cplex, configuracaoCplex);
+					comandoSolver = new CommandCplex(cplex, configuracaoCplex);
 					op.ok();
 			} catch (IloException e) {
 				/* TODO Investigar quando esta exceção pode ocorrer. Será se faltar a dll do cplex? */
@@ -232,7 +232,7 @@ public class FacadeOPL {
 	 * @param comandoSolver
 	 * @return
 	 */
-	protected IloOplModel createModelOnSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModelDefinition oplModelDefinition, ComandoCplex comandoSolver) {
+	protected IloOplModel createModelOnSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModelDefinition oplModelDefinition, CommandCplex comandoSolver) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.CreateModelCplex).start();
 		try {
 			IloOplModel oplModel = oplFactory.createOplModel(oplModelDefinition, comandoSolver.getCplex());
@@ -369,7 +369,7 @@ public class FacadeOPL {
 	 *
 	 * Traduzir modelo OPL para modelo do respectivo solver (CPLEX).
 	 */
-	protected void realizeModelOnSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModel oplModel, ComandoCplex comandoSolver) {
+	protected void realizeModelOnSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModel oplModel, CommandCplex comandoSolver) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.RealizeModelOnCplex).start();
 		try {
 				oplModel.generate();

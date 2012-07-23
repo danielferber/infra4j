@@ -17,9 +17,11 @@ package infra.ilog.cplex;
 
 import ilog.concert.IloException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.NullArgumentException;
 
 import org.slf4j.Logger;
+
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
 
 
 /**
@@ -33,7 +35,8 @@ class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 
 	public ContinuousCallback(Logger logger, int numeroPassosEntreLogs) {
 		super();
-		assert NullArgumentException.apply(logger);
+		Argument.notNull(logger);
+		Argument.positive(numeroPassosEntreLogs);
 
 		this.logger = logger;
 		this.numeroPassosEntreLogs = numeroPassosEntreLogs;
@@ -41,11 +44,12 @@ class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 
 	@Override
 	protected void main() throws IloException {
+		Attribute.notNull(logger);
+
 		if (! logger.isInfoEnabled()) return;
-		if (contadorPassos > 0) {
-			contadorPassos--;
-			return;
-		}
+		if (contadorPassos-- > 0)  return;
+		contadorPassos = numeroPassosEntreLogs;
+
 		contadorPassos  = numeroPassosEntreLogs;
 		this.logger.info(
 				String.format(

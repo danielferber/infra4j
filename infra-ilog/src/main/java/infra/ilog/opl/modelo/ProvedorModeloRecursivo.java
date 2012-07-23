@@ -25,12 +25,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static infra.exception.Assert.Argument;
+
 
 public class ProvedorModeloRecursivo extends AbstractProvedorModelo {
 	private final ProvedorModelo provedorRaiz;
 
 	public ProvedorModeloRecursivo(ProvedorModelo provedorRaiz) {
 		super(provedorRaiz.getNome());
+		Argument.notNull(provedorRaiz);
+
 		this.provedorRaiz = provedorRaiz;
 	}
 
