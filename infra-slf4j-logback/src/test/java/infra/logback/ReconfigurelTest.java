@@ -37,10 +37,10 @@ import ch.qos.logback.classic.LoggerContext;
 public class ReconfigurelTest {
 	@BeforeClass
 	public static void inicio() {
-		if (! LogbackService.isInstalado()) {
+		if (! LogbackService.isInstalled()) {
 			LogbackService.install();
 		}
-		Assert.assertTrue(LogbackService.isInstalado());
+		Assert.assertTrue(LogbackService.isInstalled());
 	}
 
 	/**
@@ -78,10 +78,10 @@ public class ReconfigurelTest {
 		Properties properties = new Properties();
 		properties.setProperty("globalLevel", "WARN");
 		LogbackService.reconfigure(new File("config/goodXml.xml"), properties);
-		Assert.assertTrue(LogbackService.isInstalado());
-		Assert.assertTrue(LogbackService.isUsandoConfiguracaoEspecifica());
-		Assert.assertFalse(LogbackService.isUsandoConfiguracaoClasspath());
-		Assert.assertFalse(LogbackService.isUsandoConfiguracaoProperty());
+		Assert.assertTrue(LogbackService.isInstalled());
+		Assert.assertTrue(LogbackService.isUsingExternalFile());
+		Assert.assertFalse(LogbackService.isUsingClasspath());
+		Assert.assertFalse(LogbackService.isUsingSystemProperty());
 	}
 
 	/**

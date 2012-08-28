@@ -59,10 +59,10 @@ public class InstallTest {
 
 	@BeforeClass
 	public static void inicio() {
-		if (! LogbackService.isInstalado()) {
+		if (! LogbackService.isInstalled()) {
 			LogbackService.install();
 		}
-		Assert.assertTrue(LogbackService.isInstalado());
+		Assert.assertTrue(LogbackService.isInstalled());
 		((Logger) LoggerFactory.getLogger("c")).addAppender(InstallTest.appC);
 		((Logger) LoggerFactory.getLogger("d")).addAppender(InstallTest.appD);
 		((Logger) LoggerFactory.getLogger("e")).addAppender(InstallTest.appE);
@@ -84,9 +84,9 @@ public class InstallTest {
 	@SuppressWarnings("static-method")
 	@Test
 	public void a() {
-		Assert.assertFalse(LogbackService.isUsandoConfiguracaoClasspath());
-		Assert.assertFalse(LogbackService.isUsandoConfiguracaoProperty());
-		Assert.assertFalse(LogbackService.isUsandoConfiguracaoEspecifica());
+		Assert.assertFalse(LogbackService.isUsingClasspath());
+		Assert.assertFalse(LogbackService.isUsingSystemProperty());
+		Assert.assertFalse(LogbackService.isUsingExternalFile());
 	}
 
 	/**

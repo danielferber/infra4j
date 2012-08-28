@@ -48,27 +48,27 @@ import ch.qos.logback.core.status.Status;
  *
  */
 public class LogbackService {
-	/** Se a instalação utiliza uma configuração do classpath. */
-	private static boolean usandoConfiguracaoClasspath = false;
-	/** @return Se a instalação utiliza uma configuração do classpath. */
-	public static boolean isUsandoConfiguracaoClasspath() { 	return LogbackService.usandoConfiguracaoClasspath; }
+	/** If logback is using the configuration from the classpath. */
+	private static boolean usingClasspath = false;
+	/** @return If logback is using the configuration from the classpath. */
+	public static boolean isUsingClasspath() { return LogbackService.usingClasspath; }
 
-	/** Se a instalação encontrou e leu um arquivo externo ao invés do padrão logback. */
-	private static boolean usandoConfiguracaoEspecifica = false;
-	/** @return Se a instalação encontrou e leu um arquivo externo ao invés do padrão logback. */
-	public static boolean isUsandoConfiguracaoEspecifica() { return LogbackService.usandoConfiguracaoEspecifica; }
+	/** If logback is using the configuration from an external file. */
+	private static boolean usingExternalFile = false;
+	/** @return If logback is using the configuration from an external file. */
+	public static boolean isUsingExternalFile() { return LogbackService.usingExternalFile; }
 
-	/** Se a instalação encontrou e leu um arquivo especificado através da propriedade de sistema. */
-	private static boolean usandoConfiguracaoProperty = false;
-	/** @return Se a instalação encontrou e leu um arquivo especificado através da propriedade de sistema. */
-	public static boolean isUsandoConfiguracaoProperty() { return LogbackService.usandoConfiguracaoProperty; }
+	/** If logback is using the configuration found as a file given as system property. */
+	private static boolean usingSystemProperty = false;
+	/** @return If logback is using the configuration found as a file given as system property. */
+	public static boolean isUsingSystemProperty() { return LogbackService.usingSystemProperty; }
 
-	/** Se a configuração do Logback sobre foi realizada. */
-	private static boolean instalado = false;
-	/** @param Se a configuração do Logback sobre foi realizada. */
-	public static boolean isInstalado() { return LogbackService.instalado; }
+	/** If the logback configuration was loaded and the wrappers were installed. */
+	private static boolean installed = false;
+	/** @param If the logback configuration was loaded and the wrappers were installed. */
+	public static boolean isInstalled() { return LogbackService.installed; }
 
-	/** Lock que previne tentativas de configurações simultâneas por threads diferentes. */
+	/** Lock that prevents logback from being configured by differente threads. */
 	private final static Lock lockInstalacao = new ReentrantLock();
 
 	public static void reconfigure(File arqConfig) throws LogbackReconfigureException {
@@ -78,17 +78,17 @@ public class LogbackService {
 	public static void reconfigure(File arqConfig, Properties properties) throws LogbackReconfigureException {
 		if (! LogbackService.lockInstalacao.tryLock()) throw new LogbackReconfigureException(LogbackReconfigureException.Reason.REENTRANT_RECONFIGURE);
 		try {
-			if (! LogbackService.instalado) LogbackService.install();
+			if (! LogbackService.installed) LogbackService.install();
 
 			/*
-			 * Apagar configuração criada anteriormente.
+			 * Discard previous configuration.
 			 */
 			LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
 			lc.reset();
 			List<Status> originalList = lc.getStatusManager().getCopyOfStatusList();
 
 			/*
-			 * Ler e aplicar configuração do arquivo XML.
+			 * Apply new configuration.
 			 */
 			InputStream is = null;
 			try {
@@ -126,9 +126,9 @@ public class LogbackService {
 				}
 			}
 
-			LogbackService.usandoConfiguracaoClasspath = false;
-			LogbackService.usandoConfiguracaoProperty = false;
-			LogbackService.usandoConfiguracaoEspecifica = true;
+			LogbackService.usingClasspath = false;
+			LogbackService.usingSystemProperty = false;
+			LogbackService.usingExternalFile = true;
 		} finally {
 			LogbackService.lockInstalacao.unlock();
 		}
@@ -137,7 +137,7 @@ public class LogbackService {
 	public static void install() {
 		if (! LogbackService.lockInstalacao.tryLock()) throw new LogbackInstallException(LogbackInstallException.Reason.REENTRANT_INSTALL);
 		try {
-			if (LogbackService.instalado) throw new LogbackInstallException(LogbackInstallException.Reason.DUPLICATED_INSTALL);
+			if (LogbackService.installed) throw new LogbackInstallException(LogbackInstallException.Reason.DUPLICATED_INSTALL);
 
 			/*
 			 * Instalar ponte entre JUL (logger padrão do java) e SLF4J. Antes, reinicia toda a configuração do LogManager do JUL.
@@ -162,14 +162,14 @@ public class LogbackService {
 			 * Se existir, então não faz nada e deixa o logback realizar a configuração mais tarde de acordo com sua convenção.
 			 */
 			if (System.getProperty("logback.configurationFile") != null) {
-				LogbackService.usandoConfiguracaoProperty = true;
+				LogbackService.usingSystemProperty = true;
 			} else if ((LogbackService.class.getResource("/logback.groovy") != null) ||
 					(LogbackService.class.getResource("/logback-test.xml") != null) ||
 					(LogbackService.class.getResource("/logback.xml") != null)) {
-				LogbackService.usandoConfiguracaoClasspath = true;
+				LogbackService.usingClasspath = true;
 			}
 
-			LogbackService.instalado = true;
+			LogbackService.installed = true;
 		} finally {
 			LogbackService.lockInstalacao.unlock();
 		}
