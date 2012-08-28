@@ -22,7 +22,7 @@ package infra.ilog;
  * been loaded.
  *
  * The solver is presented through the 'command' design pattern. The method
- * {@link #executar()} performs all steps required for a <u>typical</u>
+ * {@link #execute()} performs all steps required for a <u>typical</u>
  * execution of the solver. Such typical execution may be configured, depending
  * on the settings made available the implementation of this interface.
  *
@@ -36,5 +36,5 @@ public interface ComandoSolver {
 	 * @throws NoSolutionException
 	 *             the solver failed to obtain a solution.
 	 */
-	public abstract void executar() throws NoSolutionException;
+	public abstract void execute() throws NoSolutionException;
 }
