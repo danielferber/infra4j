@@ -5,7 +5,7 @@ import org.slf4j.Logger;
 
 public final class UnhandledRuntimeException extends RichRuntimeException {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = ServicoExcecao.logger;
+	private static final Logger logger = ExceptionService.logger;
 
 	public static enum Reason {
 		UNHANDLED_RUNTIME_EXCEPTION

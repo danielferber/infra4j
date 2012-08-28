@@ -15,24 +15,18 @@
  */
 package infra.exception;
 
-import infra.exception.motivo.Motivo;
-import infra.exception.motivo.MotivoException;
-
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class ServicoExcecaoTest {
+public class ExceptionServiceTest {
 
-	public enum MotivoA implements Motivo {
+	public enum MotivoA {
 		ARQUIVO("O arquivo não existe."),
 		DIRETORIO("O diretório não existe."),
 		;
 		public final String message;
 		private MotivoA(String message) { this.message = message; }
-		@Override
 		public String getMensagem() { return this.message; }
-		@Override
-		public String getOperacao() { return "Abrir arquivo."; };
 	}
 
 	public static void main(String[] args) {
@@ -43,18 +37,18 @@ public class ServicoExcecaoTest {
 				throw new RuntimeException("Problemas na execução.", e);
 			}
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		}
 		try {
 			try {
 				throw new FileNotFoundException("O arquivo não foi encontrado!");
 			} catch (IOException e) {
-				throw new MotivoException(e, MotivoA.ARQUIVO);
+				throw new RichException(MotivoA.ARQUIVO, e);
 			}
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		}
-		ServicoExcecao.instalar();
+		ExceptionService.instalar();
 		throw new RuntimeException("Um outro erro...");
 	}
 }

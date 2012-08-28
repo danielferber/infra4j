@@ -16,17 +16,17 @@
 /**
  * Constitui uma forma padrão de reportar exceções.
  * <p/>
- * O método {@link infra.exception.ServicoExcecao#reportarException(java.io.PrintStream, Throwable)} é
+ * O método {@link infra.exception.ExceptionService#reportarException(java.io.PrintStream, Throwable)} é
  * sugerido como uma forma padrão para reportar exceções para as quais não foi previsto um tratamento adequado pela aplicação.
  * Este método deve ser utilizado principalmente para erros que não foram previstos, como bugs, ou situações muito incomuns para
  * as quais não vale a pena gastar esforço para prover um tratamento adequado.
  * <p/>
- * Por conveniência, os métodos {@link infra.exception.ServicoExcecao#instalar()} define na JVM um handler padrão de exceção
- * que reporta uma exceção não tratada através do método  {@link infra.exception.ServicoExcecao#reportarException(java.io.PrintStream, Throwable)}
+ * Por conveniência, os métodos {@link infra.exception.ExceptionService#instalar()} define na JVM um handler padrão de exceção
+ * que reporta uma exceção não tratada através do método  {@link infra.exception.ExceptionService#reportarException(java.io.PrintStream, Throwable)}
  * e registra a exceção em um log dedicado para exceções não tratadas.
  * <p/>
- * Para threads criadas manualmente, pode ser interessante chamar {@link infra.exception.ServicoExcecao#setUncaughtExceptionHandler()}
- * ou {@link infra.exception.ServicoExcecao#setUncaughtExceptionHandler(Thread)} para instalar tal handler padrão.
+ * Para threads criadas manualmente, pode ser interessante chamar {@link infra.exception.ExceptionService#setUncaughtExceptionHandler()}
+ * ou {@link infra.exception.ExceptionService#setUncaughtExceptionHandler(Thread)} para instalar tal handler padrão.
  * <p/>
  * Por convenção, existem dois tipos de exceções: declaradas e não declaradas
  * (Exception e RuntimeException). Erros para os quais faz sentido tratá-los

@@ -15,12 +15,6 @@
  */
 package infra.exception;
 
-import infra.exception.assertions.controlstate.IllegalControlStateException;
-import infra.exception.assertions.datastate.IllegalDataStateException;
-import infra.exception.motivo.Motivo;
-import infra.exception.motivo.MotivoException;
-import infra.exception.motivo.MotivoRuntimeException;
-
 import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -43,8 +37,8 @@ import org.slf4j.LoggerFactory;
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  *
  */
-public class ServicoExcecao {
-	public static final Logger logger = LoggerFactory.getLogger(ServicoExcecao.class);
+public class ExceptionService {
+	public static final Logger logger = LoggerFactory.getLogger(ExceptionService.class);
 
 	/**
 	 * O handler padão de exceções. Imprime imprime em {@link System#err} uma descrição da exceção utilizando {@link #reportarException(PrintStream, Throwable)}
@@ -53,7 +47,7 @@ public class ServicoExcecao {
 	private static final Thread.UncaughtExceptionHandler defaultExceptionHandler = new Thread.UncaughtExceptionHandler() {
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		}
 	};
 
@@ -61,17 +55,17 @@ public class ServicoExcecao {
 	 * Aplica um hander de exceção padronizado para toda a  JVM..
 	 */
 	public static void instalar() {
-		Thread.setDefaultUncaughtExceptionHandler(ServicoExcecao.defaultExceptionHandler);
+		Thread.setDefaultUncaughtExceptionHandler(ExceptionService.defaultExceptionHandler);
 	}
 
 	/** Aplica um hander de exceção padronizado a uma thread específica. */
 	public static void setUncaughtExceptionHandler(Thread thread) {
-		thread.setUncaughtExceptionHandler(ServicoExcecao.defaultExceptionHandler);
+		thread.setUncaughtExceptionHandler(ExceptionService.defaultExceptionHandler);
 	}
 
 	/** Aplica um hander de exceção padronizado à thread atual.  */
 	public static void setUncaughtExceptionHandler() {
-		ServicoExcecao.setUncaughtExceptionHandler(Thread.currentThread());
+		ExceptionService.setUncaughtExceptionHandler(Thread.currentThread());
 	}
 
 	/**
@@ -82,57 +76,53 @@ public class ServicoExcecao {
 	 *            Exceção para ser reportada.
 	 */
 	public static void reportarException(PrintStream output, Throwable throwable) {
-		ServicoExcecao.logger.error("Falha durante a execução.", throwable);
+		ExceptionService.logger.error("Falha durante a execução.", throwable);
 
 		/* For robustness, do not fail if there is a bug within the report. */
 		try {
 			output.println();
-			ServicoExcecao.titulo(output, "FALHA DE EXECUÇÃO", 80);
+			ExceptionService.titulo(output, "FALHA DE EXECUÇÃO", 80);
 			output.println();
 
-			ServicoExcecao.linha(output, 80, '/', '-', '\\');
+			ExceptionService.linha(output, 80, '/', '-', '\\');
 			Throwable t = throwable;
 			while (t != null) {
 				if (t.getLocalizedMessage() != null) {
-					ServicoExcecao.caixa(output, t.getLocalizedMessage(), 80, 1);
-					ServicoExcecao.linha(output, 80, '+', ' ', '+');
+					ExceptionService.caixa(output, t.getLocalizedMessage(), 80, 1);
+					ExceptionService.linha(output, 80, '+', ' ', '+');
 				} else if (t.getMessage() != null) {
-					ServicoExcecao.caixa(output, t.getMessage(), 80, 1);
-					ServicoExcecao.linha(output, 80, '+', ' ', '+');
+					ExceptionService.caixa(output, t.getMessage(), 80, 1);
+					ExceptionService.linha(output, 80, '+', ' ', '+');
 				}
 				if (RichException.class.isInstance(t)) {
 					Iterator<Object> reasons = ((RichException)t).getReasons().iterator();
 					if (reasons.hasNext()) {
-						ServicoExcecao.caixa(output, "Motivo: "+ServicoExcecao.iteratorToString(reasons), 80);
+						ExceptionService.caixa(output, "Reason: "+ExceptionService.iteratorToString(reasons), 80);
 					}
 					Iterator<Object> operations = ((RichException)t).getOperations().iterator();
 					if (operations.hasNext()) {
-						ServicoExcecao.caixa(output, "Motivo: "+ServicoExcecao.iteratorToString(operations), 80);
+						ExceptionService.caixa(output, "Operation: "+ExceptionService.iteratorToString(operations), 80);
 					}
 					Iterator<Entry<String, Object>> dataItr = ((RichException)t).getData().entrySet().iterator();
 					while (dataItr.hasNext()) {
 						Entry<String, Object> data = dataItr.next();
-						ServicoExcecao.caixa(output, data.getKey()+"="+data.getValue(), 80);
+						ExceptionService.caixa(output, data.getKey()+": "+data.getValue(), 80);
 					}
-				} else if (MotivoException.class.isInstance(t)) {
-					Motivo motivo = ((MotivoException) t).getMotivo();
-					ServicoExcecao.caixa(output, "Operação: "+motivo.getOperacao(), 80);
-					ServicoExcecao.caixa(output, "Código: "+MotivoException.codigoMotivo(motivo), 80);
-				} else if (IllegalControlStateException.class.isInstance(t)) {
-					ServicoExcecao.caixa(output, "Violação de integridade da execução.", 80);
-				} else if (IllegalDataStateException.class.isInstance(t)) {
-					ServicoExcecao.caixa(output, "Violação de integridade de dados.", 80);
+//				} else if (IllegalControlStateException.class.isInstance(t)) {
+//					ExceptionService.caixa(output, "Violação de integridade da execução.", 80);
+//				} else if (IllegalDataStateException.class.isInstance(t)) {
+//					ExceptionService.caixa(output, "Violação de integridade de dados.", 80);
 				} else if (RuntimeException.class.isInstance(t)) {
-					ServicoExcecao.caixa(output, "Erro de execução. "+t.getClass().getName(), 80);
+					ExceptionService.caixa(output, "Erro de execução. "+t.getClass().getName(), 80);
 				} else {
-					ServicoExcecao.caixa(output, "Tipo: "+t.getClass().getName(), 80, 0);
+					ExceptionService.caixa(output, "Tipo: "+t.getClass().getName(), 80, 0);
 				}
 				t = t.getCause();
 				if (t != null) {
-					ServicoExcecao.linha(output, 80, '+', '-', '+');
+					ExceptionService.linha(output, 80, '+', '-', '+');
 				}
 			}
-			ServicoExcecao.linha(output, 80, '\\', '-', '/');
+			ExceptionService.linha(output, 80, '\\', '-', '/');
 
 			output.println();
 			output.println("Rota até a falha: ");
@@ -140,7 +130,7 @@ public class ServicoExcecao {
 			output.println();
 			output.flush();
 		} catch (Exception e) {
-			ServicoExcecao.logger.error("Falha ao imprimir relatório de erro.", e);
+			ExceptionService.logger.error("Falha ao imprimir relatório de erro.", e);
 		}
 	}
 
@@ -164,28 +154,28 @@ public class ServicoExcecao {
 
 	private static void linha(PrintStream output, int width, char l, char c, char r) {
 		output.print(l);
-		ServicoExcecao.printChars(output, c, width-2);
+		ExceptionService.printChars(output, c, width-2);
 		output.print(r);
 		output.println();
 	}
 
 	private static void titulo(PrintStream output, String mensagem, int width) {
-		ServicoExcecao.printChars(output, '*', width);
+		ExceptionService.printChars(output, '*', width);
 		output.println();
-		ServicoExcecao.printChars(output, '*', 3);
+		ExceptionService.printChars(output, '*', 3);
 		int paddingL = (width-3-3-mensagem.length()) / 2;
 		int paddingR = width-3-3-paddingL-mensagem.length();
-		ServicoExcecao.printChars(output, ' ', paddingL);
+		ExceptionService.printChars(output, ' ', paddingL);
 		output.print(mensagem);
-		ServicoExcecao.printChars(output, ' ', paddingR);
-		ServicoExcecao.printChars(output, '*', 3);
+		ExceptionService.printChars(output, ' ', paddingR);
+		ExceptionService.printChars(output, '*', 3);
 		output.println();
-		ServicoExcecao.printChars(output, '*', width);
+		ExceptionService.printChars(output, '*', width);
 		output.println();
 	}
 
 	private static void caixa(PrintStream output, String str, int width) {
-		ServicoExcecao.caixa(output, str, width, 0);
+		ExceptionService.caixa(output, str, width, 0);
 	}
 
 	private static void caixa(PrintStream output, String str, int width, int align) {
@@ -238,40 +228,40 @@ public class ServicoExcecao {
 					padL = wrapLength-substring.length();
 				}
 				int padR = wrapLength - substring.length() - padL;
-				ServicoExcecao.printChars(output, ' ', padL);
+				ExceptionService.printChars(output, ' ', padL);
 				output.print(substring);
-				ServicoExcecao.printChars(output, ' ', padR);
+				ExceptionService.printChars(output, ' ', padR);
 				output.println(rightStr);
 			}
 			start = end;
 		}
 	}
 
-	/* Some teste cases. */
+	/* Some test cases. */
 	public static void main(String[] args) {
-		ServicoExcecao.caixa(System.out, "aaaaa", 25);
-		ServicoExcecao.caixa(System.out, "   bbbbb", 25);
-		ServicoExcecao.caixa(System.out, "ccccc   ", 25);
-		ServicoExcecao.caixa(System.out, "   eeeee   ", 25);
+		ExceptionService.caixa(System.out, "aaaaa", 25);
+		ExceptionService.caixa(System.out, "   bbbbb", 25);
+		ExceptionService.caixa(System.out, "ccccc   ", 25);
+		ExceptionService.caixa(System.out, "   eeeee   ", 25);
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ServicoExcecao.caixa(System.out, "aaaaa bbbbb ccccc ddddd eeeee", i+4);
+			ExceptionService.caixa(System.out, "aaaaa bbbbb ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ServicoExcecao.caixa(System.out, "aaaaa bbbbb     ccccc ddddd eeeee", i+4);
+			ExceptionService.caixa(System.out, "aaaaa bbbbb     ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ServicoExcecao.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeee", i+4);
+			ExceptionService.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 50; i++) {
 			System.out.println(i);
-			ServicoExcecao.caixa(System.out, "aaaaaaaaaaaaaa bbbbb  ccccc ddddd eeeee", i+4);
+			ExceptionService.caixa(System.out, "aaaaaaaaaaaaaa bbbbb  ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 50; i++) {
 			System.out.println(i);
-			ServicoExcecao.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeeeeeeeeeeee", i+4);
+			ExceptionService.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeeeeeeeeeeee", i+4);
 		}
 	}
 }

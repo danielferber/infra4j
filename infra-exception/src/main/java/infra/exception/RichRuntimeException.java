@@ -24,16 +24,39 @@ import java.util.TreeMap;
 
 import org.slf4j.Logger;
 
+/**
+ * An all purpose exception that may carry information that further describes
+ * the cause of failure and the operation that were running when the exception
+ * was raised. This is a brief solution to identify all possible exceptions for
+ * an operation, without need to create a full heavy weighted hierarchy of
+ * exceptions. The reason might be implemented as an enumeration for each
+ * operation.
+ *
+ * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ */
 public class RichRuntimeException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-	private static final Logger logger = ServicoExcecao.logger;
+	private static final Logger logger = ExceptionService.logger;
 
-	Map<String, Object> metaData = new TreeMap<String, Object>();
+	/**
+	 * Additional structured data carried by the exception for further
+	 * description of the error.
+	 */
+	protected final Map<String, Object> metaData = new TreeMap<String, Object>();
 
-	Set<Object> operations = new LinkedHashSet<Object>();
-	Set<Object> reasons = new LinkedHashSet<Object>();
+	/**
+	 * Object(s) that describe the operation(s) within the context of the
+	 * exception. There may be more than one operation if one operation depends
+	 * on others.
+	 */
+	protected final Set<Object> operations = new LinkedHashSet<Object>();
+	/**
+	 * Object(s) that describe the reasons(s) of the exception. Reason is the
+	 * cause of the failure.
+	 */
+	protected final Set<Object> reasons = new LinkedHashSet<Object>();
 
-	private static Object nullToStr(Object o) {
+	protected final static Object nullToStr(Object o) {
 		if (o == null) return "'null'";
 		return o;
 	}
@@ -103,39 +126,39 @@ public class RichRuntimeException extends RuntimeException {
 		return this;
 	}
 
-	public Object getData(String key) {
+	public final Object getData(String key) {
 		return this.metaData.get(key);
 	}
 
-	public Set<Object> getReasons() {
+	public final Set<Object> getReasons() {
 		return Collections.unmodifiableSet(reasons);
 	}
 
-	public Set<Object> getOperations() {
+	public final Set<Object> getOperations() {
 		return Collections.unmodifiableSet(operations);
 	}
 
-	public boolean isOperation(Object operation) {
+	public final boolean isOperation(Object operation) {
 		return operations.contains(operation);
 	}
 
-	public boolean hasReason(Object reason) {
+	public final boolean hasReason(Object reason) {
 		return reasons.contains(reason);
 	}
 
-	public static RichRuntimeException enrich(Throwable e, Object operation) {
+	public final static RichRuntimeException enrich(Throwable e, Object operation) {
 		return RichRuntimeException.enrichImpl(e).operation(operation);
 	}
 
-	public static RichRuntimeException enrich(Throwable e, Object operation, Object reason) {
+	public final static RichRuntimeException enrich(Throwable e, Object operation, Object reason) {
 		return RichRuntimeException.enrichImpl(e).operation(operation).reason(reason);
 	}
 
-	public static RichRuntimeException enrich(Throwable e) {
+	public final static RichRuntimeException enrich(Throwable e) {
 		return RichRuntimeException.enrichImpl(e);
 	}
 
-	public static RichRuntimeException enrichImpl(Throwable e) {
+	public final static RichRuntimeException enrichImpl(Throwable e) {
 		if (e instanceof RichRuntimeException) { // ( ou UnhandledRuntimeException)
 			return (RichRuntimeException) e;
 		}
