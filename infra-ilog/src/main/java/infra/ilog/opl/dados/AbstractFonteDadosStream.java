@@ -31,7 +31,7 @@ import java.util.WeakHashMap;
  * Implementação abstrata para {@link FonteDados} que obtém dados de recursos representados
  * como streams.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public abstract class AbstractFonteDadosStream extends AbstractFonteDados {
 	final Map<IloOplModel, InputStream> streamsAtivos = new WeakHashMap<IloOplModel, InputStream>();

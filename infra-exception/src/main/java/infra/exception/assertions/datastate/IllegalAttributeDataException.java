@@ -18,7 +18,7 @@ package infra.exception.assertions.datastate;
 
 /**
  * The attribute for current object is not valid.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class IllegalAttributeDataException extends IllegalPreConditionException {
 	private static final long serialVersionUID = 1L;

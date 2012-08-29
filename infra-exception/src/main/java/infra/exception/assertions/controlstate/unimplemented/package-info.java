@@ -16,7 +16,7 @@
 /**
  * Exceptions that point out code that has missing implementation. Either a exception that is not been properly handled,
  * a condition that is not been handled, a method with no implementation.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 package infra.exception.assertions.controlstate.unimplemented;
 

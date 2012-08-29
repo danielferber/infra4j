@@ -18,7 +18,7 @@
  * A better design or code should not provide flows or data domains that allow reaching such situations.
  * However, the interface may have been designed by third party or you may be overriding
  * the interface for a purpose that was not originally designed.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 package infra.exception.assertions.controlstate.design;
 

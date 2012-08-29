@@ -27,7 +27,7 @@ import java.io.File;
  *
  * TODO: Criar subclasses especícias para cada um dos algoritmos de programação linear.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class ConfigurationCplex {
 	/**

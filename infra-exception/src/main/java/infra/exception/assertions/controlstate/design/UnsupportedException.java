@@ -23,7 +23,7 @@ import java.io.IOException;
  * behaving as expected, causing exceptions that were not expected to be thrown. For example,
  * many methods use to declare {@link IOException} for interfaces they implement, but actually
  * never throw exceptions.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnsupportedException extends UnsupportedConstrolStateException {
 	private static final long serialVersionUID = 1L;

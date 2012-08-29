@@ -53,7 +53,7 @@ import org.slf4j.Logger;
  * Executa o OPL conforme as configurações.
  * Isto envolve esconder a maior quantidade possível dos passos necessários segundo a API do OPL para criar o modelo CPLEX.
  *
- * @author Daniel Felix Ferber - X7WS
+ * @author Daniel Felix Ferber
  */
 public class FacadeOPL {
 	public final Logger logger;

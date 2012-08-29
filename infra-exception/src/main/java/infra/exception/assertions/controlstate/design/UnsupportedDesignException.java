@@ -20,7 +20,7 @@ import infra.exception.assertions.controlstate.IllegalControlStateException;
 
 /**
  * The control flow attempted to execute code that is not possible by design.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnsupportedDesignException extends IllegalControlStateException {
 	private static final long serialVersionUID = 1L;

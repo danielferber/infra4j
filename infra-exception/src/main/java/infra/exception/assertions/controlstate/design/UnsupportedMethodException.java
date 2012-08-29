@@ -22,7 +22,7 @@ package infra.exception.assertions.controlstate.design;
  * the interface for a purpose that was not originally designed.
  * <p>
  * Tipically used when the classe does not allow calling {@link #hashCode()} or {@link #equals(Object)}.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnsupportedMethodException extends UnsupportedConstrolStateException {
 	private static final long serialVersionUID = 1L;

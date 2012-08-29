@@ -22,7 +22,7 @@ package infra.exception.assertions.controlstate.unimplemented;
  * condition that is not yet handled. There is pending work of design of programming to be done.
  * Or used to indicate that the conditional statement does not yet know how to handle all
  * conditions it is supposed to handle.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnimplementedConditionException extends UnimplementedConstrolStateException {
 	private static final long serialVersionUID = 1L;

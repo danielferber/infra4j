@@ -38,7 +38,7 @@ import org.slf4j.Logger;
  * <p>
  * <b>Detalhe de implementação:</b> Não é possível criar instâncias desta classe, pois
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public abstract class LoggerOutputStream extends OutputStream {
 	/** Logger para onde será escrito o conteúdo. */

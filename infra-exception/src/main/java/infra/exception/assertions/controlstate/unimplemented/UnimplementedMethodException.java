@@ -20,7 +20,7 @@ package infra.exception.assertions.controlstate.unimplemented;
 /**
  * The current method has not yet been implemented. There is pending work of design of programming to be done.
  * Used to indicate that the method does not yet know how to execute.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnimplementedMethodException extends UnimplementedConstrolStateException {
 	private static final long serialVersionUID = 1L;

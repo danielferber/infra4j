@@ -54,7 +54,7 @@ import org.slf4j.Logger;
  * <ul>
  * <li>Estrutura de callback para personalizar chamada do solucionador (TODO).
  * </ul>
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class ComandoOPL {
 	public final Logger logger;

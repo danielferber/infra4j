@@ -22,7 +22,7 @@ import infra.exception.assertions.controlstate.IllegalControlStateException;
  * The control flow attempted to execute code without having first executed a dependency that was
  * designed to be executed first. This is common for objects with methods that are designed to be
  * executed in a certain order.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class TemporalDependencyException extends IllegalControlStateException {
 	private static final long serialVersionUID = 1L;

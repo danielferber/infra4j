@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * O handler padrão escreve a exceção em {@link System#err} e também em um log específico de exceções não tratadas.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  *
  */
 public class ExceptionService {

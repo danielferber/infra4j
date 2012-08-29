@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 /**
  * Alternativa ao {@link org.slf4j.LoggerFactory}, com métodos mais específicos e práticos.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class LoggerFactory {
 	/**

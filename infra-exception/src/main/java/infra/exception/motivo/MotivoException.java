@@ -23,7 +23,7 @@
 // * {@link Exception} específicas, para que seja possível ao chamador tomar uma ação específica para
 // * cada possível motivo da falha.
 // *
-// * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+// * @author Daniel Felix Ferber
 // *
 // * @deprecated This class shall be replaced by {@link RichRuntimeException}.
 // */

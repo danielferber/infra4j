@@ -17,7 +17,7 @@
 //
 ///**
 // * The argument passed to method is null.
-// * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+// * @author Daniel Felix Ferber
 // */
 //public class NullArgumentException extends IllegalArgumentDataException {
 //	private static final long serialVersionUID = 1L;

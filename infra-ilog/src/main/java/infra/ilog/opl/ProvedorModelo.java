@@ -22,7 +22,7 @@ import java.io.IOException;
  * Se necessário, o provedor poderá criar um modelo 'definitivo' aplicando transformações sobre o(s) modelo(s) 'originaisl'.
  * Mas no caso mais comum, o modelo 'definitivo' será simplesmente igual ao 'original'.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional;
+ * @author Daniel Felix Ferber;
  */
 public interface ProvedorModelo {
 	/** O nome do modelo. Apenas para efeitos de log na execução. */

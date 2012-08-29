@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * Implementação abstrata para {@link ConsumidorDados} que escreve dados em recursos
  * representados por streams.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDados {
 	private final Collection<Pattern> includePattern;

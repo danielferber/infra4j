@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 
 /**
  * Callback que registra os erros encontrados ao realizar o modelo OPL.
- * @author "Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class CustomErrorHandler extends IloCustomOplErrorHandler {
 	private static final String messagePattern = "{} de {}-{} a {}-{}: {} ({})";

@@ -21,7 +21,7 @@ import infra.exception.assertions.controlstate.IllegalControlStateException;
  * Common class for errors caused by control flow (execution) achieving a state that should not be called by convention. This
  * exception supplements the standard {@link RuntimeException} by providing a more semantically
  * rich description of the problem.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnsupportedConstrolStateException extends IllegalControlStateException {
 	private static final long serialVersionUID = 1L;

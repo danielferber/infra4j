@@ -19,7 +19,7 @@ package infra.exception.assertions.controlstate.unimplemented;
 /**
  * The current code has not yet been implemented. The method is unfinished. There is pending work
  * of design of programming to be done.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnimplementedException extends UnimplementedConstrolStateException {
 	private static final long serialVersionUID = 1L;

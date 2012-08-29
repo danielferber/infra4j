@@ -18,7 +18,7 @@ package infra.exception.assertions.datastate;
 
 /**
  * The argument passed to method is not valid.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class IllegalArgumentDataException extends IllegalPreConditionException {
 	private static final long serialVersionUID = 1L;

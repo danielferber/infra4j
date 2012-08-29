@@ -16,7 +16,6 @@ import org.junit.Test;
 
 /**
  * Verifica se um modelo incorreto é acusado de forma adequada.
- * @author X7WS
  */
 public class ModelTest {
 	private ConfiguracaoOPL configuracaoOpl;

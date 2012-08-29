@@ -20,7 +20,7 @@ package infra.exception.assertions.datastate;
  * Common class for errors caused by data on invalid state. This exception supplements the
  * standard {@link RuntimeException} by providing a more semantically rich description of the
  * problem.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class IllegalDataStateException extends IllegalStateException {
 	private static final long serialVersionUID = 1L;

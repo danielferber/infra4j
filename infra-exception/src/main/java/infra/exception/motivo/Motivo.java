@@ -32,7 +32,7 @@
 // * motivos relacionados. E é possível realizar uma ação sobre motivos agrupados (fazendo um instanceof de acordo com o
 // * enum que agrupa os motivos).
 // *
-// * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+// * @author Daniel Felix Ferber
 // *
 // * @deprecated This class shall be replaced by {@link RichException} or preferably by {@link RichRuntimeException}, since most
 // * exception patterns were better described as runtime.

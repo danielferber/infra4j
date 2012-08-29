@@ -18,7 +18,7 @@ package infra.exception.assertions.datastate;
 
 /**
  * Data that is being consumed is not valid.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class IllegalEnvironmentDataException extends IllegalPreConditionException {
 	private static final long serialVersionUID = 1L;

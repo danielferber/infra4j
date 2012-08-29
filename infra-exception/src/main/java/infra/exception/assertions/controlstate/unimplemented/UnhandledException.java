@@ -18,7 +18,7 @@ package infra.exception.assertions.controlstate.unimplemented;
 /**
  * Embeds an exception that one does not yet know how to handle. Used to indicate where exception
  * handling is pending better design.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class UnhandledException extends RuntimeException {
 	private static final long serialVersionUID = 1L;

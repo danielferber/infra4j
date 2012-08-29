@@ -46,6 +46,6 @@
  * Desta forma, o chamador pode prever exatamente as todas as possíveis causas, sem ser surpreendido por uma causa não conhecida.
  * Exception determina apenas a raiz da hierarquia de classes e não é possível saber em tempo de compilação quais serão as
  * classes que extendem a classe raiz. Isto introduz fragilidade no tratamento de exceção.
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber - Grupo de Pesquisa Operacional
  **/
 package infra.exception;

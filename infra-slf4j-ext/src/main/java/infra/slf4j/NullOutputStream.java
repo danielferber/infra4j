@@ -24,7 +24,7 @@ import java.io.OutputStream;
  * É utilizado para otimizar {@link LoggerOutputStream} quando a prioridade do logger encapsulado não permite escrever o
  * conteúdo no logger.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  *
  */
 class NullOutputStream extends OutputStream {

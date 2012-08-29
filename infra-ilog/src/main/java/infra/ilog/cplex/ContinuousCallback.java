@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 
 /**
  * Callback que registra o progresso do CPLEX no log.
- * @author "Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional"
+ * @author Daniel Felix Ferber
  */
 class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 	private final Logger logger;

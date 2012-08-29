@@ -18,7 +18,7 @@
 //
 ///**
 // * Data that is being produced is not valid.
-// * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+// * @author Daniel Felix Ferber
 // */
 //public class IllegalOutputDataException extends IllegalDataStateException {
 //	private static final long serialVersionUID = 1L;

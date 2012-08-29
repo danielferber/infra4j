@@ -15,6 +15,8 @@
  */
 package infra.ilog.opl.modelo;
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Invariant;
 import infra.exception.assertions.controlstate.bug.ImpossibleException;
 import infra.ilog.opl.ProvedorModelo;
 
@@ -25,15 +27,10 @@ import java.net.URL;
 
 import org.apache.commons.io.IOUtils;
 
-import static infra.exception.Assert.Argument;
-import static infra.exception.Assert.Invariant;
-
 
 
 /**
  * Um provedor de modelo bem simples que simplesmente lê o modelo de um arquivo.
- * @author X7WS
- *
  */
 public class ProvedorModeloClasspath extends AbstractProvedorModelo {
 	private final URL urlClasspath;

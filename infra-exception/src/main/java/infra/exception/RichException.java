@@ -31,7 +31,7 @@ import org.slf4j.Logger;
  * exceptions. The reason might be implemented as an enumeration for each
  * operation.
  *
- * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
+ * @author Daniel Felix Ferber
  */
 public class RichException extends Exception {
 	private static final long serialVersionUID = 1L;

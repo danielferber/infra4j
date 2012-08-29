@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 
 /**
  * Callback que registra o progresso da fase de presolve.
- * @author "Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional"
+ * @author Daniel Felix Ferber
  */
 class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 	private final Logger logger;
