@@ -17,7 +17,7 @@ package infra.ilog.opl.modelo;
 
 import static infra.exception.Assert.Argument;
 import static infra.exception.Assert.Invariant;
-import infra.exception.assertions.controlstate.bug.ImpossibleException;
+import infra.exception.controlstate.bug.ImpossibleException;
 import infra.ilog.opl.ProvedorModelo;
 
 import java.io.IOException;

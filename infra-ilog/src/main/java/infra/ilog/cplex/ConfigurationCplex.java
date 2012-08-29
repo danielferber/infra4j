@@ -17,7 +17,7 @@ package infra.ilog.cplex;
 
 import static infra.exception.Assert.Argument;
 import static infra.exception.Assert.Attribute;
-import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.controlstate.design.UnsupportedMethodException;
 
 import java.io.File;
 

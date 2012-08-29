@@ -15,7 +15,7 @@
  */
 package infra.ilog.opl.modelo;
 
-import infra.exception.assertions.controlstate.unimplemented.UnimplementedMethodException;
+import infra.exception.controlstate.unimplemented.UnimplementedMethodException;
 import infra.ilog.opl.ProvedorModelo;
 
 import static infra.exception.Assert.Argument;

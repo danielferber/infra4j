@@ -21,7 +21,7 @@ import static infra.exception.Assert.Invariant;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.RichRuntimeException;
-import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.controlstate.design.UnsupportedMethodException;
 import infra.ilog.SolverCommand;
 import infra.ilog.NoSolutionException;
 import infra.slf4j.LoggerFactory;

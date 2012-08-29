@@ -1,12 +1,12 @@
 package infra.exception;
 
-import infra.exception.assertions.datastate.IllegalArgumentDataException;
-import infra.exception.assertions.datastate.IllegalAttributeDataException;
-import infra.exception.assertions.datastate.IllegalEnvironmentDataException;
-import infra.exception.assertions.datastate.IllegalInvariantException;
-import infra.exception.assertions.datastate.IllegalPosConditionException;
-import infra.exception.assertions.datastate.IllegalPreConditionException;
-import infra.exception.assertions.datastate.SystemRule;
+import infra.exception.datastate.IllegalArgumentDataException;
+import infra.exception.datastate.IllegalAttributeDataException;
+import infra.exception.datastate.IllegalEnvironmentDataException;
+import infra.exception.datastate.IllegalInvariantException;
+import infra.exception.datastate.IllegalPosConditionException;
+import infra.exception.datastate.IllegalPreConditionException;
+import infra.exception.datastate.SystemRule;
 
 
 public abstract class Assert {

@@ -16,7 +16,7 @@
 package infra.ilog.opl;
 
 import static infra.exception.Assert.Argument;
-import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.controlstate.design.UnsupportedMethodException;
 
 import java.io.File;
 

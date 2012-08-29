@@ -15,7 +15,7 @@
  */
 package infra.ilog.opl.modelo;
 
-import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
+import infra.exception.controlstate.design.UnsupportedMethodException;
 import infra.ilog.opl.ProvedorModelo;
 
 import java.io.IOException;
