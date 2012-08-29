@@ -22,10 +22,10 @@ public final class UnhandledRuntimeException extends RichRuntimeException {
 		this.reasons.add(Reason.UNHANDLED_RUNTIME_EXCEPTION);
 	}
 
-	@Override
-	public UnhandledRuntimeException data(String key, Object value) {
-		return (UnhandledRuntimeException) super.data(key, value);
-	}
+//	@Override
+//	public UnhandledRuntimeException data(String key, Object value) {
+//		return (UnhandledRuntimeException) super.data(key, value);
+//	}
 
 	@Override
 	public UnhandledRuntimeException reason(Object reason) {

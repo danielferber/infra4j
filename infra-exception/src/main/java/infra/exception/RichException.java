@@ -105,14 +105,14 @@ public class RichException extends Exception {
 	}
 
 	/** Builder method to add meta data to the exception. */
-	public RichException data(Map<String, ? extends Object> moreMetaData) {
-		if (moreMetaData == null) {
-			RichException.logger.error("Called data(moreMetaData='null') with null parameter.");
-			return this;
-		}
-		metaData.putAll(moreMetaData);
-		return this;
-	}
+//	public RichException data(Map<String, ? extends Object> moreMetaData) {
+//		if (moreMetaData == null) {
+//			RichException.logger.error("Called data(moreMetaData='null') with null parameter.");
+//			return this;
+//		}
+//		metaData.putAll(moreMetaData);
+//		return this;
+//	}
 
 	/** Builder method to add a reason to the exception. */
 	public RichException reason(Object reason) {
