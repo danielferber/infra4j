@@ -83,7 +83,7 @@ public abstract class Assert {
 
 	/** Argument(s) must be equal to expected value. */
 	public final boolean equal(int value, int expected) throws RuntimeException {
-		if (value != expected) throw createException(String.format("%d must be equal to %d]", value, expected));
+		if (value != expected) throw createException(String.format("%d must be equal to %d]", Integer.valueOf(value), Integer.valueOf(expected)));
 		return true;
 	}
 
@@ -96,19 +96,19 @@ public abstract class Assert {
 
 	/** Argument(s) must be within a range. */
 	public final boolean range(int value, int min, int max) throws RuntimeException {
-		if (value < min || value > max ) throw createException(String.format("%d must be in range [%d-%d]", value, min, max));
+		if (value < min || value > max ) throw createException(String.format("%d must be in range [%d-%d]", Integer.valueOf(value), Integer.valueOf(min), Integer.valueOf(max)));
 		return true;
 	}
 
 	/** Argument(s) must not be negative ( >= 0). */
 	public final boolean notNegative(int value) throws RuntimeException {
-		if (value < 0) throw createException(String.format("%d must not be negative", value));
+		if (value < 0) throw createException(String.format("%d must not be negative", Integer.valueOf(value)));
 		return true;
 	}
 
 	/** Argument(s) must not be positive ( > 0). */
 	public final boolean positive(int value) throws RuntimeException {
-		if (value <= 0) throw createException(String.format("%d must be positive", value));
+		if (value <= 0) throw createException(String.format("%d must be positive", Integer.valueOf(value)));
 		return true;
 	}
 	public final boolean positive(Integer value) throws RuntimeException {
@@ -116,7 +116,7 @@ public abstract class Assert {
 		return true;
 	}
 	public final boolean positive(double value) throws RuntimeException {
-		if (value <= 0 || Double.isNaN(value) || Double.isInfinite(value)) throw createException(String.format("%f must be positive", value));
+		if (value <= 0 || Double.isNaN(value) || Double.isInfinite(value)) throw createException(String.format("%f must be positive", Double.valueOf(value)));
 		return true;
 	}
 	public final boolean positive(Double value) throws RuntimeException {
@@ -141,7 +141,7 @@ public abstract class Assert {
 
 	/** Argument(s) must not be <code>null</code> as expected by a system rule. */
 	public final <T> boolean notNull(SystemRule rule, T argument) throws RuntimeException {
-		if (argument == null) throw createException("null");
+		if (argument == null) throw createException(rule);
 		return true;
 	}
 
