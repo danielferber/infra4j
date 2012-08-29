@@ -106,6 +106,16 @@ public class RichRuntimeException extends RuntimeException {
 		return this;
 	}
 
+	/** Builder method to add meta data to the exception. */
+	public RichRuntimeException data(Map<String, ? extends Object> moreMetaData) {
+		if (moreMetaData == null) {
+			RichRuntimeException.logger.error("Called data(moreMetaData='null') with null parameter.");
+			return this;
+		}
+		metaData.putAll(moreMetaData);
+		return this;
+	}
+
 	/** Builder method to add a reason to the exception. */
 	public RichRuntimeException reason(Object reason) {
 		if (reason == null) {
