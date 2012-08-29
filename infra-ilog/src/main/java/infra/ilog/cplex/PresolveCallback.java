@@ -16,13 +16,12 @@
 package infra.ilog.cplex;
 
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
 import ilog.concert.IloException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
 
 import org.slf4j.Logger;
-
-import static infra.exception.Assert.Argument;
-import static infra.exception.Assert.Attribute;
 
 
 /**
@@ -53,13 +52,13 @@ class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 
 		this.logger.info(
 				String.format("Presolve: nAggr=%d; nmodCoef=%d; nRemCol=%d; nremRow=%d; nCol=%d; nRow=%d; nQC=%d",
-						getNaggregations(),
-						getNmodifiedCoeffs(),
-						getNremovedCols(),
-						getNremovedRows(),
-						getNcols(),
-						getNrows(),
-						getNQCs())
+						Integer.toString(getNaggregations()),
+						Integer.toString(getNmodifiedCoeffs()),
+						Integer.toString(getNremovedCols()),
+						Integer.toString(getNremovedRows()),
+						Integer.toString(getNcols()),
+						Integer.toString(getNrows()),
+						Integer.toString(getNQCs()))
 		);
 	}
 

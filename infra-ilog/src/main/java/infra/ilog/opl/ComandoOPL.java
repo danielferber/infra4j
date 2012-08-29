@@ -15,15 +15,14 @@
  */
 package infra.ilog.opl;
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
+import static infra.exception.Assert.Invariant;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentDataException;
-import infra.exception.assertions.datastate.IllegalAttributeDataException;
-import infra.exception.assertions.datastate.IllegalOutputDataException;
-import infra.exception.assertions.datastate.NullArgumentException;
-import infra.ilog.ComandoSolver;
+import infra.ilog.SolverCommand;
 import infra.ilog.NoSolutionException;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
@@ -78,18 +77,18 @@ public class ComandoOPL {
 	protected IloOplModel getOplModel() {  return oplModel; }
 
 	/** Solver command that guides the execution of the CPLEX or CP instance. */
-	private final ComandoSolver solverCommand;
+	private final SolverCommand solverCommand;
 	/** @return Solver command that guides the execution of the CPLEX or CP instance. */
-	protected ComandoSolver getComandoResolvedor() { return solverCommand; }
+	protected SolverCommand getComandoResolvedor() { return solverCommand; }
 
 	/** Cria o comando executor a partir de uma instância CPLEX existente. */
-	public ComandoOPL(IloOplModel oplModel, ConfiguracaoOPL configuracao, ComandoSolver comandoResolvedor) {
+	public ComandoOPL(IloOplModel oplModel, ConfiguracaoOPL configuracao, SolverCommand comandoResolvedor) {
 		super();
-		assert NullArgumentException.apply(oplModel, configuracao, comandoResolvedor);
+		Argument.notNull(oplModel, configuracao, comandoResolvedor);
 
 		this.oplModel = oplModel;
 		this.configuracao = new ConfiguracaoOPL(configuracao);
-		assert IllegalOutputDataException.apply(this.configuracao.equals(configuracao));
+		Invariant.check(this.configuracao.equals(configuracao));
 		this.solverCommand = comandoResolvedor;
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracao.getNome());
@@ -107,12 +106,12 @@ public class ComandoOPL {
 	/** Executa o resolvedor OPL.
 	 * @throws NoSolutionException */
 	public void executar() throws NoSolutionException {
-		assert IllegalAttributeDataException.apply(this.configuracao != null);
-		assert IllegalAttributeDataException.apply(this.solverCommand != null);
-		assert IllegalAttributeDataException.apply(this.oplModel != null);
+		Attribute.check(this.configuracao != null);
+		Attribute.check(this.solverCommand != null);
+		Attribute.check(this.oplModel != null);
 
-		IllegalAttributeDataException.apply(oplModel.hasCplex());
-		IllegalAttributeDataException.apply(oplModel.isGenerated());
+		Attribute.check(oplModel.hasCplex());
+		Attribute.check(oplModel.isGenerated());
 
 		Meter op = MeterFactory.getMeter(loggerMeter, ExecuteOpl).start();
 		try {
@@ -144,7 +143,7 @@ public class ComandoOPL {
 			/*
 			 * Executar CPLEX.
 			 */
-			solverCommand.executar();
+			solverCommand.execute();
 
 			/*
 			 * Reportar estado final do OPL.
@@ -176,9 +175,9 @@ public class ComandoOPL {
 	 * Este arquivo pode ser usado pelo OPL Studio como arquivo .DAT para reproduzir a execução do modelo.
 	 */
 	protected void salvarDadosExternos(File caminho) {
-		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
-		assert IllegalAttributeDataException.apply(this.oplModel != null);
+		Argument.notNull(caminho);
+		Argument.check(caminho.isAbsolute());
+		Attribute.check(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -197,9 +196,9 @@ public class ComandoOPL {
 	 * Este arquivo pode ser comparado com a solução reproduzida do modelo no CPLEX Studio.
 	 */
 	protected void salvarSolucao(File caminho) {
-		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
-		assert IllegalAttributeDataException.apply(this.oplModel != null);
+		Argument.notNull(caminho);
+		Argument.check(caminho.isAbsolute());
+		Attribute.check(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -218,9 +217,9 @@ public class ComandoOPL {
 	 * Este arquivo pode ser comparado com os dados obtidos com a reprodução do modelo no CPLEX Studio.
 	 */
 	protected void salvarDadosInternos(File caminho) {
-		assert NullArgumentException.apply(caminho);
-		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
-		assert IllegalAttributeDataException.apply(this.oplModel != null);
+		Argument.notNull(caminho);
+		Argument.check(caminho.isAbsolute());
+		Attribute.check(this.oplModel != null);
 
 		try {
 			ComandoOPL.assureDiretoryForFile(caminho);
@@ -238,7 +237,7 @@ public class ComandoOPL {
 
 	/** Registra no log propriedades do modelo OPL. */
 	protected void logPropriedades() {
-		assert IllegalAttributeDataException.apply(this.oplModel != null);
+		Attribute.check(this.oplModel != null);
 		IloOplModelDefinition definition = oplModel.getModelDefinition();
 		PrintStream out = LoggerFactory.getInfoPrintStream(loggerData);
 		out.println("Propriedades do modelo OPL:");

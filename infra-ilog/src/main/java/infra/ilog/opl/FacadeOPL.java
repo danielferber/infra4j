@@ -15,6 +15,7 @@
  */
 package infra.ilog.opl;
 
+import static infra.exception.Assert.Argument;
 import ilog.concert.IloException;
 import ilog.cplex.IloCplex;
 import ilog.opl.IloOplElementDefinition;
@@ -26,13 +27,10 @@ import ilog.opl.IloOplSettings;
 import infra.exception.RichRuntimeException;
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
-import infra.exception.assertions.datastate.NullArgumentException;
-import infra.exception.motivo.Motivo;
-import infra.exception.motivo.MotivoRuntimeException;
-import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
+import infra.ilog.SolverCommand;
 import infra.ilog.cplex.CommandCplex;
-import infra.ilog.cplex.ConfiguracaoCplex;
+import infra.ilog.cplex.ConfigurationCplex;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
@@ -73,8 +71,8 @@ public class FacadeOPL {
 	 * pode ser passada diretamente no método executar.
 	 */
 	/** Container com as configurações para esta instância. */
-	private final ConfiguracaoCplex configuracaoCplex;
-	protected ConfiguracaoCplex getConfiguracaoCplex() { 	return configuracaoCplex; }
+	private final ConfigurationCplex configuracaoCplex;
+	protected ConfigurationCplex getConfiguracaoCplex() { 	return configuracaoCplex; }
 
 	/** Acesso ao modelo. */
 	private final ProvedorModelo modeloProvider;
@@ -96,7 +94,7 @@ public class FacadeOPL {
 	private static final Operation ExecutePosProcessing = OperationFactory.getOperation("executePosProcessing", "Execute pós-processing.");
 
 	/* TODO trocar por um design mais adequado, sem usar motivos. */
-	public static enum MotivosExecucao implements Motivo {
+	public static enum MotivosExecucao {
 		RegisterDataSources(FacadeOPL.RegisterDataSources.getName(), FacadeOPL.RegisterDataSources.getMessage()),
 		ExportDataSinks(FacadeOPL.ExportDataSinks.getName(), FacadeOPL.ExportDataSinks.getMessage()),
 		LoadModel(FacadeOPL.LoadModel.getName(), FacadeOPL.LoadModel.getMessage());
@@ -107,20 +105,18 @@ public class FacadeOPL {
 			this.operacao = operacao;
 			this.mensagem = mensagem;
 		}
-		@Override
 		public String getMensagem() { return mensagem; }
-		@Override
 		public String getOperacao() { return operacao; 	}
 	}
 
-	public FacadeOPL(ConfiguracaoOPL configuracaoOpl, ConfiguracaoCplex configuracaoCplex, ProvedorModelo modeloProvider, Collection<FonteDados> dataSources, Collection<ConsumidorDados> dataSinks) {
+	public FacadeOPL(ConfiguracaoOPL configuracaoOpl, ConfigurationCplex configuracaoCplex, ProvedorModelo modeloProvider, Collection<FonteDados> dataSources, Collection<ConsumidorDados> dataSinks) {
 		super();
-		NullArgumentException.apply(configuracaoOpl);
-		NullArgumentException.apply(modeloProvider);
-		NullArgumentException.apply(configuracaoCplex);
+		Argument.notNull(configuracaoOpl);
+		Argument.notNull(modeloProvider);
+		Argument.notNull(configuracaoCplex);
 
 		this.configuracaoOpl = new ConfiguracaoOPL(configuracaoOpl);
-		this.configuracaoCplex = new ConfiguracaoCplex(configuracaoCplex);
+		this.configuracaoCplex = new ConfigurationCplex(configuracaoCplex);
 		this.modeloProvider = modeloProvider;
 		if (dataSources != null) {
 			this.dataSources = Collections.unmodifiableCollection(dataSources);
@@ -149,7 +145,7 @@ public class FacadeOPL {
 	}
 
 	/* TODO run garbage collector after data source and data sink. */
-	public void executar() throws NoSolutionException, OplSettingsException, OplModelException, MotivoRuntimeException {
+	public void executar() throws NoSolutionException, OplSettingsException, OplModelException {
 		Meter op = null;
 
 		Meter allOp = MeterFactory.getMeter(loggerMeter, FacadeOPL.ExecuteFacade).start();
@@ -161,7 +157,7 @@ public class FacadeOPL {
 			IloOplModelSource oplModelSource = loadModel(oplFactory, errorHandler);
 			IloOplModelDefinition oplModelDefinition = parseModel(oplFactory, errorHandler, oplSettings, oplModelSource);
 			oplSettings = null;
-			ComandoSolver comandoSolver = createSolver(oplFactory, errorHandler, oplModelDefinition);
+			SolverCommand comandoSolver = createSolver(oplFactory, errorHandler, oplModelDefinition);
 			IloOplModel oplModel;
 			if (comandoSolver instanceof CommandCplex) {
 				CommandCplex comandoCplex = (CommandCplex) comandoSolver;
@@ -201,8 +197,8 @@ public class FacadeOPL {
 	 *
 	 * Criar o modelo associado com o solucionador (CP ou CPLEX).
 	 */
-	protected ComandoSolver createSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModelDefinition oplModelDefinition) {
-		ComandoSolver comandoSolver = null;
+	protected SolverCommand createSolver(IloOplFactory oplFactory, CustomErrorHandler errorHandler, IloOplModelDefinition oplModelDefinition) {
+		SolverCommand comandoSolver = null;
 		if (configuracaoCplex != null) {
 			Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.CreateCplex).start();
 			try {
@@ -304,12 +300,12 @@ public class FacadeOPL {
 				fonte.importar(oplModel);
 			}
 			op.ok();
-		} catch (IOException e) {
+//		} catch (IOException e) {
+//			op.fail(e);
+//			throw new MotivoRuntimeException(MotivosExecucao.RegisterDataSources);
+		} catch (Exception e) {
 			op.fail(e);
-			throw new MotivoRuntimeException(MotivosExecucao.RegisterDataSources);
-		} catch (RuntimeException e) {
-			op.fail(e);
-			throw e;
+			throw RichRuntimeException.enrich(e).operation(RegisterDataSources);
 		}
 	}
 
@@ -324,12 +320,12 @@ public class FacadeOPL {
 				fonte.finalizar(oplModel);
 			}
 			op.ok();
-		} catch (IOException e) {
+//		} catch (IOException e) {
+//			op.fail(e);
+//			throw new MotivoRuntimeException(MotivosExecucao.RegisterDataSources);
+		} catch (Exception e) {
 			op.fail(e);
-			throw new MotivoRuntimeException(MotivosExecucao.RegisterDataSources);
-		} catch (RuntimeException e) {
-			op.fail(e);
-			throw e;
+			throw RichRuntimeException.enrich(e).operation(RegisterDataSources);
 		}
 	}
 
@@ -355,12 +351,12 @@ public class FacadeOPL {
 				consumidor.finalizar(oplModel);
 			}
 			op.ok();
-		} catch (IOException e) {
+//		} catch (IOException e) {
+//			op.fail(e);
+//			throw new MotivoRuntimeException(MotivosExecucao.ExportDataSinks);
+		} catch (Exception e) {
 			op.fail(e);
-			throw new MotivoRuntimeException(MotivosExecucao.ExportDataSinks);
-		} catch (RuntimeException e) {
-			op.fail(e);
-			throw e;
+			throw RichRuntimeException.enrich(e).operation(ExportDataSinks);
 		}
 	}
 
@@ -384,7 +380,7 @@ public class FacadeOPL {
 		}
 	}
 
-	protected void executeSolver(IloOplModel oplModel, ComandoSolver comandoSolver) throws NoSolutionException {
+	protected void executeSolver(IloOplModel oplModel, SolverCommand comandoSolver) throws NoSolutionException {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.ExecuteSolver).start();
 		try {
 			ComandoOPL comandoOpl = new ComandoOPL(oplModel, configuracaoOpl, comandoSolver);
@@ -562,12 +558,12 @@ public class FacadeOPL {
 			FacadeOPL.throwPossibleOplModelException(errorHandler);
 			op.ok();
 			return oplModelSource;
+//		} catch (IOException e) {
+//			op.fail(e);
+//			throw new MotivoRuntimeException(e, MotivosExecucao.LoadModel);
 		} catch (IOException e) {
 			op.fail(e);
-			throw new MotivoRuntimeException(e, MotivosExecucao.LoadModel);
-		} catch (RuntimeException e) {
-			op.fail(e);
-			throw e;
+			throw RichRuntimeException.enrich(e).operation(LoadModel);
 		} catch (Exception e) {
 			op.fail(e);
 			throw FacadeOPL.wrapPossibleSpuriousIloException(e);

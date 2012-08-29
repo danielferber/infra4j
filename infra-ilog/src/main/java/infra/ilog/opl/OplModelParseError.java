@@ -15,7 +15,7 @@
  */
 package infra.ilog.opl;
 
-import infra.exception.assertions.datastate.NullArgumentException;
+import static infra.exception.Assert.Argument;
 
 public class OplModelParseError {
 	public static enum Level { WARNING, ERROR, FATAL }
@@ -30,7 +30,7 @@ public class OplModelParseError {
 
 	public OplModelParseError(Level level, String source, int startLine, int startColumn, int endLine, int endColumn, String catalogId, String message) {
 		super();
-		assert NullArgumentException.apply(level, source, catalogId, message);
+		Argument.notNull(level, source, catalogId, message);
 		this.level = level;
 		this.source = source;
 		this.startLine = startLine;

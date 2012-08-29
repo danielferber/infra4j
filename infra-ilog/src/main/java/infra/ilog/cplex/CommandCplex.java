@@ -30,9 +30,8 @@ import infra.exception.assertions.controlstate.design.UnsupportedException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
 import infra.exception.assertions.controlstate.unimplemented.UnhandledException;
 import infra.exception.assertions.controlstate.unimplemented.UnimplementedConditionException;
-import infra.exception.motivo.MotivoException;
-import infra.ilog.ComandoSolver;
 import infra.ilog.NoSolutionException;
+import infra.ilog.SolverCommand;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
@@ -46,19 +45,19 @@ import java.io.PrintStream;
 import org.slf4j.Logger;
 
 /**
- * Solver specific implementation for CPLEX of the {@link ComandoSolver}
- * ointerface. Its mais purpose is to gffer a uniform and intuitive
+ * Solver specific implementation for CPLEX of the {@link SolverCommand}
+ * interface. Its main purpose is to offer a uniform and intuitive
  * understanding of the CPLEX solver.
  * <p>
- * Performs a typical execution fo the CPLEX solver. This execution may be
+ * Performs a typical execution of the CPLEX solver. This execution may be
  * configured through the settings that are passed to the constructor.
  *
  * This implementation does not create the model nor load data. It is assumed
- * that both are already available. The method {@link #executar()} is typically
- * called only once. However, one may call {@link #executar()} again to continue
+ * that both are already available. The method {@link #execute()} is typically
+ * called only once. However, one may call {@link #execute()} again to continue
  * executing a model that was interrupted or that did run out of time.
  *
- *   The responsibilities of the class involves:
+ * The responsibilities of the class involves:
  * <ul>
  * <li>Adequately address, log and report the possible execution failures.
  * <li>Write execution progress and solver status to the log.
@@ -71,16 +70,16 @@ import org.slf4j.Logger;
  *
  * @author Daniel Felix Ferber
  */
-public class CommandCplex implements ComandoSolver {
+public class CommandCplex implements SolverCommand {
 	public final Logger logger;
 	public final Logger loggerExecucao;
 	public final Logger loggerMeter;
 	public final Logger loggerData;
 
 	/** Configuration that guides the CPLEX execution. */
-	private final ConfiguracaoCplex configuracao;
+	private final ConfigurationCplex configuration;
 	/** @return Configuration that guides the CPLEX execution. */
-	protected ConfiguracaoCplex getConfiguracao() { return configuracao; }
+	protected ConfigurationCplex getConfiguration() { return configuration; }
 
 	/** CPLEX instance being guided. */
 	private final IloCplex cplex;
@@ -90,32 +89,32 @@ public class CommandCplex implements ComandoSolver {
 	/** Delegate implementation that decided if CPLEX shall continue to run. */
 	private final Delegate delegate; /* TODO: really necessary to hold a local copy from the settings? */
 
-	/** Creates the command pattern that guids the CPLEX instance. */
-	public CommandCplex(IloCplex cplex, ConfiguracaoCplex configuracao) {
+	/** Creates the command pattern that guides the CPLEX instance. */
+	public CommandCplex(IloCplex cplex, ConfigurationCplex configuration) {
 		super();
 
 		Argument.notNull(cplex);
-		Argument.notNull(configuracao);
-		Argument.notNull(configuracao.getNome());
+		Argument.notNull(configuration);
+		Argument.notNull(configuration.getNome());
 
-		this.configuracao = new ConfiguracaoCplex(configuracao); /* for thread safety and execution previsibility, stores a copy of configuration. */
+		this.configuration = new ConfigurationCplex(configuration); /* for thread safety and execution previsibility, stores a copy of configuration. */
 		this.cplex = cplex;
-		this.delegate = configuracao.getDelegate();
+		this.delegate = configuration.getDelegate();
 
-		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.cplex"), configuracao.getNome());
+		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.cplex"), configuration.getNome());
 		this.loggerExecucao = LoggerFactory.getLogger(logger, "exec");
 		this.loggerMeter = LoggerFactory.getLogger(logger, "perf");
 		this.loggerData = LoggerFactory.getLogger(logger, "data");
 	}
 
-	private final Operation ExecutarCplex = OperationFactory.getOperation("executarCplex", "Executar CPLEX");
-	private final Operation InteracaoCplex = OperationFactory.getOperation("interacaoCplex", "Interação CPLEX");
+	private final Operation ExecuteCplex = OperationFactory.getOperation("executeCplex", "Execute CPLEX");
+	private final Operation IterateCplex = OperationFactory.getOperation("iterateCplex", "Iterate CPLEX");
 
-	/** Executa o resolvedor CPLEX. */
+	/** Executes the CPLEX solver. */
 	@Override
-	public void executar() throws NoSolutionException {
+	public void execute() throws NoSolutionException {
 		Attribute.notNull(this.cplex);
-		Attribute.notNull(this.configuracao);
+		Attribute.notNull(this.configuration);
 
 		/* TODO: evitar chamadas reentrantes se o modelo já estiver executando. */
 		try {
@@ -126,7 +125,7 @@ public class CommandCplex implements ComandoSolver {
 			throw new UnsupportedException(e);
 		}
 
-		Meter op = MeterFactory.getMeter(loggerMeter, ExecutarCplex).start();
+		Meter op = MeterFactory.getMeter(loggerMeter, ExecuteCplex).start();
 		try {
 			/*
 			 * Reportar propriedades do solucionador.
@@ -136,21 +135,21 @@ public class CommandCplex implements ComandoSolver {
 			/*
 			 * Reportar modelo e parâmetros em arquivo para depuração com CPLEX Studio, se assim configurado.
 			 */
-			if (this.configuracao.temCaminhoModeloExportado()) {
-				saveModel(this.configuracao.getCaminhoAbsolutoModeloExportado());
+			if (this.configuration.temCaminhoModeloExportado()) {
+				saveModel(this.configuration.getCaminhoAbsolutoModeloExportado());
 			}
 			/*
 			 * TODO Estudar se os parâmetros não deveriam ser escritos a cada iteração, uma vez que o Delegate pode
 			 * alterar os parâmetros a cada iteração.
 			 */
-			if (this.configuracao.temCaminhoParametrosExportados()) {
-				saveSettings(this.configuracao.getCaminhoAbsolutoParametrosExportados());
+			if (this.configuration.temCaminhoParametrosExportados()) {
+				saveSettings(this.configuration.getCaminhoAbsolutoParametrosExportados());
 			}
 
-			int numeroIteracao = 0;
+			int iterationCounter = 0;
 			while (true) {
-				numeroIteracao++;
-				Meter opI = MeterFactory.getMeter(loggerMeter, InteracaoCplex).put("n", Integer.toString(numeroIteracao))	.start();
+				iterationCounter++;
+				Meter opI = MeterFactory.getMeter(loggerMeter, IterateCplex).put("n", Integer.toString(iterationCounter))	.start();
 
 				try {
 
@@ -158,10 +157,10 @@ public class CommandCplex implements ComandoSolver {
 					 * O delegate pode decidir por interromper a execução do CPLEX.
 					 */
 					if (delegate != null) {
-						loggerExecucao.debug("Call Delegate.before(iteration={})...", numeroIteracao);
-						boolean continuar = delegate.antesExecucao(cplex, numeroIteracao, configuracao);
-						loggerExecucao.debug("Returned Delegate.before(iteration={}): run={}.", numeroIteracao, continuar);
-						if (! continuar) break;
+						loggerExecucao.debug("Call Delegate.before(iteration={})...", Integer.toString(iterationCounter));
+						boolean continuationAllowance = delegate.antesExecucao(cplex, iterationCounter, configuration);
+						loggerExecucao.debug("Returned Delegate.before(iteration={}): continue={}.", Integer.toString(iterationCounter), Boolean.toString(continuationAllowance));
+						if (! continuationAllowance) break;
 					} else {
 						/* Por padrão, se não existe delegate, realiza a execução. */
 					}
@@ -172,20 +171,20 @@ public class CommandCplex implements ComandoSolver {
 					 * Se a thread recebeu sinal de terminar, então também cancela a execução.
 					 */
 					if (Thread.interrupted()) {
-						loggerExecucao.debug("Solver thread interrpted. Cancel execution.");
+						loggerExecucao.debug("Solver thread interrupted. Cancel execution.");
 						CommandCplex.validarEstadoFinalCplex(cplex, loggerExecucao);
 						break;
 					}
 
-					executarIteracao(numeroIteracao);
+					executeIteration(iterationCounter);
 
 					/*
 					 * O delegate pode decidir por continuar ou parar a busca por soluções.
 					 */
 					if (delegate != null) {
-						loggerExecucao.debug("Call Delegate.after(iteration={})...", numeroIteracao);
-						boolean continuar = delegate.depoisExecucao(cplex, numeroIteracao, configuracao);
-						loggerExecucao.debug("Returned Delegate.after(iteration={}): repeat={}.", numeroIteracao, continuar);
+						loggerExecucao.debug("Call Delegate.after(iteration={})...", Integer.toString(iterationCounter));
+						boolean continuar = delegate.depoisExecucao(cplex, iterationCounter, configuration);
+						loggerExecucao.debug("Returned Delegate.after(iteration={}): repeat={}.", Integer.toString(iterationCounter), Boolean.toString(continuar));
 						if (! continuar) break;
 					} else {
 						/* Por padrão, se não existe delegate, interrompe a execução. */
@@ -194,12 +193,13 @@ public class CommandCplex implements ComandoSolver {
 
 					opI.ok();
 				} catch (NoSolutionException e) {
-					/* Não haver solução não é considerado uma falha durante a iteração. */
+					/* Não haver solução não é considerado uma falha durante a interação. */
 					opI.put("reason", e.reason.toString()).ok();
-					throw e;
-				} catch (RuntimeException e) {
+					throw e.operation(IterateCplex).data("n", Integer.toString(iterationCounter));
+				} catch (Exception e) {
+					/* Handle any other unforeseen exception. */
 					opI.fail(e);
-					throw e;
+					throw RichRuntimeException.enrich(e, IterateCplex).data(opI.getContext());
 				}
 			}
 
@@ -207,27 +207,30 @@ public class CommandCplex implements ComandoSolver {
 
 			op.ok();
 		} catch (NoSolutionException e) {
+			/* Not having a solution was not considered an error for the iteration, but is considered an error
+			 * for the whole execution. */
 			op.put("reason", e.reason.toString()).fail(e);
-			throw e.operation(ExecutarCplex);
-		} catch (RuntimeException e) {
+			throw e.operation(ExecuteCplex);
+		} catch (Exception e) {
+			/* Handle any other unforeseen exception. */
 			op.fail(e);
-			throw RichRuntimeException.enrich(e, ExecutarCplex);
+			throw RichRuntimeException.enrich(e, ExecuteCplex).data(op.getContext());
 		}
 	}
 
-	protected void executarIteracao(int numeroIteracao) {
+	protected void executeIteration(int iterationCounter) {
 		Attribute.notNull(this.cplex);
-		Attribute.notNull(this.configuracao);
+		Attribute.notNull(this.configuration);
 
 		/*
 		 * TODO Aplicar configurações ao CPLEX de acordo com a subclasse da configuração.
 		 */
 		try {
-			if (configuracao.getSimplexLimiteDeIteracoes() != null) {
-				cplex.setParam(IloCplex.IntParam.ItLim, configuracao.getSimplexLimiteDeIteracoes());
+			if (configuration.getSimplexLimiteDeIteracoes() != null) {
+				cplex.setParam(IloCplex.IntParam.ItLim, configuration.getSimplexLimiteDeIteracoes().intValue());
 			}
-			if (configuracao.getSimplexLimiteDeTempo() != null) {
-				cplex.setParam(IloCplex.DoubleParam.TiLim, configuracao.getSimplexLimiteDeTempo());
+			if (configuration.getSimplexLimiteDeTempo() != null) {
+				cplex.setParam(IloCplex.DoubleParam.TiLim, configuration.getSimplexLimiteDeTempo().intValue());
 			}
 		} catch (IloException e) {
 			/* IloCplex.setParam() is not known to actually throw IloException. */
@@ -246,15 +249,15 @@ public class CommandCplex implements ComandoSolver {
 			/*
 			 * TODO O uso do callback precisa ser melhor estudado para não impedir multi-threading.
 			 */
-			cplex.use(new PresolveCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
-			cplex.use(new ContinuousCallback(loggerExecucao, configuracao.getNumeroPassosEntreProgresso()));
+			cplex.use(new PresolveCallback(loggerExecucao, configuration.getNumeroPassosEntreProgresso()));
+			cplex.use(new ContinuousCallback(loggerExecucao, configuration.getNumeroPassosEntreProgresso()));
 		} catch (IloException e) {
 			/* IloCplex.use() is not known to actually throw IloException. */
 			throw new UnsupportedException(e);
 		}
 
 
-		boolean solucaoEncontrada = false;
+		boolean solutionFound = false;
 		try {
 			/*
 			 * TODO Implementar outputstream para capturar saida do cplex.
@@ -263,11 +266,11 @@ public class CommandCplex implements ComandoSolver {
 			 */
 
 			/*
-			 * Resolver!
+			 * Execute solver!
 			 */
-			loggerExecucao.debug("Call Cplex.solfe(iteration={})", numeroIteracao);
-			solucaoEncontrada = this.cplex.solve();
-			loggerExecucao.debug("Cplex.solve(iteration={}): solutionFound={}.", numeroIteracao, solucaoEncontrada);
+			loggerExecucao.debug("Call Cplex.solfe(iteration={})", Integer.toString(iterationCounter));
+			solutionFound = this.cplex.solve();
+			loggerExecucao.debug("Cplex.solve(iteration={}): solutionFound={}.", Integer.toString(iterationCounter), Boolean.toString(solutionFound));
 		} catch (IloException e) {
 			/*
 			 * TODO Estudar melhor quais exceções fazem sentido. Se não houver alguma, mudar para UnsupportedException.
@@ -278,19 +281,19 @@ public class CommandCplex implements ComandoSolver {
 		/*
 		 * Reportar o tipo de resultado obtido.
 		 */
-		logSolutionProperties(solucaoEncontrada);
+		logSolutionProperties(solutionFound);
 
 		/*
 		 * Se existe uma (melhor) solução, então reporta ela no arquivo e no log.
 		 */
-		if (solucaoEncontrada) {
+		if (solutionFound) {
 			loggerExecucao.info("Existe uma solução (ou solução parcial).");
 			logSolutionPoolProperties();
 
 			/* Reportar solução em arquivo, se assim configurado. */
-			if (this.configuracao.temCaminhoSolucaoExportada()) {
-				saveSolution(this.configuracao.getCaminhoAbsolutoSolucaoExportada());
-			};
+			if (this.configuration.temCaminhoSolucaoExportada()) {
+				saveSolution(this.configuration.getCaminhoAbsolutoSolucaoExportada());
+			}
 		} else {
 			loggerExecucao.info("Não existe solução.");
 		}

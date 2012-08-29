@@ -15,10 +15,8 @@
  */
 package infra.ilog.opl;
 
+import static infra.exception.Assert.Argument;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
-import infra.exception.assertions.datastate.IllegalArgumentDataException;
-import infra.exception.assertions.datastate.IllegalDataStateException;
-import infra.exception.assertions.datastate.NullArgumentException;
 
 import java.io.File;
 
@@ -68,8 +66,8 @@ public class ConfiguracaoOPL {
 	 * @param caminho O caminho base da configuração. Todos os demais caminhos da configuração são relativos a ele. Deve ser absoluto.
 	 */
 	public ConfiguracaoOPL(String nome, File caminho) {
-		assert NullArgumentException.apply(nome, caminho);
-		assert IllegalArgumentDataException.apply(caminho.isAbsolute());
+		Argument.notNull(nome, caminho);
+		Argument.check(caminho.isAbsolute());
 		this.nome = nome;
 		this.caminhoBase = caminho;
 	}
@@ -79,9 +77,9 @@ public class ConfiguracaoOPL {
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
 	public ConfiguracaoOPL(ConfiguracaoOPL configuracao) {
-		assert IllegalArgumentDataException.apply(configuracao.nome != null);
-		assert IllegalArgumentDataException.apply(configuracao.caminhoBase != null);
-		assert IllegalArgumentDataException.apply(configuracao.caminhoBase.isAbsolute());
+		Argument.check(configuracao.nome != null);
+		Argument.check(configuracao.caminhoBase != null);
+		Argument.check(configuracao.caminhoBase.isAbsolute());
 
 		this.nome = configuracao.nome;
 		this.modoDebug = configuracao.modoDebug;
@@ -105,8 +103,8 @@ public class ConfiguracaoOPL {
 	public File getCaminhoBase() { return caminhoBase; }
 	/** @param caminho O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	public ConfiguracaoOPL setCaminhoBase(File caminho) {
-		NullArgumentException.apply(caminho);
-		IllegalArgumentDataException.apply(caminho.isAbsolute());
+		Argument.notNull(caminho);
+		Argument.check(caminho.isAbsolute());
 
 		this.caminhoBase = caminho;
 		return this;
@@ -144,7 +142,7 @@ public class ConfiguracaoOPL {
 	/** O caminho absoluto do diretório onde o OPL irá criar arquivos temporários (ou <code>null</code> para usar o padrão do OPL). */
 	public File getCaminhoAbsolutoTmp() {
 		if (caminhoTmp.isAbsolute()) return caminhoTmp;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Argument.check(caminhoBase != null, caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoTmp.getPath());
 	}
 
@@ -159,7 +157,7 @@ public class ConfiguracaoOPL {
 	/** O caminho absoluto do arquivo no qual será salvo o modelo utilizado pelo OPL. */
 	public File getCaminhoAbsolutoModeloOpl() {
 		if (caminhoModeloOpl.isAbsolute()) return caminhoModeloOpl;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Argument.check(caminhoBase != null, caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoModeloOpl.getPath());
 	}
 
@@ -177,7 +175,7 @@ public class ConfiguracaoOPL {
 	/** O caminho absoluto do arquivo no qual serão salvos dados 'externos' do modelo modelo OPL. */
 	public File getCaminhoAbsolutoDadosExternosOpl() {
 		if (caminhoDadosExternosOpl.isAbsolute()) return caminhoDadosExternosOpl;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Argument.check(caminhoBase != null, caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoDadosExternosOpl.getPath());
 	}
 
@@ -195,7 +193,7 @@ public class ConfiguracaoOPL {
 	/** Caminho absoluto do arquivo no qual serão salvos dados 'internos' do modelo modelo OPL.*/
 	public File getCaminhoAbsolutoDadosInternosOpl() {
 		if (caminhoDadosInternosOpl.isAbsolute()) return caminhoDadosInternosOpl;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Argument.check(caminhoBase != null, caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoDadosInternosOpl.getPath());
 	}
 
@@ -210,7 +208,7 @@ public class ConfiguracaoOPL {
 	/** O caminho absoluto do arquivo no qual será salva a solução obtida para o modelo pelo OPL. */
 	public File getCaminhoAbsolutoDadosSolucao() {
 		if (caminhoDadosSolucaoOpl.isAbsolute()) return caminhoDadosSolucaoOpl;
-		assert IllegalDataStateException.apply(caminhoBase != null, caminhoBase.isAbsolute());
+		Argument.check(caminhoBase != null, caminhoBase.isAbsolute());
 		return new File (caminhoBase, caminhoDadosSolucaoOpl.getPath());
 	}
 

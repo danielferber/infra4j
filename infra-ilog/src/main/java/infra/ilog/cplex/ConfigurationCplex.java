@@ -29,12 +29,12 @@ import java.io.File;
  *
  * @author Daniel Felix Ferber (x7ws) - Grupo de Pesquisa Operacional
  */
-public class ConfiguracaoCplex {
+public class ConfigurationCplex {
 	/**
 	 * Cria uma configuração relativa a um caminho base.
 	 * @param caminho O caminho base da configuração. Todos os demais caminhos da configuração são relativos a ele. Deve ser absoluto.
 	 */
-	public ConfiguracaoCplex(String nome, File caminho) {
+	public ConfigurationCplex(String nome, File caminho) {
 		Argument.notNull(nome, caminho);
 		Argument.check(caminho.isAbsolute());
 
@@ -46,7 +46,7 @@ public class ConfiguracaoCplex {
 	 * Cria uma configuração baseada em uma configuração existente.
 	 * @param configuracao A configuração da qual serão copiados os atributos.
 	 */
-	public ConfiguracaoCplex(ConfiguracaoCplex configuracao) {
+	public ConfigurationCplex(ConfigurationCplex configuracao) {
 		Argument.notNull(configuracao);
 		Argument.notNull(configuracao.nome);
 		Argument.notNull(configuracao.caminhoBase);
@@ -75,7 +75,7 @@ public class ConfiguracaoCplex {
 	/** @return O caminho base da configuração. Todos os caminhos são relativos a ele. */
 	public File getCaminhoBase() { return caminhoBase; }
 	/** @param caminho O caminho base da configuração. Todos os caminhos são relativos a ele. */
-	public ConfiguracaoCplex setCaminhoBase(File caminho) {
+	public ConfigurationCplex setCaminhoBase(File caminho) {
 		Argument.notNull(caminhoBase);
 		Argument.check(caminhoBase.isAbsolute());
 		this.caminhoBase = caminho;
@@ -87,7 +87,7 @@ public class ConfiguracaoCplex {
 	/** @return O caminho do arquivo no qual será salvo o modelo utilizado pelo Cplex (ou null para não salvar). */
 	public File getCaminhoModeloExportado() { return this.caminhoModeloExportado; }
 	/** @param caminho O caminho do arquivo no qual salvo o modelo utilizado pelo Cplex (ou null para não salvar). */
-	public ConfiguracaoCplex setCaminhoModeloExportado(File caminho) { this.caminhoModeloExportado = caminho; return this; }
+	public ConfigurationCplex setCaminhoModeloExportado(File caminho) { this.caminhoModeloExportado = caminho; return this; }
 	/** @return Se foi atribuido um caminho para o arquivo no qual será salvo o modelo utilizado pelo Cplex. */
 	public boolean temCaminhoModeloExportado() { return this.caminhoModeloExportado != null; }
 	/** @return Caminho do absoluto do arquivo no qual será salvo o modelo utilizado para executar o Cplex. */
@@ -103,7 +103,7 @@ public class ConfiguracaoCplex {
 	/** @return O caminho do arquivo no qual serão salvos os parâmetros utilizados para executar o Cplex (ou null para não salvar). */
 	public File getCaminhoParametrosExportados() { return this.caminhoParametrosExportado; }
 	/** @param caminho O caminho do arquivo no qual serão salvos os parâmetros utilizados para executar o Cplex (ou null para não salvar). */
-	public ConfiguracaoCplex setCaminhoParametrosExportados(File caminho) { this.caminhoParametrosExportado = caminho; return this; }
+	public ConfigurationCplex setCaminhoParametrosExportados(File caminho) { this.caminhoParametrosExportado = caminho; return this; }
 	/** @return Se foi atribuido um caminho para o arquivo no qual serão salvos os parâmetros utilizados para executar o Cplex. */
 	public boolean temCaminhoParametrosExportados() { return this.caminhoParametrosExportado != null; }
 	/** @return Caminho do absoluto do arquivo no qual será serão salvos os parâmetros utilizados para executar o Cplex. */
@@ -119,7 +119,7 @@ public class ConfiguracaoCplex {
 	/** @return O caminho do arquivo no qual será salva a solução gerada pelo Cplex (ou null para não salvar). */
 	public File getCaminhoSolucaoExportada() { return this.caminhoSolucaoExportado; }
 	/** @param caminho O caminho do arquivo no qual será salva a solução gerada pelo Cplex (ou null para não salvar). */
-	public ConfiguracaoCplex setCaminhoSolucaoExportada(File caminho) { this.caminhoSolucaoExportado = caminho; return this; }
+	public ConfigurationCplex setCaminhoSolucaoExportada(File caminho) { this.caminhoSolucaoExportado = caminho; return this; }
 	/** @return Se foi atribuido um caminho para o arquivo no qual será salva a solução gerada pelo Cplex. */
 	public boolean temCaminhoSolucaoExportada() { return this.caminhoSolucaoExportado != null; }
 	/** @return Caminho do absoluto do arquivo no qual será salva a solução gerada pelo Cplex. */

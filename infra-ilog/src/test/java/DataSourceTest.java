@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import infra.exception.ServicoExcecao;
-import infra.ilog.cplex.ConfiguracaoCplex;
+import infra.exception.ExceptionService;
+import infra.ilog.cplex.ConfigurationCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
 import infra.ilog.opl.FonteDados;
@@ -42,14 +42,14 @@ import org.junit.Test;
 @SuppressWarnings("deprecation")
 public class DataSourceTest {
 	private ConfiguracaoOPL configuracaoOpl;
-	private ConfiguracaoCplex configuracaoCplex;
+	private ConfigurationCplex configuracaoCplex;
 	private ProvedorModelo provedorModelo;
 
 	@Before
 	public void loadModel() {
 		File homeDir = new File(System.getProperty("user.dir"));
 		configuracaoOpl = new ConfiguracaoOPL("teste", homeDir);
-		configuracaoCplex = new ConfiguracaoCplex("teste", homeDir);
+		configuracaoCplex = new ConfigurationCplex("teste", homeDir);
 		String modeloString =
 				"using CPLEX;" +
 						"" +
@@ -80,7 +80,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -96,7 +96,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -110,7 +110,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -124,7 +124,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}

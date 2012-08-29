@@ -1,6 +1,6 @@
-import infra.exception.ServicoExcecao;
+import infra.exception.ExceptionService;
 import infra.ilog.NoSolutionException;
-import infra.ilog.cplex.ConfiguracaoCplex;
+import infra.ilog.cplex.ConfigurationCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
 import infra.ilog.opl.OplModelException;
@@ -20,13 +20,13 @@ import org.junit.Test;
  */
 public class ModelTest {
 	private ConfiguracaoOPL configuracaoOpl;
-	private ConfiguracaoCplex configuracaoCplex;
+	private ConfigurationCplex configuracaoCplex;
 
 	@Before
 	public void loadConfiguration() {
 		File homeDir = new File(System.getProperty("user.dir"));
 		configuracaoOpl = new ConfiguracaoOPL("teste", homeDir);
-		configuracaoCplex = new ConfiguracaoCplex("teste", homeDir);
+		configuracaoCplex = new ConfigurationCplex("teste", homeDir);
 	}
 
 	@Test
@@ -56,7 +56,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}
@@ -89,7 +89,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}
@@ -122,7 +122,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ServicoExcecao.reportarException(System.err, e);
+			ExceptionService.reportarException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}

@@ -1,10 +1,10 @@
 package infra.ilog.cplex;
 
 import ilog.cplex.IloCplex;
-import infra.ilog.ComandoSolver;
+import infra.ilog.SolverCommand;
 
 /**
- * O {@link ComandoSolver} delega para esta classe algumas decisões sobre como
+ * O {@link SolverCommand} delega para esta classe algumas decisões sobre como
  * executar o CPLEX. Veja 'delegate' design pattern.
  */
 public interface Delegate {
@@ -16,7 +16,7 @@ public interface Delegate {
 	 * @return true se deve realizar mais uma execução, false se deve interromper
 	 * TODO noremear para autorizarIteracao()
 	 */
-	boolean antesExecucao(IloCplex cplex, int numeroIteracao, ConfiguracaoCplex configuracao);
+	boolean antesExecucao(IloCplex cplex, int numeroIteracao, ConfigurationCplex configuracao);
 	/**
 	 * Permite decidir se deve realizar mais uma interação do solucionador.
 	 * @param cplex instância do CPLEX
@@ -25,5 +25,5 @@ public interface Delegate {
 	 * @return true se deve realizar mais uma execução, false se deve interromper
 	 * TODO renomear para autorizarProximaIteracao()
 	 */
-	boolean depoisExecucao(IloCplex cplex, int numeroIteracao, ConfiguracaoCplex configuracao);
+	boolean depoisExecucao(IloCplex cplex, int numeroIteracao, ConfigurationCplex configuracao);
 }

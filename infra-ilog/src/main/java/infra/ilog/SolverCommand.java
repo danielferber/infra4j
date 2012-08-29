@@ -29,7 +29,7 @@ package infra.ilog;
  * @author Daniel Felix Ferber
  * @author Tiago de Morais Montanher
  */
-public interface ComandoSolver {
+public interface SolverCommand {
 	/**
 	 * Runs the solver over the model and the data that were previously loaded.
 	 *

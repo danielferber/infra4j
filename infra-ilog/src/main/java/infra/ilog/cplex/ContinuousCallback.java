@@ -15,13 +15,12 @@
  */
 package infra.ilog.cplex;
 
+import static infra.exception.Assert.Argument;
+import static infra.exception.Assert.Attribute;
 import ilog.concert.IloException;
 import infra.exception.assertions.controlstate.design.UnsupportedMethodException;
 
 import org.slf4j.Logger;
-
-import static infra.exception.Assert.Argument;
-import static infra.exception.Assert.Attribute;
 
 
 /**
@@ -54,13 +53,13 @@ class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 		this.logger.info(
 				String.format(
 						"Simplex: nIter=%d; inf=%.1f; dualInf=%.1f; objVal=%.1f; nCol=%d; nRow=%d; nQC=%d",
-						getNiterations(),
-						getInfeasibility(),
-						getDualInfeasibility(),
-						getObjValue(),
-						getNcols(),
-						getNrows(),
-						getNQCs()
+						Integer.toString(getNiterations()),
+						Double.toString(getInfeasibility()),
+						Double.toString(getDualInfeasibility()),
+						Double.toString(getObjValue()),
+						Integer.toString(getNcols()),
+						Integer.toString(getNrows()),
+						Integer.toString(getNQCs())
 				));
 	}
 

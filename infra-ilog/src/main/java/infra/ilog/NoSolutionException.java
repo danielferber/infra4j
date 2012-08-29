@@ -50,6 +50,11 @@ public class NoSolutionException extends RichException {
 		return (NoSolutionException) super.data(key, value);
 	}
 
+//	@Override
+//	public NoSolutionException data(Map<String, ? extends Object> context) {
+//		return (NoSolutionException) super.data(context);
+//	}
+
 	@Override
 	public NoSolutionException reason(Object reason) {
 		return (NoSolutionException) super.reason(reason);
@@ -59,4 +64,5 @@ public class NoSolutionException extends RichException {
 	public NoSolutionException operation(Object operation) {
 		return (NoSolutionException) super.operation(operation);
 	}
+
 }

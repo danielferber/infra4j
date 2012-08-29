@@ -15,8 +15,8 @@
  */
 package infra.ilog.opl.dados;
 
+import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
-import infra.exception.assertions.datastate.NullArgumentException;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -38,7 +38,7 @@ public class ConsumidorDadosStringBuilder extends AbstractConsumidorDadosStream 
 
 	public ConsumidorDadosStringBuilder(String nome, StringBuilder sb, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
 		super(nome, includePattern, excludePattern, filtro);
-		NullArgumentException.apply(sb);
+		Argument.notNull(sb);
 		this.stringBuilder = sb;
 	}
 
