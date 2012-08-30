@@ -140,6 +140,10 @@ public class RichRuntimeException extends RuntimeException {
 		return this.metaData.get(key);
 	}
 
+	public final Map<String, Object> getData() {
+		return Collections.unmodifiableMap(metaData);
+	}
+
 	public final Set<Object> getReasons() {
 		return Collections.unmodifiableSet(reasons);
 	}
