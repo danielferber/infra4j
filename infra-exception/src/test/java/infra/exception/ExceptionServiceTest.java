@@ -37,7 +37,7 @@ public class ExceptionServiceTest {
 				throw new RuntimeException("Problemas na execução.", e);
 			}
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		}
 		try {
 			try {
@@ -46,9 +46,9 @@ public class ExceptionServiceTest {
 				throw new RichException(MotivoA.ARQUIVO, e);
 			}
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		}
-		ExceptionService.instalar();
+		ExceptionService.install();
 		throw new RuntimeException("Um outro erro...");
 	}
 }

@@ -55,7 +55,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}
@@ -88,7 +88,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}
@@ -121,7 +121,7 @@ public class ModelTest {
 			facadeOPL.executar();
 			Assert.fail("Model should be accused as invalid.");
 		} catch (OplModelException e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		} catch (NoSolutionException e) {
 			e.printStackTrace();
 		}

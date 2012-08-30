@@ -8,10 +8,10 @@ tuple ponto {
 	float y;
 }
 
-range espaco = 1..2;
+range espaco = ...;
 
-ponto pontos[espaco] = [ <0,3>, <3,0> ];
-ponto referencia = <1,1>;
+ponto pontos[espaco] = ...;
+ponto referencia = ...;
 
 dvar float pesos[espaco];
 

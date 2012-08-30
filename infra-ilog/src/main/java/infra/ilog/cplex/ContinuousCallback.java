@@ -53,13 +53,13 @@ class ContinuousCallback extends ilog.cplex.IloCplex.ContinuousCallback {
 		this.logger.info(
 				String.format(
 						"Simplex: nIter=%d; inf=%.1f; dualInf=%.1f; objVal=%.1f; nCol=%d; nRow=%d; nQC=%d",
-						Integer.toString(getNiterations()),
-						Double.toString(getInfeasibility()),
-						Double.toString(getDualInfeasibility()),
-						Double.toString(getObjValue()),
-						Integer.toString(getNcols()),
-						Integer.toString(getNrows()),
-						Integer.toString(getNQCs())
+						Integer.valueOf(getNiterations()),
+						Double.valueOf(getInfeasibility()),
+						Double.valueOf(getDualInfeasibility()),
+						Double.valueOf(getObjValue()),
+						Integer.valueOf(getNcols()),
+						Integer.valueOf(getNrows()),
+						Integer.valueOf(getNQCs())
 				));
 	}
 

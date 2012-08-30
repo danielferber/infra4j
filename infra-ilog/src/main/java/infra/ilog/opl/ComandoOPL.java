@@ -17,13 +17,12 @@ package infra.ilog.opl;
 
 import static infra.exception.Assert.Argument;
 import static infra.exception.Assert.Attribute;
-import static infra.exception.Assert.Invariant;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.RichRuntimeException;
 import infra.exception.controlstate.design.UnsupportedMethodException;
-import infra.ilog.SolverCommand;
 import infra.ilog.NoSolutionException;
+import infra.ilog.SolverCommand;
 import infra.slf4j.LoggerFactory;
 import infra.slf4j.Meter;
 import infra.slf4j.MeterFactory;
@@ -88,7 +87,6 @@ public class ComandoOPL {
 
 		this.oplModel = oplModel;
 		this.configuracao = new ConfiguracaoOPL(configuracao);
-		Invariant.check(this.configuracao.equals(configuracao));
 		this.solverCommand = comandoResolvedor;
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracao.getNome());

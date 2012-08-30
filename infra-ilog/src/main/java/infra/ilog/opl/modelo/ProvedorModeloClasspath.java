@@ -39,7 +39,7 @@ public class ProvedorModeloClasspath extends AbstractProvedorModelo {
 		super(nome);
 		Argument.notNull(caminhoArquivo);
 		URL urlClasspathTmp = this.getClass().getResource(caminhoArquivo);
-		Argument.check(this.urlClasspath != null);
+		Argument.check(urlClasspathTmp != null);
 		this.urlClasspath = urlClasspathTmp;
 	}
 

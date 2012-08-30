@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 /**
  * Constitui uma forma padrão de reportar exceções.
  * <p/>
- * O método {@link #reportarException(PrintStream, Throwable)} imprime uma exceção de forma mais legível.
+ * O método {@link #reportException(PrintStream, Throwable)} imprime uma exceção de forma mais legível.
  * <p>
- * O método {@link #instalar()} aplica um handler padrão de exceção para toda aplicação. Os métodos {@link #setUncaughtExceptionHandler()} e
+ * O método {@link #install()} aplica um handler padrão de exceção para toda aplicação. Os métodos {@link #setUncaughtExceptionHandler()} e
  * {@link #setUncaughtExceptionHandler(Thread)} aplicam um handler para uma thread específica.
  * É interessante chamar este método para todas as novas threads criadas pela aplicação.
  * <p>
@@ -41,20 +41,20 @@ public class ExceptionService {
 	public static final Logger logger = LoggerFactory.getLogger(ExceptionService.class);
 
 	/**
-	 * O handler padão de exceções. Imprime imprime em {@link System#err} uma descrição da exceção utilizando {@link #reportarException(PrintStream, Throwable)}
+	 * O handler padão de exceções. Imprime imprime em {@link System#err} uma descrição da exceção utilizando {@link #reportException(PrintStream, Throwable)}
 	 * . Também registra a exceção em um log específico de exceções não tratadas..
 	 */
 	private static final Thread.UncaughtExceptionHandler defaultExceptionHandler = new Thread.UncaughtExceptionHandler() {
 		@Override
 		public void uncaughtException(Thread t, Throwable e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 		}
 	};
 
 	/**
 	 * Aplica um hander de exceção padronizado para toda a  JVM..
 	 */
-	public static void instalar() {
+	public static void install() {
 		Thread.setDefaultUncaughtExceptionHandler(ExceptionService.defaultExceptionHandler);
 	}
 
@@ -75,54 +75,54 @@ public class ExceptionService {
 	 * @param throwable
 	 *            Exceção para ser reportada.
 	 */
-	public static void reportarException(PrintStream output, Throwable throwable) {
+	public static void reportException(PrintStream output, Throwable throwable) {
 		ExceptionService.logger.error("Falha durante a execução.", throwable);
 
 		/* For robustness, do not fail if there is a bug within the report. */
 		try {
 			output.println();
-			ExceptionService.titulo(output, "FALHA DE EXECUÇÃO", 80);
+			ExceptionService.writeTitle(output, "FALHA DE EXECUÇÃO", 80);
 			output.println();
 
-			ExceptionService.linha(output, 80, '/', '-', '\\');
+			ExceptionService.writeLine(output, 80, '/', '-', '\\');
 			Throwable t = throwable;
 			while (t != null) {
 				if (t.getLocalizedMessage() != null) {
-					ExceptionService.caixa(output, t.getLocalizedMessage(), 80, 1);
-					ExceptionService.linha(output, 80, '+', ' ', '+');
+					ExceptionService.writeBox(output, t.getLocalizedMessage(), 80, 1);
+					ExceptionService.writeLine(output, 80, '+', ' ', '+');
 				} else if (t.getMessage() != null) {
-					ExceptionService.caixa(output, t.getMessage(), 80, 1);
-					ExceptionService.linha(output, 80, '+', ' ', '+');
+					ExceptionService.writeBox(output, t.getMessage(), 80, 1);
+					ExceptionService.writeLine(output, 80, '+', ' ', '+');
 				}
 				if (RichException.class.isInstance(t)) {
 					Iterator<Object> reasons = ((RichException)t).getReasons().iterator();
 					if (reasons.hasNext()) {
-						ExceptionService.caixa(output, "Reason: "+ExceptionService.iteratorToString(reasons), 80);
+						ExceptionService.writeBox(output, "Reason: "+ExceptionService.iteratorToString(reasons), 80);
 					}
 					Iterator<Object> operations = ((RichException)t).getOperations().iterator();
 					if (operations.hasNext()) {
-						ExceptionService.caixa(output, "Operation: "+ExceptionService.iteratorToString(operations), 80);
+						ExceptionService.writeBox(output, "Operation: "+ExceptionService.iteratorToString(operations), 80);
 					}
 					Iterator<Entry<String, Object>> dataItr = ((RichException)t).getData().entrySet().iterator();
 					while (dataItr.hasNext()) {
 						Entry<String, Object> data = dataItr.next();
-						ExceptionService.caixa(output, data.getKey()+": "+data.getValue(), 80);
+						ExceptionService.writeBox(output, data.getKey()+": "+data.getValue(), 80);
 					}
 //				} else if (IllegalControlStateException.class.isInstance(t)) {
 //					ExceptionService.caixa(output, "Violação de integridade da execução.", 80);
 //				} else if (IllegalDataStateException.class.isInstance(t)) {
 //					ExceptionService.caixa(output, "Violação de integridade de dados.", 80);
 				} else if (RuntimeException.class.isInstance(t)) {
-					ExceptionService.caixa(output, "Erro de execução. "+t.getClass().getName(), 80);
+					ExceptionService.writeBox(output, "Erro de execução. "+t.getClass().getName(), 80);
 				} else {
-					ExceptionService.caixa(output, "Tipo: "+t.getClass().getName(), 80, 0);
+					ExceptionService.writeBox(output, "Tipo: "+t.getClass().getName(), 80, 0);
 				}
 				t = t.getCause();
 				if (t != null) {
-					ExceptionService.linha(output, 80, '+', '-', '+');
+					ExceptionService.writeLine(output, 80, '+', '-', '+');
 				}
 			}
-			ExceptionService.linha(output, 80, '\\', '-', '/');
+			ExceptionService.writeLine(output, 80, '\\', '-', '/');
 
 			output.println();
 			output.println("Rota até a falha: ");
@@ -146,39 +146,39 @@ public class ExceptionService {
 		return sb.toString();
 	}
 
-	private static void printChars(PrintStream output, char c, int count) {
+	private static void writeChars(PrintStream output, char c, int count) {
 		for (int i = 0; i < count; i++) {
 			output.print(c);
 		}
 	}
 
-	private static void linha(PrintStream output, int width, char l, char c, char r) {
+	private static void writeLine(PrintStream output, int width, char l, char c, char r) {
 		output.print(l);
-		ExceptionService.printChars(output, c, width-2);
+		ExceptionService.writeChars(output, c, width-2);
 		output.print(r);
 		output.println();
 	}
 
-	private static void titulo(PrintStream output, String mensagem, int width) {
-		ExceptionService.printChars(output, '*', width);
+	private static void writeTitle(PrintStream output, String mensagem, int width) {
+		ExceptionService.writeChars(output, '*', width);
 		output.println();
-		ExceptionService.printChars(output, '*', 3);
+		ExceptionService.writeChars(output, '*', 3);
 		int paddingL = (width-3-3-mensagem.length()) / 2;
 		int paddingR = width-3-3-paddingL-mensagem.length();
-		ExceptionService.printChars(output, ' ', paddingL);
+		ExceptionService.writeChars(output, ' ', paddingL);
 		output.print(mensagem);
-		ExceptionService.printChars(output, ' ', paddingR);
-		ExceptionService.printChars(output, '*', 3);
+		ExceptionService.writeChars(output, ' ', paddingR);
+		ExceptionService.writeChars(output, '*', 3);
 		output.println();
-		ExceptionService.printChars(output, '*', width);
+		ExceptionService.writeChars(output, '*', width);
 		output.println();
 	}
 
-	private static void caixa(PrintStream output, String str, int width) {
-		ExceptionService.caixa(output, str, width, 0);
+	private static void writeBox(PrintStream output, String str, int width) {
+		ExceptionService.writeBox(output, str, width, 0);
 	}
 
-	private static void caixa(PrintStream output, String str, int width, int align) {
+	private static void writeBox(PrintStream output, String str, int width, int align) {
 		String leftStr = "|>";
 		String rightStr = "<|";
 		int len = str.length();
@@ -228,9 +228,9 @@ public class ExceptionService {
 					padL = wrapLength-substring.length();
 				}
 				int padR = wrapLength - substring.length() - padL;
-				ExceptionService.printChars(output, ' ', padL);
+				ExceptionService.writeChars(output, ' ', padL);
 				output.print(substring);
-				ExceptionService.printChars(output, ' ', padR);
+				ExceptionService.writeChars(output, ' ', padR);
 				output.println(rightStr);
 			}
 			start = end;
@@ -239,29 +239,29 @@ public class ExceptionService {
 
 	/* Some test cases. */
 	public static void main(String[] args) {
-		ExceptionService.caixa(System.out, "aaaaa", 25);
-		ExceptionService.caixa(System.out, "   bbbbb", 25);
-		ExceptionService.caixa(System.out, "ccccc   ", 25);
-		ExceptionService.caixa(System.out, "   eeeee   ", 25);
+		ExceptionService.writeBox(System.out, "aaaaa", 25);
+		ExceptionService.writeBox(System.out, "   bbbbb", 25);
+		ExceptionService.writeBox(System.out, "ccccc   ", 25);
+		ExceptionService.writeBox(System.out, "   eeeee   ", 25);
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ExceptionService.caixa(System.out, "aaaaa bbbbb ccccc ddddd eeeee", i+4);
+			ExceptionService.writeBox(System.out, "aaaaa bbbbb ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ExceptionService.caixa(System.out, "aaaaa bbbbb     ccccc ddddd eeeee", i+4);
+			ExceptionService.writeBox(System.out, "aaaaa bbbbb     ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 40; i++) {
 			System.out.println(i);
-			ExceptionService.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeee", i+4);
+			ExceptionService.writeBox(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 50; i++) {
 			System.out.println(i);
-			ExceptionService.caixa(System.out, "aaaaaaaaaaaaaa bbbbb  ccccc ddddd eeeee", i+4);
+			ExceptionService.writeBox(System.out, "aaaaaaaaaaaaaa bbbbb  ccccc ddddd eeeee", i+4);
 		}
 		for (int i = 10; i < 50; i++) {
 			System.out.println(i);
-			ExceptionService.caixa(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeeeeeeeeeeee", i+4);
+			ExceptionService.writeBox(System.out, "aaaaa bbbbb  cccccccccccccc ddddd eeeeeeeeeeeeee", i+4);
 		}
 	}
 }

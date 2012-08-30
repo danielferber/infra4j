@@ -52,13 +52,13 @@ class PresolveCallback extends ilog.cplex.IloCplex.PresolveCallback {
 
 		this.logger.info(
 				String.format("Presolve: nAggr=%d; nmodCoef=%d; nRemCol=%d; nremRow=%d; nCol=%d; nRow=%d; nQC=%d",
-						Integer.toString(getNaggregations()),
-						Integer.toString(getNmodifiedCoeffs()),
-						Integer.toString(getNremovedCols()),
-						Integer.toString(getNremovedRows()),
-						Integer.toString(getNcols()),
-						Integer.toString(getNrows()),
-						Integer.toString(getNQCs()))
+						Integer.valueOf(getNaggregations()),
+						Integer.valueOf(getNmodifiedCoeffs()),
+						Integer.valueOf(getNremovedCols()),
+						Integer.valueOf(getNremovedRows()),
+						Integer.valueOf(getNcols()),
+						Integer.valueOf(getNrows()),
+						Integer.valueOf(getNQCs()))
 		);
 	}
 

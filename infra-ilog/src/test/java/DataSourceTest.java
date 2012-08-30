@@ -79,7 +79,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -95,7 +95,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -109,7 +109,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
@@ -123,7 +123,7 @@ public class DataSourceTest {
 		try {
 			facadeOPL.executar();
 		} catch (Exception e) {
-			ExceptionService.reportarException(System.err, e);
+			ExceptionService.reportException(System.err, e);
 			Assert.fail(e.getMessage());
 		}
 	}
