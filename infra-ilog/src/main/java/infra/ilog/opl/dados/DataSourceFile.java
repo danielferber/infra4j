@@ -17,7 +17,7 @@ package infra.ilog.opl.dados;
 
 import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
-import infra.ilog.opl.FonteDados;
+import infra.ilog.opl.DataSource;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +32,7 @@ import java.io.IOException;
  * Ocorrerá uma {@link FileNotFoundException} caso o arquivo não exista neste momento.
  * O construtor não verifica se o arquivo existe, pois assume que ele poderá ser criado no futuro.
  */
-public class FonteDadosArquivo extends AbstractFonteDadosStream {
+public class DataSourceFile extends AbstractDataSourceStream {
 	private final File caminhoArquivo;
 
 	/**
@@ -41,17 +41,17 @@ public class FonteDadosArquivo extends AbstractFonteDadosStream {
 	 * @param nome
 	 * @param caminhoArquivo
 	 */
-	public FonteDadosArquivo(String nome, File caminhoArquivo) {
+	public DataSourceFile(String nome, File caminhoArquivo) {
 		super(nome);
 		Argument.notNull(caminhoArquivo);
 		this.caminhoArquivo = caminhoArquivo;
 	}
 
 	/**
-	 * Implementação do {@link FonteDados}. Adiciona o arquivo na lista de fontes de dados do OPL.
+	 * Implementação do {@link DataSource}. Adiciona o arquivo na lista de fontes de dados do OPL.
 	 */
 	@Override
-	public void importar(IloOplModel oplModel) throws IOException {
+	public void produceData(IloOplModel oplModel) throws IOException {
 		FileInputStream is = new FileInputStream(caminhoArquivo);
 		super.agendarStream(oplModel, is);
 		super.agendarFechamentoStream(oplModel, is);

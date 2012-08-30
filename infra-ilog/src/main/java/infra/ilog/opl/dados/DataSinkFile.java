@@ -34,21 +34,21 @@ import java.util.regex.Pattern;
  * Ocorrerá uma {@link FileNotFoundException} caso o diretório do arquivo não puder ser criado.
  * O construtor não verifica se o arquivo existe, pois assume que ele poderá ser criado no futuro.
  */
-public class ConsumidorDadosArquivo extends AbstractConsumidorDadosStream {
+public class DataSinkFile extends AbstractDataSinkStream {
 	private final File caminhoArquivo;
 
-	public ConsumidorDadosArquivo(String nome, File caminhoArquivo, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
+	public DataSinkFile(String nome, File caminhoArquivo, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
 		super(nome, includePattern, excludePattern, filtro);
 		Argument.notNull(caminhoArquivo);
 		this.caminhoArquivo = caminhoArquivo;
 	}
 
-	public ConsumidorDadosArquivo(String nome, File caminhoArquivo) {
+	public DataSinkFile(String nome, File caminhoArquivo) {
 		this(nome, caminhoArquivo, null, null, null);
 	}
 
 	@Override
-	public void exportar(IloOplModel oplModel) throws IOException {
+	public void consumeData(IloOplModel oplModel) throws IOException {
 		File parentDir = caminhoArquivo.getParentFile();
 		if (! parentDir.exists()) {
 			/* Verifica se o diretório que hospedará o arquivo realmente foi criado. */

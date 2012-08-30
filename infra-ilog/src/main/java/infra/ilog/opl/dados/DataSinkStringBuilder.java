@@ -33,21 +33,21 @@ import org.apache.commons.io.output.WriterOutputStream;
  * Esta é a única forma de obter os dados como String: através de um {@link StringBuilder} previamente criado
  * e que será utilizado depois para gerar a String.
  */
-public class ConsumidorDadosStringBuilder extends AbstractConsumidorDadosStream {
+public class DataSinkStringBuilder extends AbstractDataSinkStream {
 	private final StringBuilder stringBuilder;
 
-	public ConsumidorDadosStringBuilder(String nome, StringBuilder sb, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
+	public DataSinkStringBuilder(String nome, StringBuilder sb, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
 		super(nome, includePattern, excludePattern, filtro);
 		Argument.notNull(sb);
 		this.stringBuilder = sb;
 	}
 
-	public ConsumidorDadosStringBuilder(String nome, StringBuilder sb) {
+	public DataSinkStringBuilder(String nome, StringBuilder sb) {
 		this(nome, sb, null, null, null);
 	}
 
 	@Override
-	public void exportar(IloOplModel oplModel) throws IOException {
+	public void consumeData(IloOplModel oplModel) throws IOException {
 		StringWriter sw = new StringWriter();
 		OutputStream os = new WriterOutputStream(sw);
 		super.exportarStream(oplModel, os);

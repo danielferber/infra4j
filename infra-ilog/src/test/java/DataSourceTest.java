@@ -17,12 +17,12 @@ import infra.exception.ExceptionService;
 import infra.ilog.cplex.ConfigurationCplex;
 import infra.ilog.opl.ConfiguracaoOPL;
 import infra.ilog.opl.FacadeOPL;
-import infra.ilog.opl.FonteDados;
+import infra.ilog.opl.DataSource;
 import infra.ilog.opl.ProvedorModelo;
-import infra.ilog.opl.dados.FonteDadosArquivo;
-import infra.ilog.opl.dados.FonteDadosClasspath;
-import infra.ilog.opl.dados.FonteDadosInputStream;
-import infra.ilog.opl.dados.FonteDadosString;
+import infra.ilog.opl.dados.DataSourceFile;
+import infra.ilog.opl.dados.DataSourceClasspath;
+import infra.ilog.opl.dados.DataSourceInputStream;
+import infra.ilog.opl.dados.DataSourceString;
 import infra.ilog.opl.modelo.ProvedorModeloString;
 
 import java.io.File;
@@ -72,8 +72,8 @@ public class DataSourceTest {
 	public void provedorStringTest() {
 		String dadosString = "a = 3; b = 2;";
 
-		FonteDados provedorDados = new FonteDadosString("nome", dadosString);
-		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();
+		DataSource provedorDados = new DataSourceString("nome", dadosString);
+		Collection<DataSource> provedoresDados = new HashSet<DataSource>();
 		provedoresDados.add(provedorDados);
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
@@ -88,8 +88,8 @@ public class DataSourceTest {
 	public void provedorInputStreamTest() {
 		String dadosString = "a = 3; b = 2;";
 		InputStream is = new StringBufferInputStream(dadosString);
-		FonteDados provedorDados = new FonteDadosInputStream("nome", is );
-		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();
+		DataSource provedorDados = new DataSourceInputStream("nome", is );
+		Collection<DataSource> provedoresDados = new HashSet<DataSource>();
 		provedoresDados.add(provedorDados);
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
@@ -102,8 +102,8 @@ public class DataSourceTest {
 
 	@Test
 	public void provedorArquivoTest() {
-		FonteDados provedorDados = new FonteDadosArquivo("nome", new File("src/test/resources/dados/poliedro.dat") );
-		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();
+		DataSource provedorDados = new DataSourceFile("nome", new File("src/test/resources/dados/poliedro.dat") );
+		Collection<DataSource> provedoresDados = new HashSet<DataSource>();
 		provedoresDados.add(provedorDados);
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {
@@ -116,8 +116,8 @@ public class DataSourceTest {
 
 	@Test
 	public void provedorClasspathTest() {
-		FonteDados provedorDados = new FonteDadosClasspath("nome", "/dados/poliedro.dat");
-		Collection<FonteDados> provedoresDados = new HashSet<FonteDados>();
+		DataSource provedorDados = new DataSourceClasspath("nome", "/dados/poliedro.dat");
+		Collection<DataSource> provedoresDados = new HashSet<DataSource>();
 		provedoresDados.add(provedorDados);
 		FacadeOPL facadeOPL = new FacadeOPL(configuracaoOpl, configuracaoCplex, provedorModelo, provedoresDados, null);
 		try {

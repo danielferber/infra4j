@@ -23,7 +23,7 @@ import ilog.opl.IloOplElement;
 import ilog.opl.IloOplFactory;
 import ilog.opl.IloOplModel;
 import ilog.opl.IloOplSettings;
-import infra.ilog.opl.ConsumidorDados;
+import infra.ilog.opl.DataSink;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -35,12 +35,12 @@ import java.util.regex.Pattern;
 
 
 /**
- * Implementação abstrata para {@link ConsumidorDados} que escreve dados em recursos
+ * Implementação abstrata para {@link DataSink} que escreve dados em recursos
  * representados por streams.
  *
  * @author Daniel Felix Ferber
  */
-public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDados {
+public abstract class AbstractDataSinkStream extends AbstractDataSink {
 	private final Collection<Pattern> includePattern;
 	private final Collection<Pattern> excludePattern;
 	private final EnumSet<Filtro> filtro;
@@ -55,7 +55,7 @@ public abstract class AbstractConsumidorDadosStream extends AbstractConsumidorDa
 		PostProcessing
 	}
 
-	public AbstractConsumidorDadosStream(String nome, Collection<Pattern>includePattern, Collection<Pattern>excludePattern, EnumSet<Filtro> filtro) {
+	public AbstractDataSinkStream(String nome, Collection<Pattern>includePattern, Collection<Pattern>excludePattern, EnumSet<Filtro> filtro) {
 		super(nome);
 		if (includePattern == null) {
 			Collection<Pattern> list = new ArrayList<Pattern>(1);

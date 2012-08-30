@@ -29,21 +29,21 @@ import java.util.regex.Pattern;
  * Utiliza um stream como consumidor de dados para o OPL.
  * Não gerencia o ciclo de vida do stream, ou seja, mantém ele aberto após o uso.
  */
-public class ConsumidorDadosOutputStream extends AbstractConsumidorDadosStream {
+public class DataSinkOutputStream extends AbstractDataSinkStream {
 	private final OutputStream outputStream;
 
-	public ConsumidorDadosOutputStream(String nome, OutputStream os, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
+	public DataSinkOutputStream(String nome, OutputStream os, Collection<Pattern> includePattern, Collection<Pattern> excludePattern, EnumSet<Filtro> filtro) {
 		super(nome, includePattern, excludePattern, filtro);
 		Argument.notNull(os);
 		this.outputStream = os;
 	}
 
-	public ConsumidorDadosOutputStream(String nome, OutputStream os) {
+	public DataSinkOutputStream(String nome, OutputStream os) {
 			this(nome, os, null, null, null);
 	}
 
 	@Override
-	public void exportar(IloOplModel oplModel) throws IOException {
+	public void consumeData(IloOplModel oplModel) throws IOException {
 		super.exportarStream(oplModel, this.outputStream);
 	}
 }

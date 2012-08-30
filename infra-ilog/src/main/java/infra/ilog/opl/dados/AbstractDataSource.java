@@ -17,16 +17,16 @@ package infra.ilog.opl.dados;
 
 import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
-import infra.ilog.opl.FonteDados;
+import infra.ilog.opl.DataSource;
 
 import java.io.IOException;
 
 
-public abstract class AbstractFonteDados implements FonteDados {
+public abstract class AbstractDataSource implements DataSource {
 
 	protected final String nome;
 
-	public AbstractFonteDados(String nome) {
+	public AbstractDataSource(String nome) {
 		super();
 		Argument.notNull(nome);
 
@@ -34,20 +34,20 @@ public abstract class AbstractFonteDados implements FonteDados {
 	}
 
 	@Override
-	public String getNome() { return nome; }
+	public String getName() { return nome; }
 
 	@Override
-	public void preparar(IloOplModel oplModel) throws IOException {
+	public void prepare(IloOplModel oplModel) throws IOException {
 		Argument.notNull(oplModel);
 	}
 
 	@Override
-	public void finalizar(IloOplModel oplModel) throws IOException {
+	public void finish(IloOplModel oplModel) throws IOException {
 		Argument.notNull(oplModel);
 	}
 
 	@Override
-	public void definir(IloOplModel oplModel) {
+	public void define(IloOplModel oplModel) {
 		Argument.notNull(oplModel);
 	}
 }

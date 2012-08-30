@@ -23,10 +23,10 @@ import java.io.IOException;
  * TODO Será que lançar mesmo IOExceptions? Não está claro que os métodos sejam
  * de IO físico.
  */
-public interface ConsumidorDados {
-	void definir(IloOplModel oplModel);
-	void preparar(IloOplModel oplModel) throws IOException;
-	void exportar(IloOplModel oplModel) throws IOException;
-	void finalizar(IloOplModel oplModel) throws IOException;
+public interface DataSink {
+	void define(IloOplModel oplModel);
+	void prepare(IloOplModel oplModel) throws IOException;
+	void consumeData(IloOplModel oplModel) throws IOException;
+	void finish(IloOplModel oplModel) throws IOException;
 	String getNome();
 }

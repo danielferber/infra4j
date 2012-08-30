@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * Utiliza um texto como fonte de dados para o OPL.
  */
-public class FonteDadosString extends AbstractFonteDados {
+public class DataSourceString extends AbstractDataSource {
 	private final CharSequence dados;
 
 	/**
@@ -32,13 +32,13 @@ public class FonteDadosString extends AbstractFonteDados {
 	 * @param nome
 	 * @param caminhoArquivo
 	 */
-	public FonteDadosString(String nome, String dados) {
+	public DataSourceString(String nome, String dados) {
 		super(nome);
 		this.dados = dados;
 	}
 
 	@Override
-	public void importar(IloOplModel oplModel) throws IOException {
+	public void produceData(IloOplModel oplModel) throws IOException {
 		IloOplFactory oplFactory = IloOplFactory.getOplFactoryFrom(oplModel);
 		IloOplDataSource oplDataSource = oplFactory.createOplDataSourceFromString(dados.toString(), nome);
 		oplModel.addDataSource(oplDataSource);

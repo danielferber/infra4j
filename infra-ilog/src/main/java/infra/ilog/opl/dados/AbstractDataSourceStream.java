@@ -19,7 +19,7 @@ import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplDataSource;
 import ilog.opl.IloOplFactory;
 import ilog.opl.IloOplModel;
-import infra.ilog.opl.FonteDados;
+import infra.ilog.opl.DataSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,15 +28,15 @@ import java.util.WeakHashMap;
 
 
 /**
- * Implementação abstrata para {@link FonteDados} que obtém dados de recursos representados
+ * Implementação abstrata para {@link DataSource} que obtém dados de recursos representados
  * como streams.
  *
  * @author Daniel Felix Ferber
  */
-public abstract class AbstractFonteDadosStream extends AbstractFonteDados {
+public abstract class AbstractDataSourceStream extends AbstractDataSource {
 	final Map<IloOplModel, InputStream> streamsAtivos = new WeakHashMap<IloOplModel, InputStream>();
 
-	public AbstractFonteDadosStream(String nome) {
+	public AbstractDataSourceStream(String nome) {
 		super(nome);
 	}
 
@@ -52,8 +52,8 @@ public abstract class AbstractFonteDadosStream extends AbstractFonteDados {
 	}
 
 	@Override
-	public void finalizar(IloOplModel oplModel) throws IOException {
-		super.finalizar(oplModel);
+	public void finish(IloOplModel oplModel) throws IOException {
+		super.finish(oplModel);
 		InputStream is = streamsAtivos.get(oplModel);
 		if (is != null) {
 			is.close();

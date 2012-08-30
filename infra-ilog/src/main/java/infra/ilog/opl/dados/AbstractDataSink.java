@@ -17,26 +17,36 @@ package infra.ilog.opl.dados;
 
 import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
+import infra.ilog.opl.DataSink;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 
-/**
- * Utiliza um stream como fonte de dados para o OPL.
- * Não gerencia o ciclo de vida do stream, ou seja, mantém ele aberto após o uso.
- */
-public class FonteDadosInputStream extends AbstractFonteDadosStream {
-	private final InputStream inputStream;
+public abstract class AbstractDataSink implements DataSink {
+	protected final String nome;
 
-	public FonteDadosInputStream(String nome, InputStream is) {
-		super(nome);
-		Argument.notNull(is);
-		this.inputStream = is;
+	public AbstractDataSink(String nome) {
+		super();
+		Argument.notNull(nome);
+
+		this.nome = nome;
 	}
 
 	@Override
-	public void importar(IloOplModel oplModel) throws IOException {
-		super.agendarStream(oplModel, this.inputStream);
+	public String getNome() { return nome; }
+
+	@Override
+	public void prepare(IloOplModel oplModel) throws IOException {
+		Argument.notNull(oplModel);
+	}
+
+	@Override
+	public void finish(IloOplModel oplModel) throws IOException {
+		Argument.notNull(oplModel);
+	}
+
+	@Override
+	public void define(IloOplModel oplModel) {
+		Argument.notNull(oplModel);
 	}
 }

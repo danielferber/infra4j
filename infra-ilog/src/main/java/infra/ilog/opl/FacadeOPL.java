@@ -76,8 +76,8 @@ public class FacadeOPL {
 
 	/** Acesso ao modelo. */
 	private final ProvedorModelo modeloProvider;
-	private final Collection<FonteDados> dataSources;
-	private final Collection<ConsumidorDados> dataSinks;
+	private final Collection<DataSource> dataSources;
+	private final Collection<DataSink> dataSinks;
 
 	private static final Operation ExecuteFacade = OperationFactory.getOperation("loadLibrary", "Execute facade.");
 	private static final Operation CreateSettings = OperationFactory.getOperation("createSettings", "Create OPL settings.");
@@ -109,7 +109,7 @@ public class FacadeOPL {
 		public String getOperacao() { return operacao; 	}
 	}
 
-	public FacadeOPL(ConfiguracaoOPL configuracaoOpl, ConfigurationCplex configuracaoCplex, ProvedorModelo modeloProvider, Collection<FonteDados> dataSources, Collection<ConsumidorDados> dataSinks) {
+	public FacadeOPL(ConfiguracaoOPL configuracaoOpl, ConfigurationCplex configuracaoCplex, ProvedorModelo modeloProvider, Collection<DataSource> dataSources, Collection<DataSink> dataSinks) {
 		super();
 		Argument.notNull(configuracaoOpl);
 		Argument.notNull(modeloProvider);
@@ -253,9 +253,9 @@ public class FacadeOPL {
 	protected void defineDataSources(IloOplModel oplModel) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.DefineDataSources).start();
 		try {
-			for (FonteDados fonte : this.dataSources) {
-				loggerExecucao.debug("Definir fonte '{}'.", fonte.getNome());
-				fonte.definir(oplModel);
+			for (DataSource fonte : this.dataSources) {
+				loggerExecucao.debug("Definir fonte '{}'.", fonte.getName());
+				fonte.define(oplModel);
 			}
 			op.ok();
 		} catch (RuntimeException e) {
@@ -271,9 +271,9 @@ public class FacadeOPL {
 	protected void defineDataSinks(IloOplModel oplModel) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.DefineDataSinks).start();
 		try {
-			for (ConsumidorDados consumidor : this.dataSinks) {
+			for (DataSink consumidor : this.dataSinks) {
 				loggerExecucao.debug("Definir consumidor '{}'.", consumidor.getNome());
-				consumidor.definir(oplModel);
+				consumidor.define(oplModel);
 			}
 			op.ok();
 		} catch (RuntimeException e) {
@@ -291,13 +291,13 @@ public class FacadeOPL {
 	protected void registerDataSources(IloOplModel oplModel) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.RegisterDataSources).start();
 		try {
-			for (FonteDados fonte : this.dataSources) {
-				loggerExecucao.debug("Preparar fonte '{}'.", fonte.getNome());
-				fonte.preparar(oplModel);
+			for (DataSource fonte : this.dataSources) {
+				loggerExecucao.debug("Preparar fonte '{}'.", fonte.getName());
+				fonte.prepare(oplModel);
 			}
-			for (FonteDados fonte : this.dataSources) {
-				loggerExecucao.debug("Importar fonte '{}'.", fonte.getNome());
-				fonte.importar(oplModel);
+			for (DataSource fonte : this.dataSources) {
+				loggerExecucao.debug("Importar fonte '{}'.", fonte.getName());
+				fonte.produceData(oplModel);
 			}
 			op.ok();
 //		} catch (IOException e) {
@@ -315,9 +315,9 @@ public class FacadeOPL {
 	protected void finalizarDataSources(IloOplModel oplModel) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.RegisterDataSources).start();
 		try {
-			for (FonteDados fonte : this.dataSources) {
-				loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getNome());
-				fonte.finalizar(oplModel);
+			for (DataSource fonte : this.dataSources) {
+				loggerExecucao.debug("Finalizar fonte '{}'.", fonte.getName());
+				fonte.finish(oplModel);
 			}
 			op.ok();
 //		} catch (IOException e) {
@@ -338,17 +338,17 @@ public class FacadeOPL {
 	protected void exportDataSinks(IloOplModel oplModel) {
 		Meter op = MeterFactory.getMeter(loggerMeter, FacadeOPL.ExportDataSinks).start();
 		try {
-			for (ConsumidorDados consumidor : this.dataSinks) {
+			for (DataSink consumidor : this.dataSinks) {
 				loggerExecucao.debug("Preparar consumidor '{}'.", consumidor.getNome());
-				consumidor.preparar(oplModel);
+				consumidor.prepare(oplModel);
 			}
-			for (ConsumidorDados consumidor : this.dataSinks) {
+			for (DataSink consumidor : this.dataSinks) {
 				loggerExecucao.debug("Exportar consumidor '{}'.", consumidor.getNome());
-				consumidor.exportar(oplModel);
+				consumidor.consumeData(oplModel);
 			}
-			for (ConsumidorDados consumidor : this.dataSinks) {
+			for (DataSink consumidor : this.dataSinks) {
 				loggerExecucao.debug("Finalizar consumidor '{}'.", consumidor.getNome());
-				consumidor.finalizar(oplModel);
+				consumidor.finish(oplModel);
 			}
 			op.ok();
 //		} catch (IOException e) {

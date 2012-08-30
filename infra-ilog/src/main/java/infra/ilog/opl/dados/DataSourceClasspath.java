@@ -30,7 +30,7 @@ import java.net.URL;
  * O construtor assume que o arquivo existe previamente, pois o classpath é
  * um repositório imutável e não tem como um arquivo ser adicionado no futuro.
  */
-public class FonteDadosClasspath extends AbstractFonteDadosStream {
+public class DataSourceClasspath extends AbstractDataSourceStream {
 	private final URL caminhoArquivo;
 
 	/**
@@ -39,7 +39,7 @@ public class FonteDadosClasspath extends AbstractFonteDadosStream {
 	 * @param nome
 	 * @param caminhoArquivo
 	 */
-	public FonteDadosClasspath(String nome, String caminhoArquivo) {
+	public DataSourceClasspath(String nome, String caminhoArquivo) {
 		super(nome);
 		Argument.notNull(caminhoArquivo);
 		this.caminhoArquivo = this.getClass().getResource(caminhoArquivo);
@@ -47,7 +47,7 @@ public class FonteDadosClasspath extends AbstractFonteDadosStream {
 	}
 
 	@Override
-	public void importar(IloOplModel oplModel) throws IOException {
+	public void produceData(IloOplModel oplModel) throws IOException {
 		InputStream is = caminhoArquivo.openStream();
 		super.agendarStream(oplModel, is);
 		super.agendarFechamentoStream(oplModel, is);

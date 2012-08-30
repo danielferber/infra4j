@@ -13,20 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package infra.ilog.opl;
+package infra.ilog.opl.dados;
 
+import static infra.exception.Assert.Argument;
 import ilog.opl.IloOplModel;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-/*
- * TODO Será que lançar mesmo IOExceptions? Não está claro que os métodos sejam
- * de IO físico.
+
+/**
+ * Utiliza um stream como fonte de dados para o OPL.
+ * Não gerencia o ciclo de vida do stream, ou seja, mantém ele aberto após o uso.
  */
-public interface FonteDados {
-	void definir(IloOplModel oplModel);
-	void preparar(IloOplModel oplModel) throws IOException;
-	void importar(IloOplModel oplModel) throws IOException;
-	void finalizar(IloOplModel oplModel) throws IOException;
-	String getNome();
+public class DataSourceInputStream extends AbstractDataSourceStream {
+	private final InputStream inputStream;
+
+	public DataSourceInputStream(String nome, InputStream is) {
+		super(nome);
+		Argument.notNull(is);
+		this.inputStream = is;
+	}
+
+	@Override
+	public void produceData(IloOplModel oplModel) throws IOException {
+		super.agendarStream(oplModel, this.inputStream);
+	}
 }

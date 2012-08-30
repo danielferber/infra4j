@@ -8,13 +8,13 @@ import ilog.opl.IloOplModel;
 import java.io.IOException;
 
 
-public abstract class FonteDadosJava extends AbstractFonteDados {
-	public FonteDadosJava(String nome) {
+public abstract class DataSourceJava extends AbstractDataSource {
+	public DataSourceJava(String nome) {
 		super(nome);
 	}
 
 	@Override
-	public void importar(IloOplModel oplModel) throws IOException {
+	public void produceData(IloOplModel oplModel) throws IOException {
 		IloOplFactory oplFactory = IloOplFactory.getOplFactoryFrom(oplModel);
 		oplModel.addDataSource(new InternalDataSouce(oplFactory));
 	}
@@ -26,10 +26,10 @@ public abstract class FonteDadosJava extends AbstractFonteDados {
 
 		@Override
 		public void customRead() {
-			executarDataSource(getDataHandler());
+			translateToOpl(getDataHandler());
 		}
 	}
 
-	protected abstract void executarDataSource(IloOplDataHandler dataHandler);
+	protected abstract void translateToOpl(IloOplDataHandler dataHandler);
 }
 
