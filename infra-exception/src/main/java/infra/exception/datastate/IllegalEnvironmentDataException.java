@@ -26,34 +26,4 @@ public class IllegalEnvironmentDataException extends IllegalPreConditionExceptio
 	public IllegalEnvironmentDataException() { super(); }
 	public IllegalEnvironmentDataException(String message) { super(message); }
 	public IllegalEnvironmentDataException(SystemRule sr) { super(sr); }
-
-//	/** Raises exception if condition is false. */
-//	public static boolean apply(boolean condition) {
-//		if (!condition) throw new IllegalEnvironmentDataException();
-//		return true;
-//	}
-//
-//	/** Raises exception if condition is false. */
-//	public static boolean apply(SystemRule sr, boolean condition) {
-//		if (!condition) throw new IllegalEnvironmentDataException(sr);
-//		return true;
-//	}
-//
-//	public static boolean notNull(Object value) {
-//		if (value == null) throw new IllegalEnvironmentDataException();
-//		return true;
-//	}
-//
-//	public static boolean notNull(SystemRule sr, Object value) {
-//		if (value == null) throw new IllegalEnvironmentDataException(sr);
-//		return true;
-//	}
-//
-//	/** Raises exception if one condition is false. */
-//	public static boolean apply(boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalEnvironmentDataException();
-//		}
-//		return true;
-//	}
 }

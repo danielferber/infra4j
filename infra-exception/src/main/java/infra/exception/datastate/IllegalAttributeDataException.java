@@ -26,17 +26,4 @@ public class IllegalAttributeDataException extends IllegalPreConditionException 
 	public IllegalAttributeDataException() { super(); }
 	public IllegalAttributeDataException(String message) { super(message); }
 	public IllegalAttributeDataException(SystemRule rule) { super(rule); }
-
-//	/** Raises exception if condition is false. */
-//	public static boolean apply(boolean condition) {
-//		if (!condition) throw new IllegalAttributeDataException();
-//		return true;
-//	}
-//	/** Raises exception if one condition is false. */
-//	public static boolean apply(boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalAttributeDataException();
-//		}
-//		return true;
-//	}
 }

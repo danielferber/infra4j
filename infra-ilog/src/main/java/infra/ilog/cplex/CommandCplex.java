@@ -24,11 +24,11 @@ import ilog.cplex.IloCplex;
 import ilog.cplex.IloCplex.Algorithm;
 import ilog.cplex.IloCplex.Status;
 import infra.exception.RichRuntimeException;
+import infra.exception.UnhandledException;
 import infra.exception.controlstate.bug.ImpossibleConditionException;
 import infra.exception.controlstate.bug.ImpossibleException;
 import infra.exception.controlstate.design.UnsupportedException;
 import infra.exception.controlstate.design.UnsupportedMethodException;
-import infra.exception.controlstate.unimplemented.UnhandledException;
 import infra.exception.controlstate.unimplemented.UnimplementedConditionException;
 import infra.ilog.NoSolutionException;
 import infra.ilog.SolverCommand;
@@ -79,12 +79,12 @@ public class CommandCplex implements SolverCommand {
 	/** Configuration that guides the CPLEX execution. */
 	private final ConfigurationCplex configuration;
 	/** @return Configuration that guides the CPLEX execution. */
-	protected ConfigurationCplex getConfiguration() { return configuration; }
+	protected final ConfigurationCplex getConfiguration() { return configuration; }
 
 	/** CPLEX instance being guided. */
 	private final IloCplex cplex;
 	/** @return CPLEX instance being guided. */
-	public IloCplex getCplex() { return cplex; }
+	public final IloCplex getCplex() { return cplex; }
 
 	/** Delegate implementation that decided if CPLEX shall continue to run. */
 	private final Delegate delegate; /* TODO: really necessary to hold a local copy from the settings? */

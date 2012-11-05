@@ -18,9 +18,10 @@ package infra.exception.controlstate;
 import infra.exception.datastate.SystemRule;
 
 /**
- * Common class for errors caused by control flow (execution) achieving invalid state. This
- * exception supplements the standard {@link RuntimeException} by providing a more semantically
- * rich description of the problem.
+ * Common class for errors caused by control flow (execution) achieving invalid
+ * state. This exception supplements the standard {@link RuntimeException} by
+ * providing a more semantically rich description of the problem.
+ *
  * @author Daniel Felix Ferber
  */
 public class IllegalControlStateException extends RuntimeException {

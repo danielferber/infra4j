@@ -12,7 +12,7 @@ public final class UnhandledRuntimeException extends RichRuntimeException {
 	}
 
 	public UnhandledRuntimeException(Throwable cause) {
-		super(cause instanceof UnhandledRuntimeException ? cause.getCause() : cause);
+		super(cause != null && ! (cause instanceof UnhandledRuntimeException) ? cause.getCause() : cause);
 		if (cause == null) {
 			UnhandledRuntimeException.logger.error("Called UnhandledRuntimeException(cause='null') with null parameter.");
 		}
@@ -22,10 +22,10 @@ public final class UnhandledRuntimeException extends RichRuntimeException {
 		this.reasons.add(Reason.UNHANDLED_RUNTIME_EXCEPTION);
 	}
 
-//	@Override
-//	public UnhandledRuntimeException data(String key, Object value) {
-//		return (UnhandledRuntimeException) super.data(key, value);
-//	}
+	@Override
+	public UnhandledRuntimeException data(String key, Object value) {
+		return (UnhandledRuntimeException) super.data(key, value);
+	}
 
 	@Override
 	public UnhandledRuntimeException reason(Object reason) {

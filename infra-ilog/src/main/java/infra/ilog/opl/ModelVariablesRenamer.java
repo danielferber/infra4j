@@ -28,8 +28,8 @@ import ilog.opl.IloOplModel;
 import ilog.opl.IloOplModelDefinition;
 import infra.exception.controlstate.bug.ImpossibleException;
 import infra.exception.controlstate.design.UnsupportedConditionException;
+import infra.exception.controlstate.design.UnsupportedDataException;
 import infra.exception.controlstate.unimplemented.UnimplementedMethodException;
-import infra.exception.datastate.UnsupportedDataException;
 
 import java.util.Iterator;
 

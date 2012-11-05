@@ -25,7 +25,7 @@ import ilog.opl.IloOplModelDefinition;
 import ilog.opl.IloOplModelSource;
 import ilog.opl.IloOplSettings;
 import infra.exception.RichRuntimeException;
-import infra.exception.controlstate.unimplemented.UnhandledException;
+import infra.exception.UnhandledException;
 import infra.exception.controlstate.unimplemented.UnimplementedConditionException;
 import infra.ilog.NoSolutionException;
 import infra.ilog.SolverCommand;
@@ -59,7 +59,6 @@ public class FacadeOPL {
 	public final Logger logger;
 	public final Logger loggerMeter;
 	public final Logger loggerExecucao;
-	public final Logger loggerDados;
 	public final Logger loggerModelo;
 
 	/** Container com as configurações para esta instância. */
@@ -130,10 +129,9 @@ public class FacadeOPL {
 		}
 
 		this.logger = LoggerFactory.getLogger(LoggerFactory.getLogger("ilog.opl"), configuracaoOpl.getNome());
-		this.loggerMeter = LoggerFactory.getLogger(this.logger, "meter");
-		this.loggerExecucao = LoggerFactory.getLogger(this.logger, "execucao");
-		this.loggerDados = LoggerFactory.getLogger(this.logger, "dados");
-		this.loggerModelo = LoggerFactory.getLogger(this.loggerDados, "modelo");
+		this.loggerMeter = LoggerFactory.getLogger(this.logger, "perf");
+		this.loggerExecucao = LoggerFactory.getLogger(this.logger, "exec");
+		this.loggerModelo = LoggerFactory.getLogger(this.logger, "model");
 	}
 
 	protected static void assureDiretory(File file) throws IOException {

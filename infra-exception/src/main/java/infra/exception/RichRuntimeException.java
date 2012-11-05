@@ -96,15 +96,15 @@ public class RichRuntimeException extends RuntimeException {
 	}
 
 
-//	/** Builder method to add meta data to the exception. */
-//	public RichRuntimeException data(String key, Object value) {
-//		if (key == null || value == null) {
-//			RichRuntimeException.logger.error("Called data(key={}, value={}) with null parameter.", RichRuntimeException.nullToStr(key), RichRuntimeException.nullToStr(value));
-//			return this;
-//		}
-//		metaData.put(key, value);
-//		return this;
-//	}
+	/** Builder method to add meta data to the exception. */
+	public RichRuntimeException data(String key, Object value) {
+		if (key == null || value == null) {
+			RichRuntimeException.logger.error("Called data(key={}, value={}) with null parameter.", RichRuntimeException.nullToStr(key), RichRuntimeException.nullToStr(value));
+			return this;
+		}
+		metaData.put(key, value);
+		return this;
+	}
 
 	/** Builder method to add meta data to the exception. */
 	public RichRuntimeException data(Map<String, ? extends Object> moreMetaData) {

@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package infra.exception.controlstate.design;
+package infra.exception;
 
 /**
- * The method or operation was not intended to be called, although it is available from the interface.
- * A better interface design should not provide methods that are not intended to be called.
- * However, the interface may have been designed by third party or you may be overriding
- * the interface for a purpose that was not originally designed.
+ * Embeds an exception that one does not yet know how to handle. Used to indicate where exception
+ * handling is pending better design.
  * @author Daniel Felix Ferber
  */
-public class UnsupportedOperationException extends UnsupportedConstrolStateException {
+public class UnhandledException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
-	public UnsupportedOperationException() { super(); }
-	public UnsupportedOperationException(String message) { super(message); }
+
+	public UnhandledException(String message, Throwable cause) { super(message, cause); }
+	public UnhandledException(Throwable cause) { super(cause); }
 }

@@ -26,30 +26,4 @@ public class IllegalArgumentDataException extends IllegalPreConditionException {
 	public IllegalArgumentDataException() { super(); }
 	public IllegalArgumentDataException(String message) { super(message); }
 	public IllegalArgumentDataException(SystemRule sr) { super(sr); }
-
-//	/** Raises exception if condition is false. */
-//	@Deprecated
-//	public static boolean apply(boolean condition) {
-//		if (!condition) throw new IllegalArgumentDataException();
-//		return true;
-//	}
-//	/** Raises exception if one condition is false. */
-//	public static boolean apply(boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalArgumentDataException();
-//		}
-//		return true;
-//	}
-//	/** Raises exception if condition is false. */
-//	public static boolean apply(SystemRule sr, boolean condition) {
-//		if (!condition) throw new IllegalArgumentDataException(sr);
-//		return true;
-//	}
-//	/** Raises exception if one condition is false. */
-//	public static boolean apply(SystemRule sr, boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalArgumentDataException(sr);
-//		}
-//		return true;
-//	}
 }

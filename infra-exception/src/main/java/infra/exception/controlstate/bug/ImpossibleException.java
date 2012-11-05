@@ -16,11 +16,12 @@
 package infra.exception.controlstate.bug;
 
 
-
 /**
- * Marks a declared exception that is not possible be to thrown.
- * If code is correct, then this exception will never be thrown.
- * <p>Example:
+ * Marks a declared exception that is not possible be to thrown. If code is
+ * correct, then this exception must not be thrown.
+ * <p>
+ * Example:
+ *
  * <pre>
  * if (! file.exists()) {
  *   return null;
@@ -34,6 +35,8 @@ package infra.exception.controlstate.bug;
  *   throw new ImpossibleException(e);
  * }
  * </pre>
+ *
+ * @author Daniel Felix Ferber
  */
 public class ImpossibleException extends ImpossibleControlStateException {
 	private static final long serialVersionUID = 1L;
@@ -45,7 +48,7 @@ public class ImpossibleException extends ImpossibleControlStateException {
 	 * <code>catch</code> block. It will, however, rethrow the exception.
 	 */
 	public static void consume(Throwable e) {
-			throw new ImpossibleException(e);
+		throw new ImpossibleException(e);
 	}
 
 }

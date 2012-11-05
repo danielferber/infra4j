@@ -16,8 +16,10 @@
 package infra.exception.controlstate.bug;
 
 /**
- * Marks a method that is not possible to be called.
- * If code is correct, then this methods will never be called.
+ * Marks a method that is not possible to be called. If code is correct, then
+ * this methods must not be called.
+ *
+ * @author Daniel Felix Ferber
  */
 public class ImpossibleMethodException extends ImpossibleControlStateException {
 	private static final long serialVersionUID = 1L;

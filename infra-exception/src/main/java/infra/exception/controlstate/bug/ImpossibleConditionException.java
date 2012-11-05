@@ -17,16 +17,20 @@ package infra.exception.controlstate.bug;
 
 
 /**
- * Marks a condition that is not possible.
- * If code is correct, then this condition will never be true.
+ * Marks a condition that is not possible. If code is correct, then this
+ * condition must not be true.
  * <p>
  * When writing if/then/else or switch statements:
  * <ul>
  * <li>Test explicitly each expected condition.
- * <li>Test explicitly conditions that are never possible and mark them with ImpossibleConditionException.
- * <li>Do not trust that else or default clauses. Instead, test explicitly the "other" condition. Mark else and switch clauses with ImpossibleConditionException.
+ * <li>Also test explicitly conditions that are never possible and mark them with
+ * {@link ImpossibleConditionException}.
+ * <li>Do not trust <code>else</code> or <code>default</code> clauses. Instead, test explicitly the
+ * "other" condition. Mark <code>else</code> and <code>default</code> clauses with
+ * {@link ImpossibleConditionException}.
  * </ul>
- * <p>Examples:
+ * <p>
+ * Example:
  * <pre>
  * switch (state) {
  *   case A: bla bla bla; break;
@@ -34,6 +38,7 @@ package infra.exception.controlstate.bug;
  *   default: throw new ImpossibleConditionException();
  * }
  * </pre>
+ * Example:
  * <pre>
  * Object a = null;
  * Object b = null;
@@ -52,7 +57,8 @@ package infra.exception.controlstate.bug;
  *   throw new ImpossibleConditionException();
  * }
  * </pre>
-
+ *
+ * @author Daniel Felix Ferber
  */
 public class ImpossibleConditionException extends ImpossibleControlStateException {
 	private static final long serialVersionUID = 1L;

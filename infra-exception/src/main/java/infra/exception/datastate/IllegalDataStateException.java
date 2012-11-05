@@ -26,37 +26,9 @@ public class IllegalDataStateException extends IllegalStateException {
 	private static final long serialVersionUID = 1L;
 	private final SystemRule systemRule;
 
-	public IllegalDataStateException() { super(); this.systemRule = null; }
-	public IllegalDataStateException(String message) { super(message); this.systemRule = null; }
-	public IllegalDataStateException(SystemRule sr) { super(); this.systemRule = sr; }
+	protected IllegalDataStateException() { super(); this.systemRule = null; }
+	protected IllegalDataStateException(String message) { super(message); this.systemRule = null; }
+	protected IllegalDataStateException(SystemRule sr) { super(); this.systemRule = sr; }
 
 	public SystemRule getSystemRule() { return this.systemRule; }
-
-//	/** Raises exception if condition is false. */
-//	public /*final*/ static boolean apply(boolean condition) {
-//		if (!condition) throw new IllegalDataStateException();
-//		return true;
-//	}
-//
-//	/** Raises exception if condition is false. */
-//	public /*final*/ static boolean apply(SystemRule sr, boolean condition) {
-//		if (!condition) throw new IllegalDataStateException(sr);
-//		return true;
-//	}
-//
-//	/** Raises exception if one condition is false. */
-//	public /*final*/ static boolean apply(boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalDataStateException();
-//		}
-//		return true;
-//	}
-//
-//	/** Raises exception if one condition is false. */
-//	public /*final*/ static boolean apply(SystemRule sr, boolean ... conditions) {
-//		for (boolean b : conditions) {
-//			if (!b) throw new IllegalDataStateException(sr);
-//		}
-//		return true;
-//	}
 }
