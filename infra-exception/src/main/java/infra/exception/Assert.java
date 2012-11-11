@@ -8,7 +8,14 @@ import infra.exception.datastate.IllegalPosConditionException;
 import infra.exception.datastate.IllegalPreConditionException;
 import infra.exception.datastate.SystemRule;
 
-
+/**
+ * A set of objects that implement many typical validation of assertions.
+ * Simplifies raising specialized exceptions in case of assertion errors by
+ * providing methods that implement recurring validation patterns.
+ * Of course, the respective exceptions may be risen
+ *
+ * @author Daniel Felix Ferber
+ */
 public abstract class Assert {
 	private Assert() {
 		// cannot create instance
@@ -138,12 +145,12 @@ public abstract class Assert {
 		}
 		return true;
 	}
-
-	/** Argument(s) must not be <code>null</code> as expected by a system rule. */
-	public final <T> boolean notNull(SystemRule rule, T argument) throws RuntimeException {
-		if (argument == null) throw createException(rule);
-		return true;
-	}
+//
+//	/** Argument(s) must not be <code>null</code> as expected by a system rule. */
+//	public final <T> boolean notNull(SystemRule rule, T argument) throws RuntimeException {
+//		if (argument == null) throw createException(rule);
+//		return true;
+//	}
 
 	private static Object nullToStr(Object o) {
 		if (o == null) return "null";

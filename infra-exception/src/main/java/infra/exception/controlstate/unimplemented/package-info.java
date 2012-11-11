@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 /**
- * Exceptions that point out code that has missing implementation. Either a exception that is not been properly handled,
- * a condition that is not been handled, a method with no implementation.
+ * Exceptions that point out code that has missing implementation.
  * @author Daniel Felix Ferber
  */
 package infra.exception.controlstate.unimplemented;
